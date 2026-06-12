@@ -445,7 +445,7 @@ function CardGridSection({
           <div className="space-y-6 max-w-[768px] mx-auto">
             {cards.map((card, i) => (
               <div key={card._key ?? i} className="flex gap-3 sm:gap-5 items-start">
-                <span className="font-display text-h6 font-bold text-primary sm:whitespace-nowrap min-w-[56px] sm:min-w-[110px]">
+                <span className="text-body font-bold text-foreground sm:whitespace-nowrap min-w-[56px] sm:min-w-[110px]">
                   {card.badge ?? card.subtitle ?? ""}
                 </span>
                 <div>
