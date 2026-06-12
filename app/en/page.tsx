@@ -100,7 +100,11 @@ type ScheduleItem = {
 type HomepageDoc = {
   heroTitle?: string | null;
   heroSubtitle?: string | null;
+  curvedTitle?: string | null;
   services?: { title?: string; description?: string; href?: string; ctaText?: string; icon?: string }[] | null;
+} | null;
+
+type QuoteDoc = {
   quoteText?: string | null;
   quoteAuthor?: string | null;
 } | null;
@@ -135,11 +139,11 @@ type SiteSettingsDoc = {
 
 /* ─── Data fetching ─── */
 
-async function getData(): Promise<[HomepageDoc, ScheduleEntryDoc[] | null, TestimonialDoc[] | null, SiteSettingsDoc]> {
+async function getData(): Promise<[HomepageDoc, ScheduleEntryDoc[] | null, TestimonialDoc[] | null, SiteSettingsDoc, QuoteDoc]> {
   try {
     return await Promise.all([
       client.fetch<HomepageDoc>(
-        `*[_type == "homepageEn"][0]{heroTitle, heroSubtitle, services[]{title, description, href, ctaText, icon}, quoteText, quoteAuthor}`
+        `*[_type == "homepageEn"][0]{heroTitle, heroSubtitle, curvedTitle, services[]{title, description, href, ctaText, icon}}`
       ),
       client.fetch<ScheduleEntryDoc[]>(
         `*[_type == "scheduleEntry"] | order(order asc){entryType, day, time, date, classType, location, pauseLabel, locationEn, pauseLabelEn}`
@@ -150,9 +154,12 @@ async function getData(): Promise<[HomepageDoc, ScheduleEntryDoc[] | null, Testi
       client.fetch<SiteSettingsDoc>(
         `*[_type == "siteSettings"][0]{address, addressDetail, city, phone, email, facebook, instagram, "studioTitle": coalesce(studioTitleEn, studioTitle), "studioDescription": coalesce(studioDescriptionEn, studioDescription), "karinTeaserTitle": coalesce(karinTeaserTitleEn, karinTeaserTitle), "karinTeaserText": coalesce(karinTeaserTextEn, karinTeaserText)}`
       ),
+      client.fetch<QuoteDoc>(
+        `*[_type == "quote" && page == "startseite"][0]{"quoteText": coalesce(quoteTextEn, quoteText), "quoteAuthor": coalesce(quoteAuthorEn, quoteAuthor)}`
+      ),
     ]);
   } catch {
-    return [null, null, null, null];
+    return [null, null, null, null, null];
   }
 }
 
@@ -161,12 +168,13 @@ async function getData(): Promise<[HomepageDoc, ScheduleEntryDoc[] | null, Testi
 export default async function HomeEn() {
   if (!(await getEnglishEnabled())) notFound();
 
-  const [homepage, scheduleEntries, sanityTestimonials, siteSettings] = await getData();
+  const [homepage, scheduleEntries, sanityTestimonials, siteSettings, quoteDoc] = await getData();
 
   const heroTitle = homepage?.heroTitle ?? FALLBACK_HERO_TITLE;
   const heroSubtitle = homepage?.heroSubtitle ?? FALLBACK_HERO_SUBTITLE;
-  const quoteText = homepage?.quoteText ?? FALLBACK_QUOTE_TEXT;
-  const quoteAuthor = homepage?.quoteAuthor ?? FALLBACK_QUOTE_AUTHOR;
+  const curvedTitle = homepage?.curvedTitle ?? "Yoga for «Every Body»";
+  const quoteText = quoteDoc?.quoteText ?? FALLBACK_QUOTE_TEXT;
+  const quoteAuthor = quoteDoc?.quoteAuthor ?? FALLBACK_QUOTE_AUTHOR;
 
   const services: Service[] =
     homepage?.services && homepage.services.length > 0
@@ -227,14 +235,14 @@ export default async function HomeEn() {
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
         <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
           {/* Curved text */}
-          <h2 className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">Yoga for «Every Body»</h2>
-          <svg viewBox="-50 75 700 205" className="w-[600px] sm:w-[800px] lg:w-[1060px] h-auto hidden sm:block" role="img" aria-label="Yoga for «Every Body»">
+          <h2 className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">{curvedTitle}</h2>
+          <svg viewBox="-50 75 700 205" className="w-[600px] sm:w-[800px] lg:w-[1060px] h-auto hidden sm:block" role="img" aria-label={curvedTitle}>
             <defs>
               <path id="curve" d="M 0,280 Q 300,-10 600,280" fill="none" />
             </defs>
             <text className="fill-primary font-display" style={{ fontSize: "54px", fontWeight: 700 }}>
               <textPath href="#curve" startOffset="50%" textAnchor="middle">
-                Yoga for «Every Body»
+                {curvedTitle}
               </textPath>
             </text>
           </svg>

@@ -85,9 +85,12 @@ type YogaKlassenPageDoc = {
   heroTitle?: string;
   heroText?: string;
   features?: Feature[];
-  quoteText?: string;
-  quoteAuthor?: string;
   priceNote?: string;
+} | null;
+
+type QuoteDoc = {
+  quoteText?: string | null;
+  quoteAuthor?: string | null;
 } | null;
 
 type ScheduleEntryDoc = {
@@ -122,9 +125,9 @@ type SiteSettingsDoc = {
 
 async function getPageData() {
   try {
-    const [pageDoc, scheduleDocs, testimonialDocs, pricingDocs, siteSettings] = await Promise.all([
+    const [pageDoc, scheduleDocs, testimonialDocs, pricingDocs, siteSettings, quoteDoc] = await Promise.all([
       client.fetch<YogaKlassenPageDoc>(
-        `*[_type == "yogaKlassenPageEn"][0]{heroTitle, heroText, features[]{title, description, icon}, quoteText, quoteAuthor, priceNote}`
+        `*[_type == "yogaKlassenPageEn"][0]{heroTitle, heroText, features[]{title, description, icon}, priceNote}`
       ),
       client.fetch<ScheduleEntryDoc[] | null>(
         `*[_type == "scheduleEntry"] | order(order asc){entryType, day, time, date, classType, location, pauseLabel, locationEn, pauseLabelEn}`
@@ -138,10 +141,13 @@ async function getPageData() {
       client.fetch<SiteSettingsDoc>(
         `*[_type == "siteSettings"][0]{"studioTitle": coalesce(studioTitleEn, studioTitle), "studioDescription": coalesce(studioDescriptionEn, studioDescription), "karinTeaserTitle": coalesce(karinTeaserTitleEn, karinTeaserTitle), "karinTeaserText": coalesce(karinTeaserTextEn, karinTeaserText)}`
       ),
+      client.fetch<QuoteDoc>(
+        `*[_type == "quote" && page == "yogaklassen"][0]{"quoteText": coalesce(quoteTextEn, quoteText), "quoteAuthor": coalesce(quoteAuthorEn, quoteAuthor)}`
+      ),
     ]);
-    return { pageDoc, scheduleDocs, testimonialDocs, pricingDocs, siteSettings };
+    return { pageDoc, scheduleDocs, testimonialDocs, pricingDocs, siteSettings, quoteDoc };
   } catch {
-    return { pageDoc: null, scheduleDocs: null, testimonialDocs: null, pricingDocs: null, siteSettings: null };
+    return { pageDoc: null, scheduleDocs: null, testimonialDocs: null, pricingDocs: null, siteSettings: null, quoteDoc: null };
   }
 }
 
@@ -164,12 +170,12 @@ const fallbackSchedule: ScheduleItem[] = yogaSchedule.map((item): ScheduleItem =
 export default async function YogaClassesBern() {
   if (!(await getEnglishEnabled())) notFound();
 
-  const { pageDoc, scheduleDocs, testimonialDocs, pricingDocs, siteSettings } = await getPageData();
+  const { pageDoc, scheduleDocs, testimonialDocs, pricingDocs, siteSettings, quoteDoc } = await getPageData();
 
   const heroTitle = pageDoc?.heroTitle ?? FALLBACK.heroTitle;
   const heroText = pageDoc?.heroText ?? FALLBACK.heroText;
-  const quoteText = pageDoc?.quoteText ?? FALLBACK.quoteText;
-  const quoteAuthor = pageDoc?.quoteAuthor ?? "";
+  const quoteText = quoteDoc?.quoteText ?? FALLBACK.quoteText;
+  const quoteAuthor = quoteDoc?.quoteAuthor ?? "";
   const priceNote = pageDoc?.priceNote ?? FALLBACK.priceNote;
 
   const features: Feature[] =

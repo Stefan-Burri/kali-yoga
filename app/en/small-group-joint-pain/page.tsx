@@ -30,9 +30,12 @@ type ArthritisPageData = {
   contents?: KursInhalt[] | null;
   dates?: string[] | null;
   details?: Detail[] | null;
+};
+
+type QuoteDoc = {
   quoteText?: string | null;
   quoteAuthor?: string | null;
-};
+} | null;
 
 /* ─── Fallback content (used when Sanity has no data) ─── */
 
@@ -94,13 +97,18 @@ const FALLBACK = {
   quoteAuthor: "Hippocrates",
 };
 
-const QUERY = `*[_type == "arthritisPageEn"][0]{heroTitle, heroText, conditions, contents[]{title, description}, dates, details[]{label, value}, quoteText, quoteAuthor}`;
+const QUERY = `*[_type == "arthritisPageEn"][0]{heroTitle, heroText, conditions, contents[]{title, description}, dates, details[]{label, value}}`;
 
-async function getArthritisPageData(): Promise<ArthritisPageData | null> {
+async function getArthritisPageData(): Promise<[ArthritisPageData | null, QuoteDoc]> {
   try {
-    return await client.fetch<ArthritisPageData | null>(QUERY);
+    return await Promise.all([
+      client.fetch<ArthritisPageData | null>(QUERY),
+      client.fetch<QuoteDoc>(
+        `*[_type == "quote" && page == "arthritis"][0]{"quoteText": coalesce(quoteTextEn, quoteText), "quoteAuthor": coalesce(quoteAuthorEn, quoteAuthor)}`
+      ),
+    ]);
   } catch {
-    return null;
+    return [null, null];
   }
 }
 
@@ -109,7 +117,7 @@ async function getArthritisPageData(): Promise<ArthritisPageData | null> {
 export default async function SmallGroupJointPain() {
   if (!(await getEnglishEnabled())) notFound();
 
-  const data = await getArthritisPageData();
+  const [data, quoteDoc] = await getArthritisPageData();
 
   const heroTitle = data?.heroTitle ?? FALLBACK.heroTitle;
   const heroText = data?.heroText ?? FALLBACK.heroText;
@@ -117,8 +125,8 @@ export default async function SmallGroupJointPain() {
   const kursInhalte = data?.contents?.length ? data.contents : FALLBACK.contents;
   const dates = data?.dates?.length ? data.dates : FALLBACK.dates;
   const details = data?.details?.length ? data.details : FALLBACK.details;
-  const quoteText = data?.quoteText ?? FALLBACK.quoteText;
-  const quoteAuthor = data?.quoteAuthor ?? FALLBACK.quoteAuthor;
+  const quoteText = quoteDoc?.quoteText ?? FALLBACK.quoteText;
+  const quoteAuthor = quoteDoc?.quoteAuthor ?? FALLBACK.quoteAuthor;
 
   return (
     <div className="min-h-screen">

@@ -40,6 +40,7 @@ Die Texte der Website werden im Sanity Studio gepflegt — ohne Code:
 - **Was bearbeitbar ist:**
   - *Stundenplan-Eintrag* — Klassen und Pausen (Datum, Zeit, Ort); Reihenfolge über das Feld «Reihenfolge»
   - *Feedback* — Kundenstimmen (Kategorie Yogaklassen oder Yoga Therapie)
+  - *Zitat* — die 5 grossen Zitate, je mit Seiten-Zuordnung und 🇬🇧-Feldern
   - *Preis* — die 4 Preiskarten
   - *Startseite, Seite: Yogaklassen, Yoga Therapie, Stundenplan, Kleingruppe Burnout, Kleingruppe Gelenkschmerzen, Über mich* — Texte der jeweiligen Seite
   - *Allgemeine Angaben* — Adresse, Telefon, E-Mail, Social Media, Studio-Beschreibung, Karin-Teaser (erscheinen auf mehreren Seiten)
@@ -85,6 +86,7 @@ Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder 
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-06-12: Studio-Struktur aufgeräumt — Zitate sind jetzt eine eigene Sektion «Zitat» (5 Einträge mit Seiten-Zuordnung statt versteckter Felder), der gebogene Titel der Startseite ist neu in Sanity bearbeitbar («Seite: Startseite» → Gebogener Titel), alle Seiten-Typen einheitlich als «Seite: …» benannt
 - 2026-06-12: Typografie konsolidiert: 16 → 9 Tokens (text-h1…h6, body-lg, body, small), alle Überschriften aubergine, H1–H6 semantisch korrekt auf allen 20 Seiten (genau 1 H1 pro Seite, SEO-Audit), Hinweistexte unter Kursterminen zentriert (DE + EN)
 - 2026-06-12: Alle 8 Hero-Sektionen mit gebogenem Titel optisch korrekt zentriert — unsichtbarer Leerraum über dem Bogen (SVG-viewBox) beschnitten (Startseite, Yogaklassen, Yoga Therapie, Über mich, je DE + EN)
 - 2026-06-12: Scroll-Navbar (erscheint beim Hochscrollen) im Glas-Look der durchlässigen Boxen (transparent, Weichzeichner, heller Rand)

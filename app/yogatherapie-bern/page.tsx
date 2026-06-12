@@ -112,9 +112,9 @@ type YogatherapiePageDoc = {
   costFollowup?: string;
   insuranceText?: string;
   areas?: Area[];
-  quoteText?: string;
-  quoteAuthor?: string;
 } | null;
+
+type QuoteDoc = { quoteText?: string | null; quoteAuthor?: string | null } | null;
 
 type SiteSettingsDoc = {
   studioTitle?: string;
@@ -127,9 +127,9 @@ type SiteSettingsDoc = {
 
 async function getContent() {
   try {
-    const [page, testimonials, site] = await Promise.all([
+    const [page, testimonials, site, quoteDoc] = await Promise.all([
       client.fetch<YogatherapiePageDoc>(
-        `*[_type == "yogatherapiePage"][0]{heroTitle, heroText, steps[]{step, title, subtitle, description, duration}, costInitial, costFollowup, insuranceText, areas[]{title, items, icon}, quoteText, quoteAuthor}`
+        `*[_type == "yogatherapiePage"][0]{heroTitle, heroText, steps[]{step, title, subtitle, description, duration}, costInitial, costFollowup, insuranceText, areas[]{title, items, icon}}`
       ),
       client.fetch<Testimonial[] | null>(
         `*[_type == "testimonial" && category == "therapie"] | order(order asc){headline, quote, name}`
@@ -137,25 +137,28 @@ async function getContent() {
       client.fetch<SiteSettingsDoc>(
         `*[_type == "siteSettings"][0]{studioTitle, studioDescription, karinTeaserTitle, karinTeaserText}`
       ),
+      client.fetch<QuoteDoc>(
+        `*[_type == "quote" && page == "yogatherapie"][0]{quoteText, quoteAuthor}`
+      ),
     ]);
-    return { page, testimonials, site };
+    return { page, testimonials, site, quoteDoc };
   } catch {
-    return { page: null, testimonials: null, site: null };
+    return { page: null, testimonials: null, site: null, quoteDoc: null };
   }
 }
 
 /* ─── Page ─── */
 
 export default async function YogatherapieBern() {
-  const { page: data, testimonials: testimonialData, site } = await getContent();
+  const { page: data, testimonials: testimonialData, site, quoteDoc } = await getContent();
 
   const heroTitle = data?.heroTitle ?? FALLBACK.heroTitle;
   const heroText = data?.heroText ?? FALLBACK.heroText;
   const costInitial = data?.costInitial ?? FALLBACK.costInitial;
   const costFollowup = data?.costFollowup ?? FALLBACK.costFollowup;
   const insuranceText = data?.insuranceText ?? FALLBACK.insuranceText;
-  const quoteText = data?.quoteText ?? FALLBACK.quoteText;
-  const quoteAuthor = data?.quoteAuthor ?? FALLBACK.quoteAuthor;
+  const quoteText = quoteDoc?.quoteText ?? FALLBACK.quoteText;
+  const quoteAuthor = quoteDoc?.quoteAuthor ?? FALLBACK.quoteAuthor;
   const steps = data?.steps && data.steps.length > 0 ? data.steps : FALLBACK_STEPS;
   const applicationAreas = data?.areas && data.areas.length > 0 ? data.areas : FALLBACK_AREAS;
   const testimonials = testimonialData && testimonialData.length > 0 ? testimonialData : FALLBACK_TESTIMONIALS;

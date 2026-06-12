@@ -56,7 +56,9 @@ const FALLBACK_EXPECTATIONS_TEXT = (
 
 /* ─── Sanity ─── */
 
-const QUERY = `*[_type == "kleingruppenPage"][0]{heroTitle, heroText, symptoms[]{title, icon}, expectationsTitle, expectationsText, contents[]{title, description}, dates, details[]{label, value}, quoteText, quoteAuthor}`;
+const QUERY = `*[_type == "kleingruppenPage"][0]{heroTitle, heroText, symptoms[]{title, icon}, expectationsTitle, expectationsText, contents[]{title, description}, dates, details[]{label, value}}`;
+
+const QUOTE_QUERY = `*[_type == "quote" && page == "kleingruppen"][0]{quoteText, quoteAuthor}`;
 
 type KleingruppenDoc = {
   heroTitle?: string | null;
@@ -67,18 +69,23 @@ type KleingruppenDoc = {
   contents?: { title?: string | null; description?: string | null }[] | null;
   dates?: string[] | null;
   details?: { label?: string | null; value?: string | null }[] | null;
-  quoteText?: string | null;
-  quoteAuthor?: string | null;
 } | null;
+
+type QuoteDoc = { quoteText?: string | null; quoteAuthor?: string | null } | null;
 
 /* ─── Page ─── */
 
 export default async function Kleingruppen() {
   let data: KleingruppenDoc = null;
+  let quoteDoc: QuoteDoc = null;
   try {
-    data = await client.fetch<KleingruppenDoc>(QUERY);
+    [data, quoteDoc] = await Promise.all([
+      client.fetch<KleingruppenDoc>(QUERY),
+      client.fetch<QuoteDoc>(QUOTE_QUERY),
+    ]);
   } catch {
     // Sanity unreachable – render fallback content
+    [data, quoteDoc] = [null, null];
   }
 
   const heroTitle = data?.heroTitle ?? FALLBACK.heroTitle;
@@ -89,8 +96,8 @@ export default async function Kleingruppen() {
   const courseContent = data?.contents?.length ? data.contents : FALLBACK.contents;
   const courseDates = data?.dates?.length ? data.dates : FALLBACK.dates;
   const courseDetails = data?.details?.length ? data.details : FALLBACK.details;
-  const quoteText = data?.quoteText ?? FALLBACK.quoteText;
-  const quoteAuthor = data?.quoteAuthor ?? FALLBACK.quoteAuthor;
+  const quoteText = quoteDoc?.quoteText ?? FALLBACK.quoteText;
+  const quoteAuthor = quoteDoc?.quoteAuthor ?? FALLBACK.quoteAuthor;
 
   return (
     <div className="min-h-screen">
