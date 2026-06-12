@@ -32,6 +32,18 @@
 - **Footer** — Logo, Adresse, Kontakt, Social Media, Navigation
 - **AnmeldungForm** — Flexible registration form component supporting text, email, tel, textarea, select fields with Datenschutz checkbox and /api/contact POST
 
+## ⭐ Der Seiten-Baukasten (aktuelles System, seit 12.06.2026)
+
+**Die ganze Website besteht aus Baukasten-Seiten.** Bearbeitung: https://kali-yoga.sanity.studio → **«Seite (Baukasten)»**
+
+- **Jede Seite** = ein Dokument mit Titel, Sprache (DE/EN), Adresse (Slug) und einer **Sektionen-Liste** (Drag & Drop sortieren, hinzufügen, entfernen)
+- **Sektions-Typen:** Hero (3 Varianten, weglassbar) · About/Text & Bild · Feature-Karten · Zitat · **Stundenplan (einzige zentrale Tabelle!)** · Feedbacks (inline) · Preise inkl. Bezahlung (inline) · Kursdetails+Termine · Anmelde-Aufruf · Formular (5 Typen)
+- **Glas/Transparent:** Jede Sektion (ausser Hero) hat das Feld «Darstellung»
+- **Neue Seite:** Dokument anlegen, Slug vergeben, Sektionen bauen, Publish → sofort unter /slug (DE) bzw. /en/slug (EN) online
+- **Navigation & Footer:** eigene Dokumente «Navigation (Menü)» und «Footer» (je DE + EN) — Menüpunkte/Spalten frei editierbar (interner Pfad oder externe URL, Dropdowns)
+- **Sprachschalter:** läuft über das Feld «Slug der Schwesterseite» der Seiten-Dokumente
+- **Technik:** Routen `app/[slug]` + `app/en/[slug]` (+ Homepages), Renderer `components/builder/`, Daten `lib/builder.ts`. Stundenplan-Tabelle + Allgemeine Angaben bleiben zentrale Dokumente.
+
 ## Inhalte bearbeiten (Sanity CMS)
 Die Texte der Website werden im Sanity Studio gepflegt — ohne Code:
 
@@ -90,6 +102,7 @@ Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder 
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-06-12: KOMPLETT-UMBAU zum Page-Builder — alle 26 Seiten sind Baukasten-Dokumente (Sektionen per Drag & Drop), Navigation/Footer aus dem CMS, nur der Stundenplan bleibt zentrale Tabelle, 22 statische Seitendateien und 34 Alt-Dokumente entfernt
 - 2026-06-12: Studio in 3 getrennte Bereiche aufgeteilt (Zweisprachige Inhalte / Deutsch / English, je eigene URL) und alle 14 SEO-Felder mit suchmaschinenoptimierten Titeln und Beschreibungen befüllt
 - 2026-06-12: PageSpeed-Optimierung — SEO-Felder (🔎 Titel + Beschreibung) in allen Seiten-Dokumenten im Studio bearbeitbar, <main>-Landmarke und korrekte Überschriften-Reihenfolge auf allen Seiten (Barrierefreiheit), Live-Domain bei Sanity freigeschaltet (behebt Konsolenfehler + Sprachschalter auf der Live-Site)
 - 2026-06-12: Studio-Struktur aufgeräumt — Zitate sind jetzt eine eigene Sektion «Zitat» (5 Einträge mit Seiten-Zuordnung statt versteckter Felder), der gebogene Titel der Startseite ist neu in Sanity bearbeitbar («Seite: Startseite» → Gebogener Titel), alle Seiten-Typen einheitlich als «Seite: …» benannt
