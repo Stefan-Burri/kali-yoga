@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 const TO_EMAIL = process.env.CONTACT_EMAIL || "info@kali-yoga.ch";
 
 export async function POST(request: NextRequest) {
@@ -13,6 +11,12 @@ export async function POST(request: NextRequest) {
     if (!name || !email) {
       return NextResponse.json({ error: "Name und Email sind erforderlich." }, { status: 400 });
     }
+
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY ist nicht konfiguriert — E-Mail kann nicht gesendet werden.");
+      return NextResponse.json({ error: "E-Mail-Versand ist noch nicht eingerichtet." }, { status: 500 });
+    }
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     const subject = type
       ? `${type} — ${name}`
