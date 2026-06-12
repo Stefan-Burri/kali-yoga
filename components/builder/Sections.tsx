@@ -1,0 +1,636 @@
+import Image from "next/image";
+import Link from "next/link";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
+import ScrollReveal from "@/components/ScrollReveal";
+import AnmeldungForm from "@/components/AnmeldungForm";
+import type { FormField } from "@/components/AnmeldungForm";
+import {
+  GoldLine,
+  ChevronRight,
+  GlassCard,
+  SectionHeading,
+  ScheduleGrid,
+  TestimonialCard,
+  PricingGrid,
+  primaryBtnClass,
+  secondaryBtnClass,
+  imageShadow,
+} from "@/components/ui";
+import type { PageSection, SectionCard, SharedData } from "@/lib/builder";
+
+/* ─── Portable Text styling (matches the site's body text) ─── */
+
+const ptComponents: PortableTextComponents = {
+  block: {
+    normal: ({ children }) => <p className="text-body text-foreground leading-[1.8] mb-4 last:mb-0">{children}</p>,
+    h2: ({ children }) => <h2 className="font-display text-h4 font-bold text-primary mt-8 mb-3 first:mt-0">{children}</h2>,
+    h3: ({ children }) => <h3 className="font-display text-body-lg font-bold text-primary mt-6 mb-3 first:mt-0">{children}</h3>,
+    blockquote: ({ children }) => (
+      <blockquote className="font-display text-body-lg font-bold text-primary leading-snug border-l-[3px] border-gold pl-5 my-5">{children}</blockquote>
+    ),
+  },
+  marks: {
+    strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+    em: ({ children }) => <em className="italic">{children}</em>,
+    link: ({ children, value }) => (
+      <a
+        href={value?.href}
+        target={value?.href?.startsWith("/") ? undefined : "_blank"}
+        rel="noopener noreferrer"
+        className="text-primary underline underline-offset-2 hover:text-secondary transition-colors"
+      >
+        {children}
+      </a>
+    ),
+  },
+  list: {
+    bullet: ({ children }) => <ul className="list-disc pl-5 space-y-2 mb-4 text-body text-foreground leading-[1.8]">{children}</ul>,
+    number: ({ children }) => <ol className="list-decimal pl-5 space-y-2 mb-4 text-body text-foreground leading-[1.8]">{children}</ol>,
+  },
+};
+
+function Body({ value }: { value?: unknown[] | null }) {
+  if (!Array.isArray(value) || value.length === 0) return null;
+  return <PortableText value={value as never[]} components={ptComponents} />;
+}
+
+/* ─── Section wrapper: py-section + container + glass/plain + reveal ─── */
+
+function SectionShell({
+  section,
+  children,
+  reveal,
+  id,
+}: {
+  section: PageSection;
+  children: React.ReactNode;
+  /** Override the ScrollReveal variant (e.g. "quote" for quotes). */
+  reveal?: "up" | "fade" | "scale" | "quote";
+  id?: string;
+}) {
+  const glass = section.appearance !== "plain";
+  return (
+    <section id={id} className="py-section">
+      <div className="mx-auto max-w-[1280px] px-6">
+        {glass ? (
+          <ScrollReveal variant={reveal ?? "scale"}>
+            <GlassCard>{children}</GlassCard>
+          </ScrollReveal>
+        ) : (
+          <ScrollReveal variant={reveal ?? "up"}>{children}</ScrollReveal>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ─── Shared bits ─── */
+
+function BuilderImageCard({ src, alt, remote, className = "" }: { src: string; alt: string; remote: boolean; className?: string }) {
+  return (
+    <div className={`rounded-[12px] overflow-hidden relative${className ? ` ${className}` : ""}`} style={{ boxShadow: imageShadow }}>
+      <div className="aspect-[3/2]" />
+      <Image
+        src={src}
+        alt={alt}
+        width={1080}
+        height={720}
+        unoptimized={remote}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    </div>
+  );
+}
+
+function SmartLink({ href, className, children }: { href: string; className: string; children: React.ReactNode }) {
+  const external = /^https?:\/\//.test(href);
+  if (external) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+        {children}
+      </a>
+    );
+  }
+  if (href.startsWith("#")) {
+    return (
+      <a href={href} className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  );
+}
+
+/* ─── textSection ─── */
+
+function TextSection({ section, id }: { section: PageSection; id?: string }) {
+  const sanityUrl = section.image?.asset?.url ?? null;
+  const imageSrc = sanityUrl ?? section.imagePath ?? null;
+  const glass = section.appearance !== "plain";
+
+  /* With image: two-column layout (Karin/Studio teaser style) */
+  if (imageSrc) {
+    const imageOnRight = section.imagePosition === "right";
+    return (
+      <SectionShell section={section} id={id}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
+          <BuilderImageCard
+            src={imageSrc}
+            alt={section.title ?? ""}
+            remote={Boolean(sanityUrl)}
+            className={imageOnRight ? "md:order-2" : ""}
+          />
+          <div className="flex flex-col justify-center">
+            {section.title && (
+              <>
+                <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
+                <GoldLine centered={false} />
+              </>
+            )}
+            <div className="mt-4">
+              <Body value={section.body} />
+            </div>
+            {section.buttonLabel && section.buttonLink && (
+              <SmartLink href={section.buttonLink} className={`mt-6 ${secondaryBtnClass}`}>
+                {section.buttonLabel}
+                <ChevronRight />
+              </SmartLink>
+            )}
+          </div>
+        </div>
+      </SectionShell>
+    );
+  }
+
+  /* Without image: centered text column */
+  return (
+    <SectionShell section={section} id={id}>
+      <div className={`max-w-[768px] mx-auto text-center${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
+        {section.title && (
+          <>
+            <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
+            <GoldLine />
+          </>
+        )}
+        <div className="mt-4">
+          <Body value={section.body} />
+        </div>
+        {section.buttonLabel && section.buttonLink && (
+          <div className="flex justify-center mt-8">
+            <SmartLink href={section.buttonLink} className={primaryBtnClass}>
+              {section.buttonLabel}
+            </SmartLink>
+          </div>
+        )}
+      </div>
+    </SectionShell>
+  );
+}
+
+/* ─── cardGridSection ─── */
+
+const GRID_CLASSES: Record<string, string> = {
+  "grid-2": "grid grid-cols-1 sm:grid-cols-2 gap-6",
+  "grid-3": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8",
+  "grid-4": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8",
+};
+
+function CardLink({ card }: { card: SectionCard }) {
+  if (!card.linkLabel || !card.linkHref) return null;
+  return (
+    <SmartLink href={card.linkHref} className={`mt-6 ${secondaryBtnClass}`}>
+      {card.linkLabel}
+      <ChevronRight />
+    </SmartLink>
+  );
+}
+
+function GridCard({ card }: { card: SectionCard }) {
+  const iconSrc = card.image?.asset?.url ?? card.iconPath ?? null;
+  const itemsText = card.items && card.items.length > 0 ? card.items.join(", ") : null;
+
+  /* Icon card: feature style (icon on top, no border) */
+  if (iconSrc) {
+    return (
+      <div className="text-center flex flex-col items-center">
+        <div className="mb-4">
+          <Image
+            src={iconSrc}
+            alt=""
+            width={100}
+            height={100}
+            unoptimized={Boolean(card.image?.asset?.url)}
+            className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px]"
+          />
+        </div>
+        {card.badge && <p className="text-small font-medium text-foreground/60 uppercase tracking-wider mb-2">{card.badge}</p>}
+        {card.title && <h3 className="font-display text-body-lg font-bold text-primary mb-3">{card.title}</h3>}
+        {card.subtitle && <p className="text-body text-foreground/70 italic mb-3">{card.subtitle}</p>}
+        {card.description && <p className="text-body text-foreground leading-relaxed">{card.description}</p>}
+        {itemsText && <p className="text-body text-foreground leading-relaxed">{itemsText}</p>}
+        <CardLink card={card} />
+      </div>
+    );
+  }
+
+  /* Bordered card (course-content / steps style) */
+  return (
+    <div className="rounded-[16px] border-2 border-primary p-7 text-center flex flex-col items-center">
+      {card.badge && <p className="text-small font-medium text-foreground/60 uppercase tracking-wider mb-2">{card.badge}</p>}
+      {card.title && <h3 className="font-display text-body-lg font-bold text-primary mb-3">{card.title}</h3>}
+      {card.subtitle && <p className="text-body text-foreground/70 italic mb-3">{card.subtitle}</p>}
+      {card.description && <p className="text-body text-foreground leading-[1.8]">{card.description}</p>}
+      {itemsText && <p className="text-body text-foreground leading-[1.8]">{itemsText}</p>}
+      <CardLink card={card} />
+    </div>
+  );
+}
+
+function CardGridSection({ section, id }: { section: PageSection; id?: string }) {
+  const cards = section.cards ?? [];
+  const layout = section.layout ?? "grid-3";
+
+  return (
+    <SectionShell section={section} id={id}>
+      <div className={section.appearance === "plain" ? "p-8 sm:p-12 lg:p-16" : undefined}>
+        {(section.title || section.intro) && (
+          <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
+        )}
+
+        {layout === "list" ? (
+          <div className="space-y-6 max-w-[768px] mx-auto">
+            {cards.map((card, i) => (
+              <div key={card._key ?? i} className="flex gap-3 sm:gap-5 items-start">
+                <span className="font-display text-h6 font-bold text-primary sm:whitespace-nowrap min-w-[56px] sm:min-w-[110px]">
+                  {card.badge ?? card.subtitle ?? ""}
+                </span>
+                <div>
+                  <p className="font-display text-h6 font-bold text-primary">{card.title}</p>
+                  {(card.description || (card.items && card.items.length > 0)) && (
+                    <p className="text-body text-foreground leading-relaxed mt-1">
+                      {card.description ?? card.items?.join(", ")}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className={GRID_CLASSES[layout] ?? GRID_CLASSES["grid-3"]}>
+            {cards.map((card, i) => (
+              <GridCard key={card._key ?? i} card={card} />
+            ))}
+          </div>
+        )}
+      </div>
+    </SectionShell>
+  );
+}
+
+/* ─── quoteSection ─── */
+
+function QuoteRays({ rotated = false }: { rotated?: boolean }) {
+  return (
+    <div className={`flex justify-center ${rotated ? "mt-6" : "mb-6"}`}>
+      <Image
+        src="/images/quote-rays.svg"
+        alt=""
+        width={320}
+        height={100}
+        className={`w-[280px] sm:w-[340px] h-auto${rotated ? " rotate-180" : ""}`}
+      />
+    </div>
+  );
+}
+
+function QuoteSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+  const glass = section.appearance !== "plain";
+  return (
+    <SectionShell section={section} reveal="quote" id={id}>
+      <div className={`max-w-[768px] mx-auto text-center${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
+        <QuoteRays />
+        <blockquote className={`font-display ${glass ? "text-h3" : "text-h2"} font-bold text-primary leading-snug`}>
+          &laquo;{section.quoteText}&raquo;
+        </blockquote>
+        {section.quoteAuthor && <p className="mt-4 text-body text-foreground">&ndash; {section.quoteAuthor} &ndash;</p>}
+        <QuoteRays rotated />
+      </div>
+    </SectionShell>
+  );
+}
+
+/* ─── scheduleSection ─── */
+
+function ScheduleSectionBlock({ section, data, id }: { section: PageSection; data: SharedData; id?: string }) {
+  return (
+    <SectionShell section={section} id={id}>
+      {(section.title || section.intro) && (
+        <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
+      )}
+      <ScheduleGrid
+        items={data.schedule}
+        ctaLabel={section.ctaLabel ?? "Anmelden"}
+        ctaHref={section.ctaHref ?? "/anmeldung-yoga-klasse"}
+      />
+    </SectionShell>
+  );
+}
+
+/* ─── testimonialsSection ─── */
+
+function TestimonialsSectionBlock({ section, data, id }: { section: PageSection; data: SharedData; id?: string }) {
+  const testimonials = section.category === "therapie" ? data.testimonialsTherapie : data.testimonialsYoga;
+  return (
+    <SectionShell section={section} id={id}>
+      {section.title && (
+        <>
+          <h2 className="text-center font-display text-h3 font-bold text-primary mb-2">{section.title}</h2>
+          <GoldLine />
+        </>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-14 mt-12">
+        {testimonials.map((t, i) => (
+          <TestimonialCard key={t.name ?? i} headline={t.headline} quote={t.quote} name={t.name} />
+        ))}
+      </div>
+    </SectionShell>
+  );
+}
+
+/* ─── pricingSection ─── */
+
+function PricingSectionBlock({ section, data, id }: { section: PageSection; data: SharedData; id?: string }) {
+  return (
+    <SectionShell section={section} id={id}>
+      {(section.title || section.intro) && (
+        <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
+      )}
+      <div className="flex justify-center mb-10">
+        <Link href="/anmeldung-yoga-klasse" className={primaryBtnClass}>Anmelden</Link>
+      </div>
+
+      <PricingGrid plans={data.pricing} />
+
+      {section.note && (
+        <p className="mt-8 text-small text-foreground/70 leading-relaxed text-center">{section.note}</p>
+      )}
+    </SectionShell>
+  );
+}
+
+/* ─── courseDetailsSection ─── */
+
+function CourseDetailsSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+  const details = section.details ?? [];
+  const dates = section.dates ?? [];
+
+  return (
+    <SectionShell section={section} id={id}>
+      {section.title && <SectionHeading title={section.title} />}
+
+      {details.length > 0 && (
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6${dates.length > 0 ? " mb-12" : ""}`}>
+          {details.map((d, i) => (
+            <div key={d._key ?? i} className="rounded-[16px] border-2 border-primary p-7">
+              <p className="text-small text-foreground/60 uppercase tracking-wider mb-2">{d.label}</p>
+              <p className="text-h6 font-bold text-foreground">{d.value}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {dates.length > 0 && (
+        <>
+          <h3 className="font-display text-h5 font-bold text-primary text-center mb-6">{dates.length} Termine</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+            {dates.map((dateStr, i) => {
+              const parts = dateStr.split(", ");
+              return (
+                <div key={i} className="rounded-[16px] border-2 border-primary p-6 text-center">
+                  {parts.length === 3 ? (
+                    <>
+                      <p className="text-body text-foreground">{parts[0]}</p>
+                      <p className="text-body-lg font-bold text-foreground mt-1">{parts[1]}</p>
+                      <p className="font-display text-h6 font-bold text-primary mt-2">{parts[2]}</p>
+                    </>
+                  ) : (
+                    <p className="text-body-lg font-bold text-foreground">{dateStr}</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {section.note && (
+        <div className="mt-8 space-y-3 text-body text-foreground leading-relaxed max-w-[768px] mx-auto text-center">
+          <p>{section.note}</p>
+        </div>
+      )}
+
+      {section.ctaLabel && section.ctaHref && (
+        <div className="flex justify-center mt-8">
+          <SmartLink href={section.ctaHref} className={primaryBtnClass}>{section.ctaLabel}</SmartLink>
+        </div>
+      )}
+    </SectionShell>
+  );
+}
+
+/* ─── ctaSection ─── */
+
+function CtaSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+  const glass = section.appearance !== "plain";
+  return (
+    <SectionShell section={section} id={id}>
+      <div className={`max-w-[768px] mx-auto text-center${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
+        {section.title && (
+          <>
+            <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
+            <GoldLine />
+          </>
+        )}
+        {section.text && <p className="mt-4 text-body text-foreground leading-relaxed">{section.text}</p>}
+        {section.buttonLabel && (
+          <div className="flex justify-center mt-8">
+            <SmartLink href={section.buttonLink ?? "/kontakt"} className={primaryBtnClass}>
+              {section.buttonLabel}
+            </SmartLink>
+          </div>
+        )}
+      </div>
+    </SectionShell>
+  );
+}
+
+/* ─── formSection ─── */
+
+type FormConfig = {
+  /** The `type` string sent to /api/contact (must match the existing pages). */
+  type: string;
+  eyebrow?: string;
+  defaultTitle?: string;
+  defaultIntro?: React.ReactNode;
+  fields: (data: SharedData) => FormField[];
+};
+
+const KLEINGRUPPE_BASE_FIELDS: FormField[] = [
+  { name: "name", label: "Vor- und Nachname", type: "text", required: true },
+  { name: "address", label: "Adresse", type: "text", required: true },
+  { name: "plz", label: "PLZ | Ort", type: "text", required: true },
+  { name: "email", label: "Email", type: "email", required: true },
+  { name: "phone", label: "Telefon", type: "tel" },
+];
+
+const FORM_CONFIGS: Record<string, FormConfig> = {
+  kontakt: {
+    type: "contact",
+    fields: () => [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "message", label: "Nachricht", type: "textarea", placeholder: "Deine Nachricht..." },
+    ],
+  },
+  yogaklasse: {
+    type: "Anmeldung Yoga Klasse",
+    eyebrow: "Yogaklasse",
+    defaultTitle: "Anmeldung Yogaklassen",
+    defaultIntro:
+      "Bitte jeweils bis am Vorabend um 22:00 Uhr für die Klassen anmelden. Bezahlung nach der Lektion in Bar oder Twint. Wenn gewünscht kann ich dich nach der Anmeldung in meine WhatsApp Gruppe einladen und du erhältst dann immer die neusten Updates zu den jeweiligen Klassen. Max. 10 Teilnehmer*innen pro Klasse",
+    fields: (data) => [
+      {
+        name: "klasse",
+        label: "Klasse",
+        type: "select",
+        required: true,
+        options: [
+          { value: "", label: "Datum wählen...", disabled: true },
+          ...data.classOptions.map((opt) => ({ value: opt, label: opt })),
+        ],
+      },
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "phone", label: "Telefon", type: "tel" },
+      { name: "message", label: "Bemerkung", type: "textarea", placeholder: "Bemerkung..." },
+    ],
+  },
+  yogatherapie: {
+    type: "Anmeldung Yoga Therapie",
+    eyebrow: "Yoga Therapie",
+    defaultTitle: "Anmeldung Yoga Therapie",
+    defaultIntro:
+      "Ich freue mich, dich auf deinem Weg zu begleiten. Zusammen werden wir die Kraft des Yoga nutzen, um Gesundheit und Wohlbefinden zu fördern.",
+    fields: () => [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "phone", label: "Telefon", type: "tel" },
+      { name: "message", label: "Bemerkung", type: "textarea", placeholder: "Bemerkung..." },
+    ],
+  },
+  kleingruppe: {
+    type: "Anmeldung Kleingruppe Burnout",
+    eyebrow: "Stress, Erschöpfung & Burnout",
+    defaultTitle: "Anmeldung Kleingruppe",
+    defaultIntro: (
+      <>
+        Nach deiner Anmeldung erhältst du eine Bestätigung per E-Mail. Ausserdem sende ich dir Terminvorschläge für das Einzelgespräch, das vor Kursbeginn im Zeitraum <strong>vom 20.08. bis 25.08.2026</strong> satt finden wird.
+      </>
+    ),
+    fields: () => [
+      ...KLEINGRUPPE_BASE_FIELDS,
+      { name: "message", label: "Bemerkung", type: "textarea", placeholder: "Bemerkung..." },
+    ],
+  },
+  gelenkschmerzen: {
+    type: "Anmeldung Kleingruppe Gelenkschmerzen",
+    eyebrow: "Gelenkschmerzen ganzheitlich begleiten",
+    defaultTitle: "Anmeldung Kleingruppe",
+    defaultIntro: (
+      <>
+        Nach deiner Anmeldung erhältst du eine Bestätigung per E-Mail. Ausserdem senden wir dir Terminvorschläge für das <strong>Einzelgespräch,</strong> das vor dem Kursbeginn im Zeitraum <strong>vom 20.08. bis 25.08.2026</strong> satt finden wird.
+      </>
+    ),
+    fields: () => [
+      ...KLEINGRUPPE_BASE_FIELDS,
+      {
+        name: "teilnahme",
+        label: "Vor Ort / online (Aufzeichnung)",
+        type: "select",
+        options: [
+          { value: "Vor Ort", label: "Vor Ort" },
+          { value: "Online", label: "Online" },
+        ],
+      },
+      { name: "message", label: "Bemerkung", type: "textarea", placeholder: "Bemerkung..." },
+    ],
+  },
+};
+
+function FormSectionBlock({ section, data, id }: { section: PageSection; data: SharedData; id?: string }) {
+  const config = FORM_CONFIGS[section.form ?? ""];
+  if (!config) return null;
+
+  const title = section.title ?? config.defaultTitle;
+  const intro = section.intro ?? config.defaultIntro;
+
+  return (
+    <SectionShell section={section} id={id}>
+      {(title || intro) && (
+        <div className="text-center max-w-[768px] mx-auto mb-12">
+          {config.eyebrow && <p className="text-body text-foreground/60 uppercase tracking-wider mb-3">{config.eyebrow}</p>}
+          {title && (
+            <>
+              <h2 className="font-display text-h2 font-bold text-primary">{title}</h2>
+              <GoldLine />
+            </>
+          )}
+          {intro && <p className="mt-4 text-body text-foreground leading-relaxed">{intro}</p>}
+        </div>
+      )}
+
+      <AnmeldungForm type={config.type} fields={config.fields(data)} />
+    </SectionShell>
+  );
+}
+
+/* ─── Renderer ─── */
+
+export default function PageSections({ sections, data }: { sections: PageSection[]; data: SharedData }) {
+  return (
+    <>
+      {sections.map((section, index) => {
+        // The hero's "Mehr Erfahren" button points to #angebot – anchor the
+        // first section so that link keeps working (matches existing pages).
+        const id = index === 0 ? "angebot" : undefined;
+
+        switch (section._type) {
+          case "textSection":
+            return <TextSection key={section._key} section={section} id={id} />;
+          case "cardGridSection":
+            return <CardGridSection key={section._key} section={section} id={id} />;
+          case "quoteSection":
+            return <QuoteSectionBlock key={section._key} section={section} id={id} />;
+          case "scheduleSection":
+            return <ScheduleSectionBlock key={section._key} section={section} data={data} id={id} />;
+          case "testimonialsSection":
+            return <TestimonialsSectionBlock key={section._key} section={section} data={data} id={id} />;
+          case "pricingSection":
+            return <PricingSectionBlock key={section._key} section={section} data={data} id={id} />;
+          case "courseDetailsSection":
+            return <CourseDetailsSectionBlock key={section._key} section={section} id={id} />;
+          case "ctaSection":
+            return <CtaSectionBlock key={section._key} section={section} id={id} />;
+          case "formSection":
+            return <FormSectionBlock key={section._key} section={section} data={data} id={id} />;
+          default:
+            return null;
+        }
+      })}
+    </>
+  );
+}
