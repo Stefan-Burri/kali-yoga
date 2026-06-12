@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import StickyNavbar, { HeroNavbar } from "@/components/Navbar";
@@ -10,6 +11,20 @@ import { filterUpcomingSchedule } from "@/lib/schedule";
 import { client } from "@/lib/sanity";
 
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await client
+    .fetch<{ seoTitle?: string; seoDescription?: string } | null>(
+      `*[_type == "homepage"][0]{seoTitle, seoDescription}`
+    )
+    .catch(() => null);
+  return {
+    title: seo?.seoTitle || "Kali Yoga · Yoga für «Every Body» · Yoga Studio in Bern",
+    description:
+      seo?.seoDescription ||
+      "Yoga für Alle, unabhängig von Alter, Geschlecht, Körperform oder körperlicher Verfassung. Yoga Studio in Bern an der Aarbergergasse 40.",
+  };
+}
 
 /* ─── Fallback Data (used when Sanity returns nothing) ─── */
 
@@ -167,13 +182,14 @@ export default async function Home() {
     <div className="min-h-screen">
       <StickyNavbar />
 
+      <main>
       {/* ─── Hero ─── */}
       <section className="relative min-h-[100dvh] flex flex-col overflow-hidden">
         <HeroNavbar />
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
         <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
           {/* Curved text */}
-          <h2 className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">{curvedTitle}</h2>
+          <p aria-hidden="true" className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">{curvedTitle}</p>
           <svg viewBox="-50 75 700 205" className="w-[600px] sm:w-[800px] lg:w-[1060px] h-auto hidden sm:block" role="img" aria-label={curvedTitle}>
             <defs>
               <path id="curve" d="M 0,280 Q 300,-10 600,280" fill="none" />
@@ -286,6 +302,7 @@ export default async function Home() {
           city={siteSettings?.city ?? undefined}
         />
       </ScrollReveal>
+      </main>
 
       <Footer
         address={siteSettings?.address ?? undefined}

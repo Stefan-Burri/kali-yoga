@@ -86,6 +86,7 @@ Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder 
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-06-12: PageSpeed-Optimierung — SEO-Felder (🔎 Titel + Beschreibung) in allen Seiten-Dokumenten im Studio bearbeitbar, <main>-Landmarke und korrekte Überschriften-Reihenfolge auf allen Seiten (Barrierefreiheit), Live-Domain bei Sanity freigeschaltet (behebt Konsolenfehler + Sprachschalter auf der Live-Site)
 - 2026-06-12: Studio-Struktur aufgeräumt — Zitate sind jetzt eine eigene Sektion «Zitat» (5 Einträge mit Seiten-Zuordnung statt versteckter Felder), der gebogene Titel der Startseite ist neu in Sanity bearbeitbar («Seite: Startseite» → Gebogener Titel), alle Seiten-Typen einheitlich als «Seite: …» benannt
 - 2026-06-12: Typografie konsolidiert: 16 → 9 Tokens (text-h1…h6, body-lg, body, small), alle Überschriften aubergine, H1–H6 semantisch korrekt auf allen 20 Seiten (genau 1 H1 pro Seite, SEO-Audit), Hinweistexte unter Kursterminen zentriert (DE + EN)
 - 2026-06-12: Alle 8 Hero-Sektionen mit gebogenem Titel optisch korrekt zentriert — unsichtbarer Leerraum über dem Bogen (SVG-viewBox) beschnitten (Startseite, Yogaklassen, Yoga Therapie, Über mich, je DE + EN)

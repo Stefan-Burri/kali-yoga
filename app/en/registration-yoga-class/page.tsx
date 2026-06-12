@@ -119,6 +119,8 @@ export default async function RegistrationYogaClass() {
   return (
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
+
+      <main>
       <div className="pt-3">
         <HeroNavbar lang="en" />
       </div>
@@ -149,6 +151,8 @@ export default async function RegistrationYogaClass() {
           </GlassCard>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

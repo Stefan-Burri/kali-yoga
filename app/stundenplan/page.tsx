@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import StickyNavbar, { HeroNavbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -6,6 +7,20 @@ import { client } from "@/lib/sanity";
 import { filterUpcomingSchedule } from "@/lib/schedule";
 
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await client
+    .fetch<{ seoTitle?: string; seoDescription?: string } | null>(
+      `*[_type == "stundenplanPage"][0]{seoTitle, seoDescription}`
+    )
+    .catch(() => null);
+  return {
+    title: seo?.seoTitle || "Kali Yoga · Yoga für «Every Body» · Yoga Studio in Bern",
+    description:
+      seo?.seoDescription ||
+      "Yoga für Alle, unabhängig von Alter, Geschlecht, Körperform oder körperlicher Verfassung. Yoga Studio in Bern an der Aarbergergasse 40.",
+  };
+}
 
 /* ─── Types ─── */
 
@@ -95,6 +110,7 @@ export default async function Stundenplan() {
     <div className="min-h-screen">
       <StickyNavbar />
 
+      <main>
       {/* ─── Hero ─── */}
       <section className="pt-3 pb-[64px]">
         <HeroNavbar />
@@ -116,6 +132,7 @@ export default async function Stundenplan() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

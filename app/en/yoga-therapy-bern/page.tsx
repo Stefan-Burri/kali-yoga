@@ -12,9 +12,11 @@ import { getEnglishEnabled } from "@/lib/i18n";
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const seo = await client.fetch<{seoTitle?: string; seoDescription?: string} | null>(`*[_type == "yogatherapiePageEn"][0]{seoTitle, seoDescription}`).catch(() => null);
   return {
-    title: "Yoga Therapy Bern | Kali Yoga – Karin Liechti",
+    title: seo?.seoTitle || "Yoga Therapy Bern | Kali Yoga – Karin Liechti",
     description:
+      seo?.seoDescription ||
       "Individual yoga therapy in Bern with Karin Liechti, certified yoga therapist (C-IAYT). Trauma-sensitive, one-on-one sessions for body, mind and soul – recognized by EMR and EGK.",
   };
 }
@@ -186,6 +188,8 @@ export default async function YogaTherapyBern() {
   return (
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
+
+      <main>
 
       {/* ─── Hero ─── */}
       <section className="min-h-[100dvh] flex flex-col">
@@ -369,6 +373,8 @@ export default async function YogaTherapyBern() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

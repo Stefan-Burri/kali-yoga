@@ -30,6 +30,8 @@ export default async function Contact() {
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
 
+      <main>
+
       {/* ─── Hero ─── */}
       <section className="pt-3 pb-[64px]">
         <HeroNavbar lang="en" />
@@ -58,6 +60,8 @@ export default async function Contact() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

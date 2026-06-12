@@ -12,9 +12,11 @@ import { translateDay, translateLocation, translatePauseLabel, getEnglishEnabled
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const seo = await client.fetch<{seoTitle?: string; seoDescription?: string} | null>(`*[_type == "stundenplanPageEn"][0]{seoTitle, seoDescription}`).catch(() => null);
   return {
-    title: "Yoga Class Schedule Bern · Kali Yoga",
+    title: seo?.seoTitle || "Yoga Class Schedule Bern · Kali Yoga",
     description:
+      seo?.seoDescription ||
       "All upcoming yoga classes at Kali Yoga in Bern at a glance – dates, times and registration.",
   };
 }
@@ -113,6 +115,8 @@ export default async function Schedule() {
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
 
+      <main>
+
       {/* ─── Hero ─── */}
       <section className="pt-3 pb-[64px]">
         <HeroNavbar lang="en" />
@@ -134,6 +138,8 @@ export default async function Schedule() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

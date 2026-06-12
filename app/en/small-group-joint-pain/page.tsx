@@ -11,9 +11,11 @@ import { getEnglishEnabled } from "@/lib/i18n";
 export const revalidate = 60;
 
 export async function generateMetadata() {
+  const seo = await client.fetch<{seoTitle?: string; seoDescription?: string} | null>(`*[_type == "arthritisPageEn"][0]{seoTitle, seoDescription}`).catch(() => null);
   return {
-    title: "Small Group: Yoga & Nutrition Therapy for Joint Pain | Kali Yoga Bern",
+    title: seo?.seoTitle || "Small Group: Yoga & Nutrition Therapy for Joint Pain | Kali Yoga Bern",
     description:
+      seo?.seoDescription ||
       "A 10-week course combining gentle, joint-friendly yoga therapy with anti-inflammatory nutrition therapy. Small group in Bern, online participation possible – for arthritis, osteoarthritis and chronic joint complaints.",
   };
 }
@@ -131,6 +133,8 @@ export default async function SmallGroupJointPain() {
   return (
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
+
+      <main>
 
       {/* ─── Hero ─── */}
       <section className="min-h-[100dvh] flex flex-col">
@@ -348,6 +352,8 @@ export default async function SmallGroupJointPain() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

@@ -44,6 +44,8 @@ export default async function RegistrationSmallGroupJointPain() {
   return (
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
+
+      <main>
       <div className="pt-3">
         <HeroNavbar lang="en" />
       </div>
@@ -74,6 +76,8 @@ export default async function RegistrationSmallGroupJointPain() {
           </GlassCard>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

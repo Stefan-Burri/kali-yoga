@@ -30,6 +30,7 @@ export default function AnmeldungKleingruppeGelenkschmerzen() {
   return (
     <div className="min-h-screen">
       <StickyNavbar />
+      <main>
       <div className="pt-3">
         <HeroNavbar />
       </div>
@@ -50,6 +51,7 @@ export default function AnmeldungKleingruppeGelenkschmerzen() {
           </GlassCard>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

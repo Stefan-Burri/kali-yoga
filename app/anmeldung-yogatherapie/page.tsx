@@ -19,6 +19,7 @@ export default function AnmeldungYogatherapie() {
   return (
     <div className="min-h-screen">
       <StickyNavbar />
+      <main>
       <div className="pt-3">
         <HeroNavbar />
       </div>
@@ -39,6 +40,7 @@ export default function AnmeldungYogatherapie() {
           </GlassCard>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

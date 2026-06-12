@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import StickyNavbar, { HeroNavbar } from "@/components/Navbar";
@@ -7,6 +8,20 @@ import { GoldLine, ChevronRight, GlassCard, SectionHeading, ImageCard, secondary
 import { client } from "@/lib/sanity";
 
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await client
+    .fetch<{ seoTitle?: string; seoDescription?: string } | null>(
+      `*[_type == "arthritisPage"][0]{seoTitle, seoDescription}`
+    )
+    .catch(() => null);
+  return {
+    title: seo?.seoTitle || "Kali Yoga · Yoga für «Every Body» · Yoga Studio in Bern",
+    description:
+      seo?.seoDescription ||
+      "Yoga für Alle, unabhängig von Alter, Geschlecht, Körperform oder körperlicher Verfassung. Yoga Studio in Bern an der Aarbergergasse 40.",
+  };
+}
 
 /* ─── Types ─── */
 
@@ -117,6 +132,7 @@ export default async function KleingruppenArthritis() {
     <div className="min-h-screen">
       <StickyNavbar />
 
+      <main>
       {/* ─── Hero ─── */}
       <section className="min-h-[100dvh] flex flex-col">
         <div className="pt-3 shrink-0">
@@ -333,6 +349,7 @@ export default async function KleingruppenArthritis() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

@@ -11,9 +11,11 @@ import { getEnglishEnabled } from "@/lib/i18n";
 export const revalidate = 60;
 
 export async function generateMetadata() {
+  const seo = await client.fetch<{seoTitle?: string; seoDescription?: string} | null>(`*[_type == "kleingruppenPageEn"][0]{seoTitle, seoDescription}`).catch(() => null);
   return {
-    title: "Small Group: Yoga Therapy for Stress, Exhaustion & Burnout | Kali Yoga Bern",
+    title: seo?.seoTitle || "Small Group: Yoga Therapy for Stress, Exhaustion & Burnout | Kali Yoga Bern",
     description:
+      seo?.seoDescription ||
       "A 5-week yoga therapy course in a small group of max. 6 people in Bern. Gentle movement, breathing and relaxation for stress, exhaustion and burnout – with Karin Liechti, Yoga Therapist C-IAYT.",
   };
 }
@@ -116,6 +118,8 @@ export default async function SmallGroupBurnout() {
   return (
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
+
+      <main>
 
       {/* ─── Hero ─── */}
       <section className="min-h-[100dvh] flex flex-col">
@@ -315,6 +319,8 @@ export default async function SmallGroupBurnout() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

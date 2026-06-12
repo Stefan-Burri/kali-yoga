@@ -62,14 +62,15 @@ async function getEmbedData(): Promise<EmbedData> {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  let page: { title?: string | null } | null = null;
+  let page: { title?: string | null; seoDescription?: string | null } | null = null;
   try {
-    page = await client.fetch(`*[_type == "page" && slug.current == $slug][0]{title}`, { slug });
+    page = await client.fetch(`*[_type == "page" && slug.current == $slug][0]{title, seoDescription}`, { slug });
   } catch {
     // Sanity unreachable – fall back to default title
   }
   return {
     title: page?.title ? `${page.title} · Kali Yoga` : "Kali Yoga",
+    description: page?.seoDescription || undefined,
   };
 }
 
@@ -100,6 +101,7 @@ export default async function CmsPage({ params }: { params: Promise<{ slug: stri
     <div className="min-h-screen">
       <StickyNavbar />
 
+      <main>
       {/* ─── Hero ─── */}
       <section className="pt-3 pb-[64px]">
         <HeroNavbar />
@@ -117,6 +119,7 @@ export default async function CmsPage({ params }: { params: Promise<{ slug: stri
 
       {/* ─── Blocks ─── */}
       <PageBlocks blocks={blocks} embedData={embedData} />
+      </main>
 
       <Footer />
     </div>

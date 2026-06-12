@@ -9,12 +9,13 @@ export default function Datenschutz() {
     <div className="min-h-screen">
       <StickyNavbar />
 
+      <main>
       {/* ─── Hero ─── */}
       <section className="pt-3 pb-[64px]">
         <HeroNavbar />
         <div className="flex flex-col items-center text-center px-6 pt-16 sm:pt-24 lg:pt-32 pb-8">
           <div className="max-w-[768px] mx-auto flex flex-col items-center">
-            <h2 className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">Datenschutz</h2>
+            <p aria-hidden="true" className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">Datenschutz</p>
             <h1 className="sr-only">Datenschutz</h1>
             <svg viewBox="-50 0 700 280" className="w-[600px] sm:w-[800px] lg:w-[1060px] h-auto hidden sm:block" role="img" aria-label="Datenschutz">
               <defs>
@@ -139,6 +140,7 @@ export default function Datenschutz() {
           </GlassCard>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

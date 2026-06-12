@@ -35,6 +35,8 @@ export default async function RegistrationSmallGroup() {
   return (
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
+
+      <main>
       <div className="pt-3">
         <HeroNavbar lang="en" />
       </div>
@@ -65,6 +67,8 @@ export default async function RegistrationSmallGroup() {
           </GlassCard>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

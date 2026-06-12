@@ -16,6 +16,7 @@ export default function Kontakt() {
     <div className="min-h-screen">
       <StickyNavbar />
 
+      <main>
       {/* ─── Hero ─── */}
       <section className="pt-3 pb-[64px]">
         <HeroNavbar />
@@ -38,6 +39,7 @@ export default function Kontakt() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+      </main>
 
       <Footer />
     </div>

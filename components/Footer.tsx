@@ -119,7 +119,7 @@ export default function Footer({
 
           {/* Yoga */}
           <div>
-            <h4 className="text-small font-semibold mb-4">{t.yogaHeading}</h4>
+            <p className="text-small font-semibold mb-4 text-primary">{t.yogaHeading}</p>
             <div className="space-y-2 text-small">
               {t.yogaLinks.map((item) => (
                 <Link key={item.href} href={item.href} className="block text-foreground hover:text-primary transition-colors">{item.label}</Link>
@@ -129,7 +129,7 @@ export default function Footer({
 
           {/* Yoga Therapie */}
           <div>
-            <h4 className="text-small font-semibold mb-4">{t.therapieHeading}</h4>
+            <p className="text-small font-semibold mb-4 text-primary">{t.therapieHeading}</p>
             <div className="space-y-2 text-small">
               {t.therapieLinks.map((item) => (
                 <Link key={item.href} href={item.href} className="block text-foreground hover:text-primary transition-colors">{item.label}</Link>
@@ -139,7 +139,7 @@ export default function Footer({
 
           {/* Kali Yoga */}
           <div>
-            <h4 className="text-small font-semibold mb-4">{t.brandHeading}</h4>
+            <p className="text-small font-semibold mb-4 text-primary">{t.brandHeading}</p>
             <div className="space-y-2 text-small">
               {t.brandLinks.map((item) => (
                 <Link key={item.href} href={item.href} className="block text-foreground hover:text-primary transition-colors">{item.label}</Link>

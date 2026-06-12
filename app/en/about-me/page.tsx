@@ -12,9 +12,11 @@ import { getEnglishEnabled } from "@/lib/i18n";
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const seo = await client.fetch<{seoTitle?: string; seoDescription?: string} | null>(`*[_type == "uberMichPageEn"][0]{seoTitle, seoDescription}`).catch(() => null);
   return {
-    title: "About Me | Kali Yoga Bern – Karin Liechti",
+    title: seo?.seoTitle || "About Me | Kali Yoga Bern – Karin Liechti",
     description:
+      seo?.seoDescription ||
       "Karin Liechti is a certified yoga therapist (C-IAYT), yoga and Yoga Nidra teacher in Bern. Learn more about her diplomas, trainings and her path to yoga therapy.",
   };
 }
@@ -153,6 +155,8 @@ export default async function AboutMe() {
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
 
+      <main>
+
       {/* ─── Hero ─── */}
       <section className="min-h-[100dvh] flex flex-col">
         <div className="pt-3 shrink-0">
@@ -277,6 +281,8 @@ export default async function AboutMe() {
           </div>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>

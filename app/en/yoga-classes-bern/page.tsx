@@ -14,9 +14,11 @@ import { translateDay, translateLocation, translatePauseLabel, getEnglishEnabled
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const seo = await client.fetch<{seoTitle?: string; seoDescription?: string} | null>(`*[_type == "yogaKlassenPageEn"][0]{seoTitle, seoDescription}`).catch(() => null);
   return {
-    title: "Yoga Classes in Bern · Kali Yoga · Yoga for «Every Body»",
+    title: seo?.seoTitle || "Yoga Classes in Bern · Kali Yoga · Yoga for «Every Body»",
     description:
+      seo?.seoDescription ||
       "Yoga classes for everyone, regardless of age, gender, body shape or physical condition. Yoga studio in Bern at Aarbergergasse 40.",
   };
 }
@@ -225,6 +227,8 @@ export default async function YogaClassesBern() {
     <div className="min-h-screen">
       <StickyNavbar lang="en" />
 
+      <main>
+
       {/* ─── Hero ─── */}
       <section className="min-h-[100dvh] flex flex-col">
         <div className="pt-3 shrink-0">
@@ -369,6 +373,8 @@ export default async function YogaClassesBern() {
           </GlassCard></ScrollReveal>
         </div>
       </section>
+
+      </main>
 
       <Footer lang="en" />
     </div>
