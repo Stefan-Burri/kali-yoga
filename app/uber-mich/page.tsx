@@ -208,7 +208,7 @@ export default async function UeberMich() {
             <div className="space-y-6 max-w-[768px] mx-auto">
               {trainings.map((t, i) => (
                 <div key={i} className="flex gap-3 sm:gap-5 items-start">
-                  <span className="text-small font-bold text-primary sm:whitespace-nowrap min-w-[45px] sm:min-w-[90px]">{t.year}</span>
+                  <span className="font-display text-h6 font-bold text-primary sm:whitespace-nowrap min-w-[56px] sm:min-w-[110px]">{t.year}</span>
                   <div>
                     <p className="font-display text-h6 font-bold text-primary">{t.title}</p>
                     <p className="text-body text-foreground leading-relaxed mt-1">{t.detail}</p>
