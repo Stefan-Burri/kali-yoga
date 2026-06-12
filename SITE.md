@@ -72,6 +72,11 @@ Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder 
 - **Technik:** Sanity-Projekt `ghs7plqm`, Dataset `production`, Verbindung in `lib/sanity.ts`, Zugangsdaten in `.env.local`. Bilder/Icons liegen weiterhin in `public/` (nicht im CMS).
 - **Noch fest im Code (nicht im CMS):** Zwischen-Überschriften einzelner Abschnitte, Button-Beschriftungen, Bilder, Formulare, Impressum/Datenschutz.
 
+## Veröffentlichung
+- **Live-Website:** https://kali-yoga.vercel.app
+- **Code:** github.com/Stefan-Burri/kali-yoga — jeder Push auf `main` löst automatisch einen neuen Vercel-Build aus
+- **Offen:** Für den E-Mail-Versand der Formulare muss auf Vercel die Umgebungsvariable `RESEND_API_KEY` gesetzt werden (bis dahin zeigen die Formulare beim Absenden eine Fehlermeldung)
+
 ## Contact Info
 - **Address:** Aarbergergasse 40, 4. Stock, 3011 Bern
 - **Phone:** 076 262 05 62
