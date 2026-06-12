@@ -46,6 +46,10 @@ export type PageSection = {
   _type: string;
   _key: string;
   appearance?: "glass" | "plain" | null;
+  /* heroSection (also uses title, text, imagePath below; has no appearance) */
+  variant?: "curved" | "simple" | "home" | null;
+  curvedTitle?: string | null;
+  buttons?: HeroButton[] | null;
   /* textSection */
   title?: string | null;
   body?: unknown[] | null;
@@ -119,6 +123,10 @@ export type SharedData = {
 
 /* ─── Page fetch ─── */
 
+// `hero` stays in the projection for backward compatibility (deprecated fixed field).
+// `heroSection` blocks inside `sections` need no special handling: the `...` spread
+// returns all their fields (variant, curvedTitle, title, text, imagePath) including
+// the inline `buttons[]{label, href, style}` array.
 const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{title, hero, sections[]{..., image{asset->{url}}, cards[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
 
 /**

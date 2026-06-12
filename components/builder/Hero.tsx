@@ -61,7 +61,16 @@ function CurvedTitle({ curvedTitle, pathId }: { curvedTitle: string; pathId: str
 
 /* ─── Hero ─── */
 
-export default function BuilderHero({ hero, slug }: { hero: Hero; slug: string }) {
+export default function BuilderHero({
+  hero,
+  slug,
+  withNavbar = true,
+}: {
+  hero: Hero;
+  slug: string;
+  /** The page decides whether the hero renders the top navbar inside itself. */
+  withNavbar?: boolean;
+}) {
   if (!hero) return null;
 
   const variant = hero.variant ?? "curved";
@@ -73,7 +82,7 @@ export default function BuilderHero({ hero, slug }: { hero: Hero; slug: string }
   if (variant === "simple") {
     return (
       <section className="pt-3 pb-[64px]">
-        <HeroNavbar />
+        {withNavbar ? <HeroNavbar /> : null}
         <div className="flex flex-col items-center text-center px-6 pt-16 sm:pt-24 lg:pt-32 pb-8">
           <h1 className="font-display text-h1 font-bold text-primary max-w-[640px] text-balance">{title}</h1>
           {hero.text ? (
@@ -89,7 +98,7 @@ export default function BuilderHero({ hero, slug }: { hero: Hero; slug: string }
   if (variant === "home") {
     return (
       <section className="relative min-h-[100dvh] flex flex-col overflow-hidden">
-        <HeroNavbar />
+        {withNavbar ? <HeroNavbar /> : null}
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
           <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
             <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} />
@@ -110,9 +119,11 @@ export default function BuilderHero({ hero, slug }: { hero: Hero; slug: string }
   /* ── 'curved' (default): curved title + image (yoga-klassen style) ── */
   return (
     <section className="min-h-[100dvh] flex flex-col">
-      <div className="pt-3 shrink-0">
-        <HeroNavbar />
-      </div>
+      {withNavbar ? (
+        <div className="pt-3 shrink-0">
+          <HeroNavbar />
+        </div>
+      ) : null}
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-[768px] mx-auto flex flex-col items-center text-center">
           <p aria-hidden="true" className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">

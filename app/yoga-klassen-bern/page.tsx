@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import StickyNavbar from "@/components/Navbar";
+import StickyNavbar, { HeroNavbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BuilderHero from "@/components/builder/Hero";
 import PageSections from "@/components/builder/Sections";
@@ -25,13 +25,26 @@ export default async function YogaKlassenBern() {
 
   if (!page) notFound();
 
+  const sections = page.sections ?? [];
+  const hasHeroSection = sections.some((s) => s._type === "heroSection");
+
   return (
     <div className="min-h-screen">
       <StickyNavbar />
 
       <main>
-        <BuilderHero hero={page.hero ?? null} slug={SLUG} />
-        <PageSections sections={page.sections ?? []} data={shared} />
+        {/* Backward compatibility: old docs with the fixed `hero` field and
+            no heroSection block keep rendering their hero before the sections. */}
+        {!hasHeroSection && page.hero ? <BuilderHero hero={page.hero} slug={SLUG} /> : null}
+
+        {/* No hero at all: still show the top navigation, like the simple pages. */}
+        {!hasHeroSection && !page.hero ? (
+          <section className="pt-3">
+            <HeroNavbar />
+          </section>
+        ) : null}
+
+        <PageSections sections={sections} data={shared} />
       </main>
 
       <Footer />

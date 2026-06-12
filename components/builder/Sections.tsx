@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import ScrollReveal from "@/components/ScrollReveal";
+import BuilderHero from "@/components/builder/Hero";
 import AnmeldungForm from "@/components/AnmeldungForm";
 import type { FormField } from "@/components/AnmeldungForm";
 import {
@@ -601,14 +602,35 @@ function FormSectionBlock({ section, data, id }: { section: PageSection; data: S
 /* ─── Renderer ─── */
 
 export default function PageSections({ sections, data }: { sections: PageSection[]; data: SharedData }) {
+  // The hero's "Mehr Erfahren" button points to #angebot – anchor the first
+  // non-hero section so that link keeps working (matches existing pages).
+  const firstContentIndex = sections.findIndex((s) => s._type !== "heroSection");
+
   return (
     <>
       {sections.map((section, index) => {
-        // The hero's "Mehr Erfahren" button points to #angebot – anchor the
-        // first section so that link keeps working (matches existing pages).
-        const id = index === 0 ? "angebot" : undefined;
+        const id = index === firstContentIndex ? "angebot" : undefined;
 
         switch (section._type) {
+          /* heroSection brings its own full-height layout – no SectionShell
+             wrapper (no py-section / container / glass). It renders the navbar
+             inside only when it is the very first section of the page. */
+          case "heroSection":
+            return (
+              <BuilderHero
+                key={section._key}
+                hero={{
+                  variant: section.variant,
+                  curvedTitle: section.curvedTitle,
+                  title: section.title,
+                  text: section.text,
+                  imagePath: section.imagePath,
+                  buttons: section.buttons,
+                }}
+                slug={section._key}
+                withNavbar={index === 0}
+              />
+            );
           case "textSection":
             return <TextSection key={section._key} section={section} id={id} />;
           case "cardGridSection":
