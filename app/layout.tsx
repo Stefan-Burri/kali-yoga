@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, DM_Sans } from "next/font/google";
+import { Fraunces, Work_Sans } from "next/font/google";
 import "./globals.css";
 import { AgentationProvider } from "@/components/AgentationProvider";
+import AnimatedGradientBg from "@/components/AnimatedGradientBg";
+import SmoothScroll from "@/components/SmoothScroll";
 
-const spaceGrotesk = Space_Grotesk({
+const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const workSans = Work_Sans({
   subsets: ["latin"],
   variable: "--font-body",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Ship Studio",
-  description: "How professionals build with AI. No coding required.",
+  title: "Kali Yoga · Yoga für «Every Body» · Yoga Studio in Bern",
+  description: "Yoga für Alle, unabhängig von Alter, Geschlecht, Körperform oder körperlicher Verfassung. Yoga Studio in Bern an der Aarbergergasse 40.",
 };
 
 export default function RootLayout({
@@ -26,8 +28,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${dmSans.variable}`}>
-      <body className="font-[family-name:var(--font-body)] antialiased">
+    <html lang="de" className={`${fraunces.variable} ${workSans.variable}`}>
+      <body className="font-sans antialiased">
+        <AnimatedGradientBg />
+        <SmoothScroll />
         {children}
         <AgentationProvider />
       </body>

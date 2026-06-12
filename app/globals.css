@@ -1,31 +1,231 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
-  --muted: #78716c;
-  --accent: #dc2626;
+  --background: #F6F2ED;
+  --foreground: #1A1A1F;
+  --primary: #715A76;
+  --primary-light: #F6F2ED;
+  --gold: #D19C1D;
+  --gold-light: #F0E6C8;
+  --secondary: #c47ac0;
+  --section-bg: #EFEBE6;
+}
+
+/* ─── Fluid type & spacing scale (360px → 1440px) ───
+   Jede Stufe: clamp(Minimum @360px, fluide Mitte, Maximum @1440px).
+   Nutzung: text-h1 … text-h6, text-body-lg, text-body, text-small, py-section */
+@theme {
+  --text-h1: clamp(2.5rem, 1.75rem + 3.3333vw, 4.75rem);          /* 40 → 76  Seitentitel */
+  --text-h2: clamp(1.875rem, 1.5625rem + 1.3889vw, 2.8125rem);    /* 30 → 45  Abschnitts-Titel, Zitate */
+  --text-h3: clamp(1.5625rem, 1.3333rem + 1.0185vw, 2.25rem);     /* 25 → 36  Titel in 2-Spalten-Layouts */
+  --text-h4: clamp(1.3125rem, 1.1458rem + 0.7407vw, 1.8125rem);   /* 21 → 29  Karten-Titel, Klassen-Namen */
+  --text-h5: clamp(1.125rem, 1.0208rem + 0.463vw, 1.4375rem);     /* 18 → 23  kleine Überschriften */
+  --text-h6: clamp(1rem, 0.9375rem + 0.2778vw, 1.1875rem);        /* 16 → 19  Mini-Überschriften, betonter Text */
+  --text-body-lg: clamp(1.0625rem, 0.9792rem + 0.3704vw, 1.3125rem); /* 17 → 21  Lead-Texte */
+  --text-body: clamp(0.9375rem, 0.8854rem + 0.2315vw, 1.0938rem); /* 15 → 17.5  Fliesstext */
+  --text-small: clamp(0.8125rem, 0.7708rem + 0.1852vw, 0.9375rem); /* 13 → 15  Fussnoten, Labels */
+  --spacing-section: clamp(2.75rem, 2.1667rem + 2.5926vw, 4.5rem); /* 44 → 72  Abschnitts-Abstand */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
+  --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-secondary: var(--secondary);
+  --color-section-bg: var(--section-bg);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #fafaf9;
-    --muted: #a8a29e;
-    --accent: #f87171;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  background-image: url('/images/grain-texture.webp');
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+  color: var(--primary);
+}
+
+.filter-gold {
+  filter: invert(58%) sepia(80%) saturate(400%) hue-rotate(10deg) brightness(90%);
+}
+
+/* Animated gradient blobs — sanfte Wellen, viel Bewegung */
+@keyframes blob-drift-1 {
+  0% { transform: translate(0, 0) scale(1.16); }
+  16% { transform: translate(300px, 350px) scale(0.9); }
+  33% { transform: translate(-150px, 500px) scale(1.4); }
+  50% { transform: translate(-350px, 200px) scale(1.0); }
+  66% { transform: translate(120px, -120px) scale(1.3); }
+  83% { transform: translate(400px, 150px) scale(0.85); }
+  100% { transform: translate(0, 0) scale(1.16); }
+}
+
+@keyframes blob-drift-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  16% { transform: translate(-250px, 320px) scale(1.25); }
+  33% { transform: translate(350px, 120px) scale(0.8); }
+  50% { transform: translate(160px, -280px) scale(1.2); }
+  66% { transform: translate(-120px, -400px) scale(1.0); }
+  83% { transform: translate(-350px, 80px) scale(0.85); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes blob-drift-3 {
+  0% { transform: translate(0, 0) scale(1); }
+  16% { transform: translate(400px, -200px) scale(1.15); }
+  33% { transform: translate(200px, 360px) scale(0.85); }
+  50% { transform: translate(-280px, 240px) scale(1.2); }
+  66% { transform: translate(-400px, -80px) scale(0.9); }
+  83% { transform: translate(80px, -320px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes blob-drift-4 {
+  0% { transform: translate(0, 0) scale(1.16); }
+  16% { transform: translate(-360px, 240px) scale(0.95); }
+  33% { transform: translate(200px, -300px) scale(1.35); }
+  50% { transform: translate(360px, 120px) scale(0.9); }
+  66% { transform: translate(-120px, -240px) scale(1.25); }
+  83% { transform: translate(-280px, 360px) scale(1.05); }
+  100% { transform: translate(0, 0) scale(1.16); }
+}
+
+@keyframes blob-drift-5 {
+  0% { transform: translate(0, 0) scale(2); }
+  16% { transform: translate(-300px, -360px) scale(2.3); }
+  33% { transform: translate(200px, 240px) scale(1.7); }
+  50% { transform: translate(360px, -160px) scale(2.15); }
+  66% { transform: translate(-80px, 320px) scale(1.8); }
+  83% { transform: translate(-360px, -80px) scale(2.2); }
+  100% { transform: translate(0, 0) scale(2); }
+}
+
+@keyframes blob-drift-6 {
+  0% { transform: translate(0, 0) scale(2); }
+  16% { transform: translate(280px, 320px) scale(1.75); }
+  33% { transform: translate(-240px, -200px) scale(2.3); }
+  50% { transform: translate(-360px, 280px) scale(1.85); }
+  66% { transform: translate(160px, -320px) scale(2.15); }
+  83% { transform: translate(320px, 80px) scale(1.9); }
+  100% { transform: translate(0, 0) scale(2); }
+}
+
+.animate-blob-1 { animation: blob-drift-1 18s ease-in-out infinite; }
+.animate-blob-2 { animation: blob-drift-2 22s ease-in-out infinite; }
+.animate-blob-3 { animation: blob-drift-3 16s ease-in-out infinite; }
+.animate-blob-4 { animation: blob-drift-4 24s ease-in-out infinite; }
+.animate-blob-5 { animation: blob-drift-5 20s ease-in-out infinite; }
+.animate-blob-6 { animation: blob-drift-6 21s ease-in-out infinite; }
+
+/* ─── Scroll Reveal Animations ─── */
+
+@layer base {
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1),
+                transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-fade {
+    opacity: 0;
+    transition: opacity 1s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: opacity;
+  }
+
+  .reveal-fade.visible {
+    opacity: 1;
+  }
+
+  .reveal-scale {
+    opacity: 0;
+    transform: scale(0.96);
+    transition: opacity 0.8s cubic-bezier(0.25, 0.1, 0.25, 1),
+                transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal-scale.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .reveal-quote {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+    transition: opacity 1.2s cubic-bezier(0.25, 0.1, 0.25, 1),
+                transform 1.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal-quote.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .stagger-children > .reveal:nth-child(1) { transition-delay: 0ms; }
+  .stagger-children > .reveal:nth-child(2) { transition-delay: 80ms; }
+  .stagger-children > .reveal:nth-child(3) { transition-delay: 160ms; }
+  .stagger-children > .reveal:nth-child(4) { transition-delay: 240ms; }
+  .stagger-children > .reveal:nth-child(5) { transition-delay: 320ms; }
+  .stagger-children > .reveal:nth-child(6) { transition-delay: 400ms; }
+  .stagger-children > .reveal:nth-child(7) { transition-delay: 480ms; }
+  .stagger-children > .reveal:nth-child(8) { transition-delay: 560ms; }
+
+  .gold-line-animate {
+    width: 0;
+    transition: width 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) 0.3s;
+  }
+
+  .gold-line-animate.visible {
+    width: 3.5rem;
+  }
+
+  .card-hover {
+    transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1),
+                box-shadow 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  }
+
+  .image-reveal {
+    overflow: hidden;
+  }
+
+  .image-reveal img {
+    transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .image-reveal:hover img {
+    transform: scale(1.03);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal-fade, .reveal-scale, .reveal-quote, .gold-line-animate {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+      width: 3.5rem !important;
+    }
+    .card-hover:hover { transform: none; }
+    .image-reveal:hover img { transform: none; }
+  }
 }

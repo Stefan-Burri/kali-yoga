@@ -1,0 +1,99 @@
+# Kali Yoga
+
+> Yoga für «Every Body» — Yoga Studio in Bern
+
+## Brand Identity
+- **Business:** Yoga Studio in Bern (Yogaklassen, Yoga Therapie, Gruppen-Yoga)
+- **Owner:** Karin Liechti — Yogalehrerin mit Fokus auf restauratives und therapeutisches Yoga
+- **Personality:** Warm, einladend, inklusiv, ruhig, zugänglich
+- **Colors:** Sanftes Violett (#9B8AB8), Gold (#D4A843), Off-White (#FAFAF7)
+- **Fonts:** Playfair Display (Display), Cormorant Garamond (Headings), DM Sans (Body)
+- **Typografie:** 9 fluide Tokens (360px–1440px) in `app/globals.css`: `text-h1` (40→76) bis `text-h6` (16→19) für Überschriften, `text-body-lg` (17→21), `text-body` (15→17.5), `text-small` (13→15) für Text. Alle H1–H6 sind automatisch aubergine (globale CSS-Regel). Jede Seite hat genau eine H1 mit lückenloser H-Hierarchie (SEO-optimiert). Grössen ändern: Token-Werte in globals.css anpassen
+- **Language:** German (Swiss German audience)
+
+## Pages
+- **Homepage** (`/`) — Hero, Angebote, Zitat, Stundenplan, Über mich, Feedbacks, Studio, Footer
+- **Yogaklassen** (`/yoga-klassen-bern`) — Hero, 6 Feature-Karten (Harmonie für Körper, Atem und Geist), Zitat, Stundenplan-Grid, Karin Liechti Teaser, Preise (4 Karten), Studio, Feedbacks
+- **Yoga Therapie** (`/yogatherapie-bern`) — Hero, 3-Schritt-Ablauf, Kosten, Zusatzversicherung mit Logos, Zitat, 6 Anwendungsgebiete-Karten, 6 Feedbacks, Karin Liechti Teaser, Studio
+- **Stundenplan** (`/stundenplan`) — Hero mit Titel/Beschreibung, Stundenplan-Grid mit Event-Karten
+- **Kleingruppe Burnout** (`/kleingruppen`) — Hero, 5 Symptom-Karten, Zitat, Kurserwartungen, 7 Kursinhalte, Kursdetails mit 5 Terminen, Zusatzversicherung, Karin Liechti Teaser
+- **Über mich** (`/uber-mich`) — Hero with round portrait, Diplome (4 cards), Über mich bio with 3 photos, Aus- und Weiterbildungen timeline, Studio section
+- **Kontakt** (`/kontakt`) — Hero, Contact form (Name, Email, Message + privacy checkbox)
+- **Datenschutz** (`/datenschutz`) — Hero, Privacy policy with 8 numbered sections
+- **Impressum** (`/impressum`) — Hero, Legal info (contact, liability, copyright, privacy link)
+- **Kleingruppe Gelenkschmerzen** (`/kleingruppen-arthritis`) — Yoga Therapie & Ernährungstherapie bei Gelenkbeschwerden (10-Wochen-Kurs mit Dr. Daniela Zölly)
+- **Anmeldung Yogaklasse** (`/anmeldung-yoga-klasse`) — Registrierungsformular mit Klassen-Dropdown
+- **Anmeldung Yogatherapie** (`/anmeldung-yogatherapie`) — Registrierungsformular für Einzeltherapie
+- **Anmeldung Kleingruppe** (`/anmeldung-kleingruppe`) — Registrierungsformular Burnout-Kleingruppe (mit Adresse/PLZ)
+- **Anmeldung Kleingruppe Gelenkschmerzen** (`/anmeldung-kleingruppe-gelenkschmerzen`) — Registrierungsformular mit vor-Ort/online Auswahl
+
+## Components
+- **Navbar** — Logo links, Navigation (Yoga, Yoga Therapie, Über mich, Kontakt), Anmelden-Button rechts
+- **Footer** — Logo, Adresse, Kontakt, Social Media, Navigation
+- **AnmeldungForm** — Flexible registration form component supporting text, email, tel, textarea, select fields with Datenschutz checkbox and /api/contact POST
+
+## Inhalte bearbeiten (Sanity CMS)
+Die Texte der Website werden im Sanity Studio gepflegt — ohne Code:
+
+- **Bearbeitungs-Studio:** https://kali-yoga.sanity.studio/ (Login mit dem Sanity-Konto)
+- **So geht's:** Inhalt anklicken → Text ändern → unten rechts auf **Publish** klicken → die Website aktualisiert sich innert ca. 1 Minute
+- **Was bearbeitbar ist:**
+  - *Stundenplan-Eintrag* — Klassen und Pausen (Datum, Zeit, Ort); Reihenfolge über das Feld «Reihenfolge»
+  - *Feedback* — Kundenstimmen (Kategorie Yogaklassen oder Yoga Therapie)
+  - *Preis* — die 4 Preiskarten
+  - *Startseite, Seite: Yogaklassen, Yoga Therapie, Stundenplan, Kleingruppe Burnout, Kleingruppe Gelenkschmerzen, Über mich* — Texte der jeweiligen Seite
+  - *Allgemeine Angaben* — Adresse, Telefon, E-Mail, Social Media, Studio-Beschreibung, Karin-Teaser (erscheinen auf mehreren Seiten)
+- **Sicherheitsnetz:** Wird ein Feld in Sanity geleert, zeigt die Website automatisch den ursprünglichen Text. Nichts kann kaputtgehen.
+
+### Englische Version (zweisprachige Website)
+Die Website gibt es auf Deutsch und Englisch:
+
+- **Ein/Aus:** Im Studio unter «Allgemeine Angaben» → Schalter **«Englische Version aktiv»**. Ausgeschaltet = Sprachschalter verschwindet und alle /en-Seiten zeigen «Seite nicht gefunden».
+- **Sprachschalter:** «DE | EN» in der Navigation (Desktop und Mobile), wechselt zur gleichen Seite in der anderen Sprache.
+- **Englische Adressen:** /en, /en/yoga-classes-bern, /en/yoga-therapy-bern, /en/schedule, /en/small-group-burnout, /en/small-group-joint-pain, /en/about-me, /en/contact + 4 Anmeldeformulare unter /en/registration-...
+- **Bearbeiten im Studio:** Die englischen Seiten sind eigene Einträge, mit 🇬🇧 gekennzeichnet (z.B. «🇬🇧 Startseite (English)»). Bei Stundenplan, Feedbacks, Preisen und Allgemeinen Angaben gibt es 🇬🇧-Felder direkt am gleichen Eintrag — Termine/Preise werden nur EINMAL gepflegt, die englischen Textfelder sind optional (leer = automatische Übersetzung der Standardwörter wie Freitag→Friday).
+- **Nur Deutsch:** Impressum und Datenschutz (rechtlich massgebend); der englische Footer verlinkt darauf.
+- **Technik:** Sprach-Hilfen in `lib/i18n.ts` (Routen-Zuordnung, Wort-Übersetzungen, Englisch-Schalter-Abfrage); englische Seiten in `app/en/`.
+
+### Neue Seiten selber anlegen (Baukasten)
+Im Studio unter **«Eigene Seite»** kannst du komplett neue Seiten erstellen:
+1. «Eigene Seite» → neues Dokument → Titel und Adresse (URL) eingeben
+2. Hero-Titel und Einleitung ausfüllen (erscheint ganz oben)
+3. Beliebige **Bausteine** hinzufügen und per Drag-and-Drop ordnen:
+   - *Text* — Absätze mit Fettdruck/Aufzählungen, optional mit Bild links oder rechts
+   - *Karten-Raster* — Karten mit Titel, Beschreibung, optionalem Bild
+   - *Zitat* — im Stil der bestehenden Seiten
+   - *Bereich einfügen* — Stundenplan, Feedbacks oder Preise (zentrale Daten)
+   - *Kursdetails mit Terminen* — Termin-Karten + Detail-Liste
+   - *Anmelde-Aufruf* — Überschrift, Text und Button mit Link
+4. **Publish** klicken → Seite erscheint unter `/adresse` im Kali-Yoga-Design
+
+Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder löschbar). Technik: `app/[slug]/page.tsx` rendert alle «Eigene Seite»-Dokumente, Baustein-Darstellung in `components/blocks/PageBlocks.tsx`.
+- **Technik:** Sanity-Projekt `ghs7plqm`, Dataset `production`, Verbindung in `lib/sanity.ts`, Zugangsdaten in `.env.local`. Bilder/Icons liegen weiterhin in `public/` (nicht im CMS).
+- **Noch fest im Code (nicht im CMS):** Zwischen-Überschriften einzelner Abschnitte, Button-Beschriftungen, Bilder, Formulare, Impressum/Datenschutz.
+
+## Contact Info
+- **Address:** Aarbergergasse 40, 4. Stock, 3011 Bern
+- **Phone:** 076 262 05 62
+- **Email:** info@kali-yoga.ch
+- **Facebook:** facebook.com/KaliYogaBern
+- **Instagram:** instagram.com/kali_yogabern
+
+## Recent Changes
+- 2026-06-12: Typografie konsolidiert: 16 → 9 Tokens (text-h1…h6, body-lg, body, small), alle Überschriften aubergine, H1–H6 semantisch korrekt auf allen 20 Seiten (genau 1 H1 pro Seite, SEO-Audit), Hinweistexte unter Kursterminen zentriert (DE + EN)
+- 2026-06-12: Alle 8 Hero-Sektionen mit gebogenem Titel optisch korrekt zentriert — unsichtbarer Leerraum über dem Bogen (SVG-viewBox) beschnitten (Startseite, Yogaklassen, Yoga Therapie, Über mich, je DE + EN)
+- 2026-06-12: Scroll-Navbar (erscheint beim Hochscrollen) im Glas-Look der durchlässigen Boxen (transparent, Weichzeichner, heller Rand)
+- 2026-06-12: Sprachwahl in der Navigation ist jetzt ein Dropdown (DE/EN mit Pfeil) rechts vom Anmelden-Button; im Mobile-Menü weiterhin als DE | EN
+- 2026-06-12: Fluide Typografie eingeführt — zentrale clamp()-Skala (360–1440px) in globals.css, Fliesstext neu 15→16px statt 14px, Kleintext angehoben, Überschriften skalieren stufenlos (Desktop-Grössen unverändert), Abschnitts-Abstände moderat fluid (48→64px). ~495 Stellen umgestellt, visuell bei 360px und 1440px geprüft
+- 2026-06-12: Preis-Karten an Stundenplan-Karten angeglichen: transparent mit violettem Rand (zentral + Baukasten)
+- 2026-06-12: Alle 12 Hero-Sektionen (mit Icon/Animation) vereinheitlicht: min-height 100dvh inkl. Navbar, Inhalt vertikal zentriert
+- 2026-06-12: Startseiten-Hero: Animation 64px nach unten verschoben (mehr Abstand zum gebogenen Titel) und mehr Abstand zwischen Animation und Titel/Untertitel (DE + EN)
+- 2026-06-12: Code aufgeräumt — 21 ungenutzte Dateien gelöscht, doppelter Code zusammengelegt (Stundenplan-Raster, Feedback-Karten, Preis-Karten, Studio-/Karin-Abschnitte sind jetzt zentrale Komponenten in components/ui.tsx). Erscheinungsbild per HTML-Vergleich verifiziert: pixelgenau unverändert. /styleguide und /components sind für Suchmaschinen gesperrt
+- 2026-06-12: Englische Version der Website gebaut — alle Inhalte übersetzt, 12 Seiten unter /en/..., Sprachschalter DE|EN in der Navigation, ein-/ausschaltbar im Studio («Allgemeine Angaben» → «Englische Version aktiv»)
+- 2026-06-12: Vergangene Termine werden jetzt automatisch ausgeblendet (Stundenplan auf allen Seiten) und das Anmeldeformular für Yogaklassen zieht seine Datumsauswahl direkt aus dem Stundenplan im Studio
+- 2026-06-12: Seiten-Baukasten eingebaut — neue Seiten können im Studio unter «Eigene Seite» aus 6 Bausteinen zusammengestellt werden (Beispiel: /beispiel-workshop)
+- 2026-06-12: Sanity CMS integriert — alle Inhalte (Stundenplan, Preise, Feedbacks, Kurse, Seitentexte, Kontaktangaben) sind jetzt im Studio unter kali-yoga.sanity.studio bearbeitbar; bisherige Texte dienen als Fallback
+- 2026-06-06: Project created, brand analysis from kali-yoga.ch
+- 2026-06-06: Created 4 subpages: /uber-mich, /kontakt, /datenschutz, /impressum
+- 2026-06-06: Created AnmeldungForm component and 5 new pages: /kleingruppen-arthritis, /anmeldung-yoga-klasse, /anmeldung-yogatherapie, /anmeldung-kleingruppe, /anmeldung-kleingruppe-gelenkschmerzen
+- 2026-06-06: Created 4 content pages: /yoga-klassen-bern (Yogaklassen), /yogatherapie-bern (Yoga Therapie), /stundenplan (Stundenplan), /kleingruppen (Kleingruppe Burnout)

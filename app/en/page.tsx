@@ -1,52 +1,88 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import StickyNavbar, { HeroNavbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroLottie from "@/components/HeroLottie";
 import ScrollReveal from "@/components/ScrollReveal";
-import { GoldLine, ChevronRight, GlassCard, SectionHeading, QuoteSection, StudioSection, KarinSection, ScheduleGrid, TestimonialCard, secondaryBtnClass } from "@/components/ui";
-import { yogaSchedule, yogaTestimonials } from "@/lib/data";
+import { GoldLine, ChevronRight, GlassCard, SectionHeading, QuoteSection, ScheduleGrid, TestimonialCard, KarinSection, StudioSection, secondaryBtnClass } from "@/components/ui";
+import { yogaSchedule } from "@/lib/data";
 import { filterUpcomingSchedule } from "@/lib/schedule";
 import { client } from "@/lib/sanity";
+import { translateDay, translateLocation, translatePauseLabel, getEnglishEnabled } from "@/lib/i18n";
 
 export const revalidate = 60;
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: "Kali Yoga · Yoga for «Every Body» · Yoga Studio in Bern",
+    description:
+      "Yoga for everyone, regardless of age, gender, body shape or physical condition. Yoga studio in Bern at Aarbergergasse 40.",
+  };
+}
 
 /* ─── Fallback Data (used when Sanity returns nothing) ─── */
 
 const FALLBACK_HERO_TITLE = "Yoga Studio in Bern";
 const FALLBACK_HERO_SUBTITLE =
-  "Yoga für Alle, unabhängig von Alter, Geschlecht, Körperform, psychischer oder körperlicher Verfassung.";
+  "Yoga for everyone, regardless of age, gender, body shape, or mental and physical condition.";
 const FALLBACK_QUOTE_TEXT =
-  "Beim Yoga geht es nicht um die Form deines Körpers, sondern um die Form deines Lebens";
+  "Yoga is not about the shape of your body, but the shape of your life";
 const FALLBACK_QUOTE_AUTHOR = "Aadil Palkhivala";
 
 const FALLBACK_SERVICES = [
   {
-    title: "Yogaklassen",
-    description: "Durch Bewegung, Entspannung und Raum für individuelle Exploration den Körper bewusst wahrnehmen",
-    href: "/yoga-klassen",
+    title: "Yoga Classes",
+    description: "Become aware of your body through movement, relaxation and space for individual exploration",
+    href: "/en/yoga-classes-bern",
     icon: "/images/icon-yogaklassen.svg",
   },
   {
-    title: "Yoga Therapie Einzelsetting",
-    description: "Ganzheitliche Therapieform, in welcher der Mensch als Einheit von Körper, Geist und Seele betrachtet wird",
-    href: "/yogatherapie",
+    title: "Yoga Therapy One-on-One",
+    description: "A holistic form of therapy that sees each person as a whole – body, mind and soul",
+    href: "/en/yoga-therapy-bern",
     icon: "/images/icon-therapie.svg",
   },
   {
-    title: "Yoga Therapie Kleingruppen",
-    description: "Kursreihen im Kleingruppen-Setting zu verschiedenen Themen – mit individueller Begleitung.",
-    href: "/kleingruppen",
+    title: "Yoga Therapy Small Groups",
+    description: "Course series in a small-group setting on different topics – with individual guidance.",
+    href: "/en/small-group-burnout",
     icon: "/images/icon-kleingruppen.svg",
   },
   {
-    title: "Für Gruppen",
-    description: "Yoga für Veranstaltungen oder Unternehmen – gemeinsam eine Auszeit nehmen und neue Energie tanken",
-    href: "/kontakt",
+    title: "For Groups",
+    description: "Yoga for events or companies – take a break together and recharge",
+    href: "/en/contact",
     icon: "/images/icon-gruppen.svg",
-    ctaText: "Kontakt",
+    ctaText: "Contact",
   },
 ];
+
+const FALLBACK_TESTIMONIALS = [
+  {
+    quote: "Loving classes in a wonderful, light-filled studio. Great support with back problems",
+    name: "Claudia",
+  },
+  {
+    quote: "Karin's yoga classes are wonderfully varied and holistic. After every class I feel deeply relaxed and at home in my body",
+    name: "Corinne",
+  },
+  {
+    quote: "My shoulders, which often feel tense, were very happy after the class! The \"backmitra\" is fascinating. My back felt wonderfully warm and alive afterwards.",
+    name: "Mandy",
+  },
+  {
+    quote: "Great programme – a good mix of relaxation and strengthening, highly recommended for tension as well.",
+    name: "Stevie",
+  },
+];
+
+const FALLBACK_STUDIO_DESCRIPTION =
+  "The yoga studio with its beautiful oak parquet floor is flooded with light through a long row of windows, has plenty of fresh air and hardly any noise, as it faces the inner courtyard. There is an entrance area with a cloakroom and two toilets. Its central location at Aarbergergasse 40 makes it easy to reach for anyone travelling by public transport.";
+
+const FALLBACK_KARIN_BIO =
+  "While travelling through North and Central America in 2018, I happened to pass a signpost for the Solstice Yoga School in Mexico. After looking into the school, I took that turn and completed the 200-hour yoga teacher training with a focus on restorative and therapeutic yoga. It was the beginning of a journey of continuous growth.";
 
 /* ─── Types for Sanity content ─── */
 
@@ -77,6 +113,8 @@ type ScheduleEntryDoc = {
   classType?: string;
   location?: string;
   pauseLabel?: string;
+  locationEn?: string;
+  pauseLabelEn?: string;
 };
 
 type TestimonialDoc = { quote?: string; name?: string };
@@ -101,16 +139,16 @@ async function getData(): Promise<[HomepageDoc, ScheduleEntryDoc[] | null, Testi
   try {
     return await Promise.all([
       client.fetch<HomepageDoc>(
-        `*[_type == "homepage"][0]{heroTitle, heroSubtitle, services[]{title, description, href, ctaText, icon}, quoteText, quoteAuthor}`
+        `*[_type == "homepageEn"][0]{heroTitle, heroSubtitle, services[]{title, description, href, ctaText, icon}, quoteText, quoteAuthor}`
       ),
       client.fetch<ScheduleEntryDoc[]>(
-        `*[_type == "scheduleEntry"] | order(order asc){entryType, day, time, date, classType, location, pauseLabel}`
+        `*[_type == "scheduleEntry"] | order(order asc){entryType, day, time, date, classType, location, pauseLabel, locationEn, pauseLabelEn}`
       ),
       client.fetch<TestimonialDoc[]>(
-        `*[_type == "testimonial" && category == "yoga"] | order(order asc){quote, name}`
+        `*[_type == "testimonial" && category == "yoga"] | order(order asc){"quote": coalesce(quoteEn, quote), name}`
       ),
       client.fetch<SiteSettingsDoc>(
-        `*[_type == "siteSettings"][0]{address, addressDetail, city, phone, email, facebook, instagram, studioTitle, studioDescription, karinTeaserTitle, karinTeaserText}`
+        `*[_type == "siteSettings"][0]{address, addressDetail, city, phone, email, facebook, instagram, "studioTitle": coalesce(studioTitleEn, studioTitle), "studioDescription": coalesce(studioDescriptionEn, studioDescription), "karinTeaserTitle": coalesce(karinTeaserTitleEn, karinTeaserTitle), "karinTeaserText": coalesce(karinTeaserTextEn, karinTeaserText)}`
       ),
     ]);
   } catch {
@@ -120,7 +158,9 @@ async function getData(): Promise<[HomepageDoc, ScheduleEntryDoc[] | null, Testi
 
 /* ─── Page ─── */
 
-export default async function Home() {
+export default async function HomeEn() {
+  if (!(await getEnglishEnabled())) notFound();
+
   const [homepage, scheduleEntries, sanityTestimonials, siteSettings] = await getData();
 
   const heroTitle = homepage?.heroTitle ?? FALLBACK_HERO_TITLE;
@@ -133,7 +173,7 @@ export default async function Home() {
       ? homepage.services.map((s, i) => ({
           title: s.title ?? FALLBACK_SERVICES[i]?.title ?? "",
           description: s.description ?? FALLBACK_SERVICES[i]?.description ?? "",
-          href: s.href ?? FALLBACK_SERVICES[i]?.href ?? "/",
+          href: s.href ?? FALLBACK_SERVICES[i]?.href ?? "/en",
           icon: s.icon ?? FALLBACK_SERVICES[i]?.icon ?? "/images/icon-yogaklassen.svg",
           ctaText: s.ctaText ?? undefined,
         }))
@@ -143,28 +183,47 @@ export default async function Home() {
     scheduleEntries && scheduleEntries.length > 0
       ? scheduleEntries.map((e): ScheduleItem =>
           e.entryType === "pause"
-            ? { type: "pause", date: e.date ?? "", label: e.pauseLabel ?? "" }
+            ? { type: "pause", date: e.date ?? "", label: e.pauseLabelEn || translatePauseLabel(e.pauseLabel) || "" }
             : {
-                day: e.day ?? "",
+                day: translateDay(e.day ?? ""),
                 time: e.time ?? "",
                 date: e.date ?? "",
                 type: e.classType ?? "",
-                location: e.location ?? "",
+                location: e.locationEn || translateLocation(e.location) || "",
               }
         )
-      : yogaSchedule
+      : yogaSchedule.map((e): ScheduleItem =>
+          e.type === "pause"
+            ? { type: "pause", date: e.date, label: translatePauseLabel((e as { label?: string }).label) ?? "" }
+            : {
+                day: translateDay((e as { day?: string }).day ?? ""),
+                time: (e as { time?: string }).time ?? "",
+                date: e.date,
+                type: e.type,
+                location: translateLocation((e as { location?: string }).location) ?? "",
+              }
+        )
   );
 
   const testimonials =
-    sanityTestimonials && sanityTestimonials.length > 0 ? sanityTestimonials : yogaTestimonials;
+    sanityTestimonials && sanityTestimonials.length > 0 ? sanityTestimonials : FALLBACK_TESTIMONIALS;
+
+  const studioTitle = siteSettings?.studioTitle ?? "Studio";
+  const studioDescription = siteSettings?.studioDescription ?? FALLBACK_STUDIO_DESCRIPTION;
+  const studioAddress = siteSettings?.address ?? "Aarbergergasse 40";
+  const studioAddressDetail = siteSettings?.addressDetail ?? "4th floor | Lift available";
+  const studioCity = siteSettings?.city ?? "3011 Bern";
+
+  const karinTitle = siteSettings?.karinTeaserTitle ?? "Karin Liechti";
+  const karinText = siteSettings?.karinTeaserText ?? FALLBACK_KARIN_BIO;
 
   return (
     <div className="min-h-screen">
-      <StickyNavbar />
+      <StickyNavbar lang="en" />
 
       {/* ─── Hero ─── */}
       <section className="relative min-h-[100dvh] flex flex-col overflow-hidden">
-        <HeroNavbar />
+        <HeroNavbar lang="en" />
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
         <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
           {/* Curved text */}
@@ -191,19 +250,19 @@ export default async function Home() {
           <p className="mt-3 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed">
             {heroSubtitle}
           </p>
-          <a href="#angebote" className={`mt-6 ${secondaryBtnClass}`}>
-            Mehr Erfahren
+          <a href="#offerings" className={`mt-6 ${secondaryBtnClass}`}>
+            Learn More
           </a>
         </div>
         </div>
       </section>
 
       {/* ─── Services ─── */}
-      <section id="angebote" className="py-section">
+      <section id="offerings" className="py-section">
         <div className="mx-auto max-w-[1280px] px-6">
           <ScrollReveal variant="scale">
           <GlassCard>
-            <SectionHeading title="Balance für Körper und Geist" description="Durch Bewegung, Atmung und Entspannung, Körper und Geist bewusst wahrnehmen und zur inneren Ruhe finden." />
+            <SectionHeading title="Balance for Body and Mind" description="Through movement, breath and relaxation, become aware of body and mind and find your way to inner calm." />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
               {services.map((service) => (
@@ -218,7 +277,7 @@ export default async function Home() {
                     {service.description}
                   </p>
                   <Link href={service.href} className={secondaryBtnClass}>
-                    {service.ctaText || "Mehr Erfahren"}
+                    {service.ctaText || "Learn More"}
                     <ChevronRight />
                   </Link>
                 </div>
@@ -238,19 +297,17 @@ export default async function Home() {
         <div className="mx-auto max-w-[1280px] px-6">
           <ScrollReveal variant="scale">
           <GlassCard>
-            <SectionHeading title="Stundenplan Yogaklassen" description="Regelmässige Yogaklassen im Studio an der Aarbergasse 40 in Bern. 75 Minuten – Yogamatten, Kissen, usw. sind im Studio vorhanden. Du kannst jedoch gerne deine eigene Yogamatte oder ein Tuch mitbringen." />
+            <SectionHeading title="Yoga Class Schedule" description="Regular yoga classes at the studio at Aarbergergasse 40 in Bern. 75 minutes – yoga mats, cushions, etc. are available at the studio. You're also welcome to bring your own yoga mat or a towel." />
 
-            <ScheduleGrid items={allSchedule} />
+            <ScheduleGrid items={allSchedule} ctaLabel="Sign Up" ctaHref="/en/registration-yoga-class" />
           </GlassCard>
           </ScrollReveal>
         </div>
       </section>
 
+      {/* ─── Karin teaser ─── */}
       <ScrollReveal>
-        <KarinSection
-          title={siteSettings?.karinTeaserTitle ?? undefined}
-          description={siteSettings?.karinTeaserText ?? undefined}
-        />
+        <KarinSection title={karinTitle} description={karinText} imageAlt="Karin Liechti – yoga teacher, Kali Yoga Studio Bern" ctaHref="/en/about-me" ctaLabel="Learn More" />
       </ScrollReveal>
 
       {/* ─── Testimonials ─── */}
@@ -259,7 +316,7 @@ export default async function Home() {
           <ScrollReveal variant="scale">
           <GlassCard>
             <h2 className="text-center font-display text-h3 font-bold text-primary mb-2">
-              Feedbacks Yogaklassen
+              Yoga Class Feedback
             </h2>
             <GoldLine />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-14 mt-12">
@@ -272,17 +329,13 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ─── Studio ─── */}
       <ScrollReveal>
-        <StudioSection
-          title={siteSettings?.studioTitle ?? undefined}
-          description={siteSettings?.studioDescription ?? undefined}
-          address={siteSettings?.address ?? undefined}
-          addressDetail={siteSettings?.addressDetail ?? undefined}
-          city={siteSettings?.city ?? undefined}
-        />
+        <StudioSection title={studioTitle} description={studioDescription} address={studioAddress} addressDetail={studioAddressDetail} city={studioCity} imageAlt="Kali Yoga Bern – studio at Aarbergergasse 40, Bern" ctaLabel="Rent the Studio" />
       </ScrollReveal>
 
       <Footer
+        lang="en"
         address={siteSettings?.address ?? undefined}
         city={siteSettings?.city ?? undefined}
         phone={siteSettings?.phone ?? undefined}
