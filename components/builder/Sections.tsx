@@ -343,8 +343,8 @@ function ScheduleSectionBlock({ section, data, id }: { section: PageSection; dat
 
 /* ─── testimonialsSection ─── */
 
-function TestimonialsSectionBlock({ section, data, id }: { section: PageSection; data: SharedData; id?: string }) {
-  const testimonials = section.category === "therapie" ? data.testimonialsTherapie : data.testimonialsYoga;
+function TestimonialsSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+  const testimonials = section.testimonials ?? [];
   return (
     <SectionShell section={section} id={id}>
       {section.title && (
@@ -353,31 +353,63 @@ function TestimonialsSectionBlock({ section, data, id }: { section: PageSection;
           <GoldLine />
         </>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-14 mt-12">
-        {testimonials.map((t, i) => (
-          <TestimonialCard key={t.name ?? i} headline={t.headline} quote={t.quote} name={t.name} />
-        ))}
-      </div>
+      {testimonials.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-14 mt-12">
+          {testimonials.map((t, i) => (
+            <TestimonialCard
+              key={t._key ?? i}
+              headline={t.headline ?? undefined}
+              quote={t.quote ?? undefined}
+              name={t.name ?? undefined}
+            />
+          ))}
+        </div>
+      )}
     </SectionShell>
   );
 }
 
 /* ─── pricingSection ─── */
 
-function PricingSectionBlock({ section, data, id }: { section: PageSection; data: SharedData; id?: string }) {
+function PricingSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+  const plans = (section.cards ?? []).map((c) => ({
+    title: c.title ?? "",
+    price: c.price ?? "",
+    reduced: c.reduced ?? "",
+    detail: c.detail ?? "",
+    validity: c.validity ?? undefined,
+    badge: c.badge ?? undefined,
+  }));
+
   return (
     <SectionShell section={section} id={id}>
       {(section.title || section.intro) && (
         <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
       )}
-      <div className="flex justify-center mb-10">
-        <Link href="/anmeldung-yoga-klasse" className={primaryBtnClass}>Anmelden</Link>
-      </div>
 
-      <PricingGrid plans={data.pricing} />
+      {plans.length > 0 && <PricingGrid plans={plans} />}
 
       {section.note && (
         <p className="mt-8 text-small text-foreground/70 leading-relaxed text-center">{section.note}</p>
+      )}
+
+      {section.ctaLabel && (
+        <div className="flex justify-center mt-8">
+          <SmartLink href={section.ctaHref ?? "/anmeldung-yoga-klasse"} className={primaryBtnClass}>
+            {section.ctaLabel}
+          </SmartLink>
+        </div>
+      )}
+
+      {(section.paymentTitle || section.paymentText) && (
+        <div className="mt-8 pt-6 border-t border-foreground/10 text-center">
+          {section.paymentTitle && (
+            <h3 className="font-display text-body-lg font-bold text-primary mb-3">{section.paymentTitle}</h3>
+          )}
+          {section.paymentText && (
+            <p className="text-body text-foreground leading-relaxed">{section.paymentText}</p>
+          )}
+        </div>
       )}
     </SectionShell>
   );
@@ -640,9 +672,9 @@ export default function PageSections({ sections, data }: { sections: PageSection
           case "scheduleSection":
             return <ScheduleSectionBlock key={section._key} section={section} data={data} id={id} />;
           case "testimonialsSection":
-            return <TestimonialsSectionBlock key={section._key} section={section} data={data} id={id} />;
+            return <TestimonialsSectionBlock key={section._key} section={section} id={id} />;
           case "pricingSection":
-            return <PricingSectionBlock key={section._key} section={section} data={data} id={id} />;
+            return <PricingSectionBlock key={section._key} section={section} id={id} />;
           case "courseDetailsSection":
             return <CourseDetailsSectionBlock key={section._key} section={section} id={id} />;
           case "ctaSection":
