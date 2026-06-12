@@ -35,7 +35,11 @@
 ## Inhalte bearbeiten (Sanity CMS)
 Die Texte der Website werden im Sanity Studio gepflegt — ohne Code:
 
-- **Bearbeitungs-Studio:** https://kali-yoga.sanity.studio/ (Login mit dem Sanity-Konto)
+- **Bearbeitungs-Studios** (Login mit dem Sanity-Konto), sauber getrennt nach Bereich:
+  - https://kali-yoga-inhalte.sanity.studio/ — **Zweisprachige Inhalte**: Stundenplan, Preise, Feedbacks, Zitate, Allgemeine Angaben, Baukasten-Seiten
+  - https://kali-yoga-deutsch.sanity.studio/ — **Deutsche Seiten** (7 Seiten)
+  - https://kali-yoga-english.sanity.studio/ — **Englische Seiten** (7 Seiten)
+  - https://kali-yoga.sanity.studio/ — Gesamtansicht (alles gemischt, als Fallback)
 - **So geht's:** Inhalt anklicken → Text ändern → unten rechts auf **Publish** klicken → die Website aktualisiert sich innert ca. 1 Minute
 - **Was bearbeitbar ist:**
   - *Stundenplan-Eintrag* — Klassen und Pausen (Datum, Zeit, Ort); Reihenfolge über das Feld «Reihenfolge»
@@ -86,6 +90,7 @@ Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder 
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-06-12: Studio in 3 getrennte Bereiche aufgeteilt (Zweisprachige Inhalte / Deutsch / English, je eigene URL) und alle 14 SEO-Felder mit suchmaschinenoptimierten Titeln und Beschreibungen befüllt
 - 2026-06-12: PageSpeed-Optimierung — SEO-Felder (🔎 Titel + Beschreibung) in allen Seiten-Dokumenten im Studio bearbeitbar, <main>-Landmarke und korrekte Überschriften-Reihenfolge auf allen Seiten (Barrierefreiheit), Live-Domain bei Sanity freigeschaltet (behebt Konsolenfehler + Sprachschalter auf der Live-Site)
 - 2026-06-12: Studio-Struktur aufgeräumt — Zitate sind jetzt eine eigene Sektion «Zitat» (5 Einträge mit Seiten-Zuordnung statt versteckter Felder), der gebogene Titel der Startseite ist neu in Sanity bearbeitbar («Seite: Startseite» → Gebogener Titel), alle Seiten-Typen einheitlich als «Seite: …» benannt
 - 2026-06-12: Typografie konsolidiert: 16 → 9 Tokens (text-h1…h6, body-lg, body, small), alle Überschriften aubergine, H1–H6 semantisch korrekt auf allen 20 Seiten (genau 1 H1 pro Seite, SEO-Audit), Hinweistexte unter Kursterminen zentriert (DE + EN)
