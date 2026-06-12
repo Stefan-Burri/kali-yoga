@@ -17,7 +17,34 @@ import {
   secondaryBtnClass,
   imageShadow,
 } from "@/components/ui";
-import type { Lang, NavigationDoc, PageSection, SectionCard, SharedData } from "@/lib/builder";
+import type { Lang, NavigationDoc, PageSection, SanityImageRef, SectionCard, SharedData } from "@/lib/builder";
+
+/* ─── Widened section shapes ───
+   The deployed schema grew new fields (hero 'straight' variant + fullHeight,
+   textSection galleries/logos/align, cardGrid 'logos' layout + per-card
+   footnote/logoPath). lib/builder's types don't know them yet, so they are
+   widened locally – plain PageSection values stay assignable. */
+
+type BuilderCard = SectionCard & {
+  /** Small primary line pinned to the card bottom (original step-duration). */
+  footnote?: string | null;
+  /** Diploma-style logo (fixed 80px box, object-contain). */
+  logoPath?: string | null;
+};
+
+type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
+  /* heroSection */
+  variant?: "curved" | "simple" | "home" | "straight" | null;
+  fullHeight?: boolean | null;
+  /* cardGridSection */
+  layout?: "grid-2" | "grid-3" | "grid-4" | "list" | "logos" | null;
+  cards?: BuilderCard[] | null;
+  /* textSection */
+  imagePaths?: string[] | null;
+  galleryImages?: SanityImageRef[] | null;
+  logoPaths?: string[] | null;
+  align?: "center" | "left" | null;
+};
 
 /* ─── Portable Text styling (matches the site's body text) ─── */
 
@@ -63,7 +90,7 @@ function SectionShell({
   reveal,
   id,
 }: {
-  section: PageSection;
+  section: BuilderSection;
   children: React.ReactNode;
   /** Override the ScrollReveal variant (e.g. "quote" for quotes). */
   reveal?: "up" | "fade" | "scale" | "quote";
@@ -103,6 +130,55 @@ function BuilderImageCard({ src, alt, remote, className = "" }: { src: string; a
   );
 }
 
+/** Image card matching ui.tsx ImageCard exactly (incl. image-reveal hover),
+    plus `unoptimized` for remote Sanity URLs (original Über-mich bio images). */
+function GalleryImageCard({ src, alt, width, height }: { src: string; alt: string; width: number; height: number }) {
+  const remote = /^https?:\/\//.test(src);
+  return (
+    <div className="rounded-[12px] overflow-hidden relative image-reveal" style={{ boxShadow: imageShadow }}>
+      <div className="aspect-[3/2]" />
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        unoptimized={remote}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    </div>
+  );
+}
+
+/** "emr-logo.svg" → "EMR" – readable alt text derived from the file name. */
+function logoAlt(src: string): string {
+  const base = src.split("/").pop() ?? "";
+  return base
+    .replace(/\.[a-z0-9]+$/i, "")
+    .replace(/-logo$/i, "")
+    .replace(/-/g, " ")
+    .toUpperCase();
+}
+
+/** Centered logo row – exact markup of the original Zusatzversicherung logos. */
+function LogoRow({ logos, className }: { logos: { src: string; alt: string }[]; className?: string }) {
+  if (logos.length === 0) return null;
+  return (
+    <div className={`flex flex-wrap justify-center items-center gap-8${className ? ` ${className}` : ""}`}>
+      {logos.map((logo, i) => (
+        <Image
+          key={`${logo.src}-${i}`}
+          src={logo.src}
+          alt={logo.alt}
+          width={100}
+          height={40}
+          unoptimized={/^https?:\/\//.test(logo.src)}
+          className="h-[36px] w-auto"
+        />
+      ))}
+    </div>
+  );
+}
+
 function SmartLink({ href, className, children }: { href: string; className: string; children: React.ReactNode }) {
   const external = /^https?:\/\//.test(href);
   if (external) {
@@ -128,12 +204,51 @@ function SmartLink({ href, className, children }: { href: string; className: str
 
 /* ─── textSection ─── */
 
-function TextSection({ section, id }: { section: PageSection; id?: string }) {
+function TextSection({ section, id }: { section: BuilderSection; id?: string }) {
   const sanityUrl = section.image?.asset?.url ?? null;
   const imageSrc = sanityUrl ?? section.imagePath ?? null;
   const glass = section.appearance !== "plain";
+  const logoPaths = section.logoPaths ?? [];
 
-  /* With image: two-column layout (Karin/Studio teaser style) */
+  /* Additional images: sanity gallery first, then static paths. */
+  const extraImages = [
+    ...(section.galleryImages ?? []).map((img) => img?.asset?.url).filter((url): url is string => Boolean(url)),
+    ...(section.imagePaths ?? []),
+  ];
+
+  /* More than one image: gallery layout (original Über-mich bio) –
+     centered heading, text column + image stack (1 large, rest in 2 columns). */
+  if (imageSrc && extraImages.length > 0) {
+    const imagesFirst = section.imagePosition === "left";
+    return (
+      <SectionShell section={section} id={id}>
+        <div className={glass ? undefined : "p-8 sm:p-12 lg:p-16"}>
+          {section.title && <SectionHeading title={section.title} />}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <div className="space-y-5 text-body text-foreground leading-[1.8]">
+              <Body value={section.body} />
+              {section.buttonLabel && section.buttonLink && (
+                <SmartLink href={section.buttonLink} className={secondaryBtnClass}>
+                  {section.buttonLabel}
+                  <ChevronRight />
+                </SmartLink>
+              )}
+            </div>
+            <div className={`grid grid-cols-1 gap-6${imagesFirst ? " md:order-first" : ""}`}>
+              <GalleryImageCard src={imageSrc} alt={section.title ?? ""} width={800} height={533} />
+              <div className="grid grid-cols-2 gap-6">
+                {extraImages.map((src, i) => (
+                  <GalleryImageCard key={`${src}-${i}`} src={src} alt={section.title ?? ""} width={600} height={400} />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </SectionShell>
+    );
+  }
+
+  /* With one image: two-column layout (Karin/Studio teaser style) */
   if (imageSrc) {
     const imageOnRight = section.imagePosition === "right";
     return (
@@ -167,21 +282,23 @@ function TextSection({ section, id }: { section: PageSection; id?: string }) {
     );
   }
 
-  /* Without image: centered text column */
+  /* Without image: centered text column (or left-aligned for legal pages) */
+  const alignLeft = section.align === "left";
   return (
     <SectionShell section={section} id={id}>
-      <div className={`max-w-[768px] mx-auto text-center${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
+      <div className={`max-w-[768px] mx-auto${alignLeft ? "" : " text-center"}${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
         {section.title && (
           <>
             <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
-            <GoldLine />
+            <GoldLine centered={!alignLeft} />
           </>
         )}
         <div className="mt-4">
           <Body value={section.body} />
         </div>
+        <LogoRow logos={logoPaths.map((src) => ({ src, alt: logoAlt(src) }))} className="mt-10" />
         {section.buttonLabel && section.buttonLink && (
-          <div className="flex justify-center mt-8">
+          <div className={alignLeft ? "mt-8" : "flex justify-center mt-8"}>
             <SmartLink href={section.buttonLink} className={primaryBtnClass}>
               {section.buttonLabel}
             </SmartLink>
@@ -200,7 +317,7 @@ const GRID_CLASSES: Record<string, string> = {
   "grid-4": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8",
 };
 
-function CardLink({ card }: { card: SectionCard }) {
+function CardLink({ card }: { card: BuilderCard }) {
   if (!card.linkLabel || !card.linkHref) return null;
   return (
     <SmartLink href={card.linkHref} className={`mt-6 ${secondaryBtnClass}`}>
@@ -210,9 +327,50 @@ function CardLink({ card }: { card: SectionCard }) {
   );
 }
 
-function GridCard({ card }: { card: SectionCard }) {
+function GridCard({ card }: { card: BuilderCard }) {
   const iconSrc = card.image?.asset?.url ?? card.iconPath ?? null;
   const itemsText = card.items && card.items.length > 0 ? card.items.join(", ") : null;
+
+  /* Diploma card: logo in a fixed 80px object-contain box (original Diplome
+     style; the original places the logo box first, the period as a small
+     muted line). Takes precedence over iconPath – the Diplome cards carry
+     the same image in both fields. */
+  if (card.logoPath) {
+    return (
+      <div className="text-center flex flex-col items-center">
+        <div className="w-[80px] h-[80px] mb-5 flex items-center justify-center">
+          <Image
+            src={card.logoPath}
+            alt={card.title ?? ""}
+            width={80}
+            height={80}
+            className="max-w-full max-h-full object-contain"
+          />
+        </div>
+        {card.title && <h3 className="font-display text-body-lg font-bold text-primary mb-2">{card.title}</h3>}
+        {card.subtitle && <p className="text-small text-foreground/60 mb-2">{card.subtitle}</p>}
+        {card.description && <p className="text-body text-foreground leading-relaxed">{card.description}</p>}
+        {itemsText && <p className="text-body text-foreground leading-relaxed">{itemsText}</p>}
+        <CardLink card={card} />
+      </div>
+    );
+  }
+
+  /* Step card: bordered with the footnote (duration) pinned to the bottom –
+     exact markup of the original yogatherapie Ablauf cards. */
+  if (card.footnote) {
+    return (
+      <div className="rounded-[16px] border-2 border-primary p-7 flex flex-col min-h-[260px]">
+        {card.badge && <p className="text-small font-medium text-foreground/60 uppercase tracking-wider mb-2">{card.badge}</p>}
+        {card.title && <h3 className="font-display text-h5 font-bold text-primary">{card.title}</h3>}
+        {card.subtitle && <p className="text-body text-foreground/70 italic mb-4">{card.subtitle}</p>}
+        {(card.description || itemsText) && (
+          <p className="text-body text-foreground leading-relaxed flex-1">{card.description ?? itemsText}</p>
+        )}
+        <p className="mt-4 text-small font-medium text-primary">{card.footnote}</p>
+      </div>
+    );
+  }
 
   /* Icon card: feature style (icon on top, no border) */
   if (iconSrc) {
@@ -251,7 +409,19 @@ function GridCard({ card }: { card: SectionCard }) {
   );
 }
 
-function CardGridSection({ section, id }: { section: PageSection; id?: string }) {
+function CardGridSection({
+  section,
+  lang,
+  id,
+  cta,
+}: {
+  section: BuilderSection;
+  lang: Lang;
+  id?: string;
+  /** A plain, title-less ctaSection/textSection that directly follows this
+      grid – rendered inside the section like the original closing line. */
+  cta?: BuilderSection | null;
+}) {
   const cards = section.cards ?? [];
   const layout = section.layout ?? "grid-3";
 
@@ -262,7 +432,16 @@ function CardGridSection({ section, id }: { section: PageSection; id?: string })
           <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
         )}
 
-        {layout === "list" ? (
+        {layout === "logos" ? (
+          <LogoRow
+            logos={cards
+              .map((card) => {
+                const src = card.image?.asset?.url ?? card.logoPath ?? card.iconPath ?? null;
+                return src ? { src, alt: card.title ?? logoAlt(src) } : null;
+              })
+              .filter((logo): logo is { src: string; alt: string } => logo !== null)}
+          />
+        ) : layout === "list" ? (
           <div className="space-y-6 max-w-[768px] mx-auto">
             {cards.map((card, i) => (
               <div key={card._key ?? i} className="flex gap-3 sm:gap-5 items-start">
@@ -287,8 +466,47 @@ function CardGridSection({ section, id }: { section: PageSection; id?: string })
             ))}
           </div>
         )}
+
+        {cta && (
+          <div className="mt-10 text-center">
+            {cta.text && (
+              <p className="text-body text-foreground leading-relaxed max-w-[768px] mx-auto">{cta.text}</p>
+            )}
+            {Array.isArray(cta.body) && cta.body.length > 0 && (
+              <div className="max-w-[768px] mx-auto">
+                <Body value={cta.body} />
+              </div>
+            )}
+            {cta.buttonLabel && (
+              <SmartLink
+                href={cta.buttonLink ?? (lang === "en" ? "/en/contact" : "/kontakt")}
+                className={`mt-6 ${primaryBtnClass} mx-auto`}
+              >
+                {cta.buttonLabel}
+              </SmartLink>
+            )}
+          </div>
+        )}
       </div>
     </SectionShell>
+  );
+}
+
+/* A plain, title-less ctaSection (or image-less textSection) directly after a
+   plain card grid is the original "closing line inside the grid section"
+   pattern (e.g. yogatherapie Anwendungsgebiete). Rendering it as a standalone
+   section stacks two py-section paddings plus two p-8/12/16 inner paddings
+   (~270px of dead space); instead it is merged into the preceding grid. */
+function isMergedIntoCardGrid(section: BuilderSection | undefined, prev: BuilderSection | undefined): boolean {
+  if (!section || !prev) return false;
+  if (prev._type !== "cardGridSection" || prev.appearance !== "plain") return false;
+  if (section.appearance !== "plain" || section.title) return false;
+  if (section._type === "ctaSection") return true;
+  return (
+    section._type === "textSection" &&
+    !section.image &&
+    !section.imagePath &&
+    !(section.logoPaths && section.logoPaths.length > 0)
   );
 }
 
@@ -308,7 +526,7 @@ function QuoteRays({ rotated = false }: { rotated?: boolean }) {
   );
 }
 
-function QuoteSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+function QuoteSectionBlock({ section, id }: { section: BuilderSection; id?: string }) {
   const glass = section.appearance !== "plain";
   return (
     <SectionShell section={section} reveal="quote" id={id}>
@@ -326,7 +544,7 @@ function QuoteSectionBlock({ section, id }: { section: PageSection; id?: string 
 
 /* ─── scheduleSection ─── */
 
-function ScheduleSectionBlock({ section, data, lang, id }: { section: PageSection; data: SharedData; lang: Lang; id?: string }) {
+function ScheduleSectionBlock({ section, data, lang, id }: { section: BuilderSection; data: SharedData; lang: Lang; id?: string }) {
   return (
     <SectionShell section={section} id={id}>
       {(section.title || section.intro) && (
@@ -343,7 +561,7 @@ function ScheduleSectionBlock({ section, data, lang, id }: { section: PageSectio
 
 /* ─── testimonialsSection ─── */
 
-function TestimonialsSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+function TestimonialsSectionBlock({ section, id }: { section: BuilderSection; id?: string }) {
   const testimonials = section.testimonials ?? [];
   return (
     <SectionShell section={section} id={id}>
@@ -371,7 +589,7 @@ function TestimonialsSectionBlock({ section, id }: { section: PageSection; id?: 
 
 /* ─── pricingSection ─── */
 
-function PricingSectionBlock({ section, lang, id }: { section: PageSection; lang: Lang; id?: string }) {
+function PricingSectionBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
   const plans = (section.cards ?? []).map((c) => ({
     title: c.title ?? "",
     price: c.price ?? "",
@@ -417,7 +635,7 @@ function PricingSectionBlock({ section, lang, id }: { section: PageSection; lang
 
 /* ─── courseDetailsSection ─── */
 
-function CourseDetailsSectionBlock({ section, lang, id }: { section: PageSection; lang: Lang; id?: string }) {
+function CourseDetailsSectionBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
   const details = section.details ?? [];
   const dates = section.dates ?? [];
 
@@ -479,7 +697,7 @@ function CourseDetailsSectionBlock({ section, lang, id }: { section: PageSection
 
 /* ─── ctaSection ─── */
 
-function CtaSectionBlock({ section, lang, id }: { section: PageSection; lang: Lang; id?: string }) {
+function CtaSectionBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
   const glass = section.appearance !== "plain";
   return (
     <SectionShell section={section} id={id}>
@@ -736,7 +954,7 @@ const FORM_CONFIGS: Record<Lang, Record<string, FormConfig>> = {
   en: FORM_CONFIGS_EN,
 };
 
-function FormSectionBlock({ section, data, lang, id, asPageTitle = false }: { section: PageSection; data: SharedData; lang: Lang; id?: string; asPageTitle?: boolean }) {
+function FormSectionBlock({ section, data, lang, id, asPageTitle = false }: { section: BuilderSection; data: SharedData; lang: Lang; id?: string; asPageTitle?: boolean }) {
   const config = FORM_CONFIGS[lang][section.form ?? ""];
   if (!config) return null;
 
@@ -790,8 +1008,13 @@ export default function PageSections({
 
   return (
     <>
-      {sections.map((section, index) => {
+      {sections.map((rawSection, index) => {
+        const section: BuilderSection = rawSection;
         const id = index === firstContentIndex ? "angebot" : undefined;
+
+        /* Sections folded into the preceding plain card grid (original
+           "closing line" pattern) are rendered there – skip them here. */
+        if (isMergedIntoCardGrid(section, sections[index - 1])) return null;
 
         switch (section._type) {
           /* heroSection brings its own full-height layout – no SectionShell
@@ -808,6 +1031,7 @@ export default function PageSections({
                   text: section.text,
                   imagePath: section.imagePath,
                   buttons: section.buttons,
+                  fullHeight: section.fullHeight,
                 }}
                 slug={section._key}
                 withNavbar={index === 0}
@@ -818,8 +1042,18 @@ export default function PageSections({
             );
           case "textSection":
             return <TextSection key={section._key} section={section} id={id} />;
-          case "cardGridSection":
-            return <CardGridSection key={section._key} section={section} id={id} />;
+          case "cardGridSection": {
+            const next: BuilderSection | undefined = sections[index + 1];
+            return (
+              <CardGridSection
+                key={section._key}
+                section={section}
+                lang={lang}
+                id={id}
+                cta={next && isMergedIntoCardGrid(next, section) ? next : null}
+              />
+            );
+          }
           case "quoteSection":
             return <QuoteSectionBlock key={section._key} section={section} id={id} />;
           case "scheduleSection":
