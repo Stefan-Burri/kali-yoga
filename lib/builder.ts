@@ -175,13 +175,16 @@ export type SharedData = {
 // `heroSection` blocks inside `sections` need no special handling: the `...` spread
 // returns all their fields (variant, curvedTitle, title, text, imagePath) including
 // the inline `buttons[]{label, href, style}` array.
-// Documents without a `language` field are treated as German.
-const PAGE_QUERY = `*[_type == "page" && slug.current == $slug && (language == $lang || (!defined(language) && $lang == "de"))][0]{title, language, hero, sections[]{..., image{asset->{url}}, cards[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
+// The document type implies the language: `page` is German, `pageEn` is English.
+const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, cards[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
 
-/** Fetches a builder `page` document by slug and language. */
+const PAGE_QUERY_DE = `*[_type == "page" && slug.current == $slug][0]${PAGE_PROJECTION}`;
+const PAGE_QUERY_EN = `*[_type == "pageEn" && slug.current == $slug][0]${PAGE_PROJECTION}`;
+
+/** Fetches a builder page document by slug and language (`page` for German, `pageEn` for English). */
 export async function getPageBySlug(slug: string, lang: Lang = "de"): Promise<PageDoc> {
   try {
-    return await client.fetch<PageDoc>(PAGE_QUERY, { slug, lang });
+    return await client.fetch<PageDoc>(lang === "en" ? PAGE_QUERY_EN : PAGE_QUERY_DE, { slug });
   } catch {
     return null;
   }
