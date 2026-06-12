@@ -121,7 +121,7 @@ export default function BuilderHero({
       <section className="pt-3 pb-[64px]">
         {withNavbar ? navbar : null}
         <div className="flex flex-col items-center text-center px-6 pt-16 sm:pt-24 lg:pt-32 pb-8">
-          <h1 className="font-display text-h1 font-bold text-primary max-w-[640px] text-balance">{title}</h1>
+          <h1 className="font-display text-h1 font-bold text-primary w-full text-balance">{title}</h1>
           {hero.text ? (
             <p className="text-body-lg text-foreground max-w-[640px] mt-6">{hero.text}</p>
           ) : null}
@@ -162,9 +162,9 @@ export default function BuilderHero({
       <section className="pt-3 pb-[64px]">
         {withNavbar ? navbar : null}
         <div className="flex flex-col items-center text-center px-6 pt-16 sm:pt-24 lg:pt-32 pb-8">
-          <div className="max-w-[768px] mx-auto flex flex-col items-center">
+          <div className={`${variant === "straight" ? "w-full" : "max-w-[768px]"} mx-auto flex flex-col items-center`}>
             {variant === "straight" ? (
-              <h1 className="font-display text-h1 font-bold text-primary max-w-[640px] text-balance">{title}</h1>
+              <h1 className="font-display text-h1 font-bold text-primary w-full text-balance">{title}</h1>
             ) : (
               <CurvedTitle curvedTitle={curvedTitle} title={title} pathId={pathId} viewBox="-50 0 700 280" />
             )}
@@ -199,8 +199,8 @@ export default function BuilderHero({
           </div>
         ) : null}
         <div className="flex-1 flex items-center justify-center px-6">
-          <div className="max-w-[768px] mx-auto flex flex-col items-center text-center">
-            <h1 className="font-display text-h1 font-bold text-primary max-w-[640px] text-balance">
+          <div className="w-full mx-auto flex flex-col items-center text-center">
+            <h1 className="font-display text-h1 font-bold text-primary w-full text-balance">
               {title}
             </h1>
             {hero.imagePath ? (

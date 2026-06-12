@@ -39,7 +39,7 @@
 Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧 Seiten – English** · Navigation (Menü) · Footer · Stundenplan-Eintrag (zentrale Tabelle) · Allgemeine Angaben
 
 - **Jede Seite** = ein Dokument mit Titel, Sprache (DE/EN), Adresse (Slug) und einer **Sektionen-Liste** (Drag & Drop sortieren, hinzufügen, entfernen)
-- **Sektions-Typen:** Hero (3 Varianten, weglassbar) · About/Text & Bild · Feature-Karten · Zitat · **Stundenplan (einzige zentrale Tabelle!)** · Feedbacks (inline) · Preise inkl. Bezahlung (inline) · Kursdetails+Termine · Anmelde-Aufruf · Formular (5 Typen)
+- **Sektions-Typen:** Hero (3 Varianten, weglassbar) · About/Text & Bild (kann via «Weitere Einträge» mehrere Bild-Text-Einträge in derselben Box zeigen, z.B. zwei Kursleiterinnen) · Feature-Karten · Zitat · **Stundenplan (einzige zentrale Tabelle!)** · Feedbacks (inline) · Preise inkl. Bezahlung (inline) · Kursdetails+Termine · Anmelde-Aufruf · Formular (5 Typen)
 - **Glas/Transparent:** Jede Sektion (ausser Hero) hat das Feld «Darstellung»
 - **Neue Seite:** Dokument anlegen, Slug vergeben, Sektionen bauen, Publish → sofort unter /slug (DE) bzw. /en/slug (EN) online
 - **Navigation & Footer:** eigene Dokumente «Navigation (Menü)» und «Footer» (je DE + EN) — Menüpunkte/Spalten frei editierbar (interner Pfad oder externe URL, Dropdowns)
@@ -47,21 +47,10 @@ Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧
 - **Technik:** Routen `app/[slug]` + `app/en/[slug]` (+ Homepages), Renderer `components/builder/`, Daten `lib/builder.ts`. Stundenplan-Tabelle + Allgemeine Angaben bleiben zentrale Dokumente.
 
 ## Inhalte bearbeiten (Sanity CMS)
-Die Texte der Website werden im Sanity Studio gepflegt — ohne Code:
+Alle Texte werden im **einen** Studio gepflegt — ohne Code:
 
-- **Bearbeitungs-Studios** (Login mit dem Sanity-Konto), sauber getrennt nach Bereich:
-  - https://kali-yoga-inhalte.sanity.studio/ — **Zweisprachige Inhalte**: Stundenplan, Preise, Feedbacks, Zitate, Allgemeine Angaben, Baukasten-Seiten
-  - https://kali-yoga-deutsch.sanity.studio/ — **Deutsche Seiten** (7 Seiten)
-  - https://kali-yoga-english.sanity.studio/ — **Englische Seiten** (7 Seiten)
-  - https://kali-yoga.sanity.studio/ — Gesamtansicht (alles gemischt, als Fallback)
-- **So geht's:** Inhalt anklicken → Text ändern → unten rechts auf **Publish** klicken → die Website aktualisiert sich innert ca. 1 Minute
-- **Was bearbeitbar ist:**
-  - *Stundenplan-Eintrag* — Klassen und Pausen (Datum, Zeit, Ort); Reihenfolge über das Feld «Reihenfolge»
-  - *Feedback* — Kundenstimmen (Kategorie Yogaklassen oder Yoga Therapie)
-  - *Zitat* — die 5 grossen Zitate, je mit Seiten-Zuordnung und 🇬🇧-Feldern
-  - *Preis* — die 4 Preiskarten
-  - *Startseite, Seite: Yogaklassen, Yoga Therapie, Stundenplan, Kleingruppe Burnout, Kleingruppe Gelenkschmerzen, Über mich* — Texte der jeweiligen Seite
-  - *Allgemeine Angaben* — Adresse, Telefon, E-Mail, Social Media, Studio-Beschreibung, Karin-Teaser (erscheinen auf mehreren Seiten)
+- **Studio:** https://kali-yoga-cms.sanity.studio (Login mit dem Sanity-Konto). Ältere Studio-Adressen (kali-yoga, kali-yoga-inhalte, kali-yoga-deutsch, kali-yoga-english, kali-yoga-baukasten) sind veraltet — im Sanity-Dashboard löschen.
+- **So geht's:** Seite anklicken → Sektion öffnen → Text ändern → unten rechts auf **Publish** klicken → die Website aktualisiert sich innert ca. 1 Minute
 - **Sicherheitsnetz:** Wird ein Feld in Sanity geleert, zeigt die Website automatisch den ursprünglichen Text. Nichts kann kaputtgehen.
 
 ### Englische Version (zweisprachige Website)
@@ -75,21 +64,11 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Technik:** Sprach-Hilfen in `lib/i18n.ts` (Routen-Zuordnung, Wort-Übersetzungen, Englisch-Schalter-Abfrage); englische Seiten in `app/en/`.
 
 ### Neue Seiten selber anlegen (Baukasten)
-Im Studio unter **«Eigene Seite»** kannst du komplett neue Seiten erstellen:
-1. «Eigene Seite» → neues Dokument → Titel und Adresse (URL) eingeben
-2. Hero-Titel und Einleitung ausfüllen (erscheint ganz oben)
-3. Beliebige **Bausteine** hinzufügen und per Drag-and-Drop ordnen:
-   - *Text* — Absätze mit Fettdruck/Aufzählungen, optional mit Bild links oder rechts
-   - *Karten-Raster* — Karten mit Titel, Beschreibung, optionalem Bild
-   - *Zitat* — im Stil der bestehenden Seiten
-   - *Bereich einfügen* — Stundenplan, Feedbacks oder Preise (zentrale Daten)
-   - *Kursdetails mit Terminen* — Termin-Karten + Detail-Liste
-   - *Anmelde-Aufruf* — Überschrift, Text und Button mit Link
-4. **Publish** klicken → Seite erscheint unter `/adresse` im Kali-Yoga-Design
+1. Im Studio unter **🇩🇪 Seiten – Deutsch** (oder 🇬🇧 English) → neues Dokument → Titel und Adresse (Slug) eingeben
+2. Beliebige **Sektionen** hinzufügen und per Drag & Drop ordnen (Hero, About/Text & Bild, Feature-Karten, Zitat, Stundenplan, Feedbacks, Preise, Kursdetails, Anmelde-Aufruf, Formular)
+3. **Publish** klicken → Seite erscheint sofort unter `/slug` (DE) bzw. `/en/slug` (EN) im Kali-Yoga-Design
 
-Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder löschbar). Technik: `app/[slug]/page.tsx` rendert alle «Eigene Seite»-Dokumente, Baustein-Darstellung in `components/blocks/PageBlocks.tsx`.
 - **Technik:** Sanity-Projekt `ghs7plqm`, Dataset `production`, Verbindung in `lib/sanity.ts`, Zugangsdaten in `.env.local`. Bilder/Icons liegen weiterhin in `public/` (nicht im CMS).
-- **Noch fest im Code (nicht im CMS):** Zwischen-Überschriften einzelner Abschnitte, Button-Beschriftungen, Bilder, Formulare, Impressum/Datenschutz.
 
 ## Veröffentlichung
 - **Live-Website:** https://kali-yoga.vercel.app
@@ -104,6 +83,7 @@ Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder 
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-06-12: About-Sektion mit «Weitere Einträge»: mehrere Bild-Text-Einträge in EINER Box (Kursleiterinnen Daniela + Karin auf der Gelenkschmerzen-Seite DE + EN zusammengeführt); gerade Hero-Titel (H1) nutzen die volle Breite (keine unglücklichen Worttrennungen mehr)
 - 2026-06-12: Studio finalisiert — EIN sauberes Studio (kali-yoga-cms.sanity.studio) mit zwei Seiten-Ordnern 🇩🇪/🇬🇧, klaren Seitentiteln, ohne Alt-Typen; englische Seiten als eigener Typ (kein doppelter Bearbeitungsort)
 - 2026-06-12: KOMPLETT-UMBAU zum Page-Builder — alle 26 Seiten sind Baukasten-Dokumente (Sektionen per Drag & Drop), Navigation/Footer aus dem CMS, nur der Stundenplan bleibt zentrale Tabelle, 22 statische Seitendateien und 34 Alt-Dokumente entfernt
 - 2026-06-12: Studio in 3 getrennte Bereiche aufgeteilt (Zweisprachige Inhalte / Deutsch / English, je eigene URL) und alle 14 SEO-Felder mit suchmaschinenoptimierten Titeln und Beschreibungen befüllt

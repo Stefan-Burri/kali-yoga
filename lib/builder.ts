@@ -51,6 +51,17 @@ export type SectionCard = {
   validity?: string | null;
 };
 
+/** Additional image+text entry living inside the same About section box. */
+export type AboutEntry = {
+  _key?: string;
+  title?: string | null;
+  body?: unknown[] | null;
+  image?: SanityImageRef;
+  imagePath?: string | null;
+  buttonLabel?: string | null;
+  buttonLink?: string | null;
+};
+
 export type InlineTestimonial = {
   _key?: string;
   headline?: string | null;
@@ -74,6 +85,7 @@ export type PageSection = {
   imagePosition?: "left" | "right" | null;
   buttonLabel?: string | null;
   buttonLink?: string | null;
+  entries?: AboutEntry[] | null;
   /* cardGridSection */
   intro?: string | null;
   layout?: "grid-2" | "grid-3" | "grid-4" | "list" | null;
@@ -176,7 +188,7 @@ export type SharedData = {
 // returns all their fields (variant, curvedTitle, title, text, imagePath) including
 // the inline `buttons[]{label, href, style}` array.
 // The document type implies the language: `page` is German, `pageEn` is English.
-const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, cards[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
+const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, cards[]{..., image{asset->{url}}}, entries[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
 
 const PAGE_QUERY_DE = `*[_type == "page" && slug.current == $slug][0]${PAGE_PROJECTION}`;
 const PAGE_QUERY_EN = `*[_type == "pageEn" && slug.current == $slug][0]${PAGE_PROJECTION}`;

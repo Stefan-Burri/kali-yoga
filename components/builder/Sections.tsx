@@ -248,35 +248,69 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
     );
   }
 
-  /* With one image: two-column layout (Karin/Studio teaser style) */
+  /* With one image: two-column layout (Karin/Studio teaser style).
+     Additional `entries` render as further rows inside the SAME box
+     (original Kursleiterinnen layout: one GlassCard, space-y-10). */
   if (imageSrc) {
     const imageOnRight = section.imagePosition === "right";
+    const entries = (section.entries ?? []).filter(
+      (e) => e.title || e.body || e.image?.asset?.url || e.imagePath
+    );
+    const rows = [
+      {
+        key: "main",
+        imageSrc,
+        remote: Boolean(sanityUrl),
+        title: section.title,
+        body: section.body,
+        buttonLabel: section.buttonLabel,
+        buttonLink: section.buttonLink,
+      },
+      ...entries.map((e, i) => {
+        const entryUrl = e.image?.asset?.url ?? null;
+        return {
+          key: e._key ?? `entry-${i}`,
+          imageSrc: entryUrl ?? e.imagePath ?? null,
+          remote: Boolean(entryUrl),
+          title: e.title,
+          body: e.body,
+          buttonLabel: e.buttonLabel,
+          buttonLink: e.buttonLink,
+        };
+      }),
+    ];
     return (
       <SectionShell section={section} id={id}>
-        <div className={`grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
-          <BuilderImageCard
-            src={imageSrc}
-            alt={section.title ?? ""}
-            remote={Boolean(sanityUrl)}
-            className={imageOnRight ? "md:order-2" : ""}
-          />
-          <div className="flex flex-col justify-center">
-            {section.title && (
-              <>
-                <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
-                <GoldLine centered={false} />
-              </>
-            )}
-            <div className="mt-4">
-              <Body value={section.body} />
+        <div className={`space-y-10${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
+          {rows.map((row) => (
+            <div key={row.key} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch">
+              {row.imageSrc && (
+                <BuilderImageCard
+                  src={row.imageSrc}
+                  alt={row.title ?? ""}
+                  remote={row.remote}
+                  className={imageOnRight ? "md:order-2" : ""}
+                />
+              )}
+              <div className="flex flex-col justify-center">
+                {row.title && (
+                  <>
+                    <h2 className="font-display text-h3 font-bold text-primary">{row.title}</h2>
+                    <GoldLine centered={false} />
+                  </>
+                )}
+                <div className="mt-4">
+                  <Body value={row.body} />
+                </div>
+                {row.buttonLabel && row.buttonLink && (
+                  <SmartLink href={row.buttonLink} className={`mt-6 ${secondaryBtnClass}`}>
+                    {row.buttonLabel}
+                    <ChevronRight />
+                  </SmartLink>
+                )}
+              </div>
             </div>
-            {section.buttonLabel && section.buttonLink && (
-              <SmartLink href={section.buttonLink} className={`mt-6 ${secondaryBtnClass}`}>
-                {section.buttonLabel}
-                <ChevronRight />
-              </SmartLink>
-            )}
-          </div>
+          ))}
         </div>
       </SectionShell>
     );
