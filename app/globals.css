@@ -48,10 +48,18 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
-  hyphens: auto;
-  -webkit-hyphens: auto;
+  hyphens: none;
+  -webkit-hyphens: none;
   overflow-wrap: break-word;
   color: var(--primary);
+}
+
+/* Silbentrennung nur auf Mobile (unter 640px) */
+@media (max-width: 639px) {
+  h1, h2, h3, h4, h5, h6 {
+    hyphens: auto;
+    -webkit-hyphens: auto;
+  }
 }
 
 .filter-gold {
