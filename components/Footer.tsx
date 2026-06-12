@@ -1,10 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { FooterDoc, FooterLink } from "@/lib/builder";
 
 type Lang = "de" | "en";
 
 type FooterProps = {
   lang?: Lang;
+  /** CMS footer doc – its columns replace the hardcoded link columns when present. */
+  footerData?: FooterDoc;
   address?: string;
   city?: string;
   phone?: string;
@@ -61,8 +64,49 @@ const footerDict = {
   },
 } as const;
 
+/* ─── Link columns: CMS columns when present, hardcoded fallback otherwise ─── */
+
+type ResolvedColumn = { title: string; links: { label: string; href: string; external: boolean }[] };
+
+function resolveFooterLink(link: FooterLink): { label: string; href: string; external: boolean } | null {
+  const label = link.label ?? "";
+  const href = link.linkType === "external" ? link.url ?? "" : link.path ?? "";
+  if (label === "" || href === "") return null;
+  return { label, href, external: /^https?:\/\//.test(href) };
+}
+
+function resolveColumns(footerData: FooterDoc, lang: Lang): ResolvedColumn[] {
+  const t = footerDict[lang];
+
+  const cmsColumns = (footerData?.columns ?? [])
+    .map((col) => ({
+      title: col.title ?? "",
+      links: (col.links ?? []).map(resolveFooterLink).filter((l): l is NonNullable<typeof l> => l !== null),
+    }))
+    .filter((col) => col.title !== "" || col.links.length > 0);
+
+  if (cmsColumns.length > 0) return cmsColumns;
+
+  const fallback = (links: readonly { href: string; label: string }[]) =>
+    links.map((l) => ({ label: l.label, href: l.href, external: false }));
+
+  return [
+    { title: t.yogaHeading, links: fallback(t.yogaLinks) },
+    { title: t.therapieHeading, links: fallback(t.therapieLinks) },
+    { title: t.brandHeading, links: fallback(t.brandLinks) },
+  ];
+}
+
+const COLUMN_GRID: Record<number, string> = {
+  1: "md:grid-cols-2",
+  2: "md:grid-cols-3",
+  3: "md:grid-cols-4",
+  4: "md:grid-cols-5",
+};
+
 export default function Footer({
   lang = "de",
+  footerData,
   address = "Aarbergergasse 40",
   city = "3011 Bern",
   phone = "076 262 05 62",
@@ -72,11 +116,12 @@ export default function Footer({
 }: FooterProps = {}) {
   const phoneHref = phone.replace(/\s+/g, "").replace(/^0/, "+41");
   const t = footerDict[lang];
+  const columns = resolveColumns(footerData ?? null, lang);
 
   return (
     <footer>
       <div className="mx-auto max-w-[1280px] px-6 py-16 border-t border-foreground/10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className={`grid grid-cols-1 ${COLUMN_GRID[columns.length] ?? "md:grid-cols-4"} gap-10`}>
           {/* Brand & Contact */}
           <div className="md:col-span-1">
             <Link href={t.home} className="inline-block">
@@ -117,35 +162,29 @@ export default function Footer({
             </div>
           </div>
 
-          {/* Yoga */}
-          <div>
-            <p className="text-small font-semibold mb-4 text-primary">{t.yogaHeading}</p>
-            <div className="space-y-2 text-small">
-              {t.yogaLinks.map((item) => (
-                <Link key={item.href} href={item.href} className="block text-foreground hover:text-primary transition-colors">{item.label}</Link>
-              ))}
+          {/* Link columns (CMS or fallback) */}
+          {columns.map((col, i) => (
+            <div key={`${col.title}-${i}`}>
+              <p className="text-small font-semibold mb-4 text-primary">{col.title}</p>
+              <div className="space-y-2 text-small">
+                {col.links.map((item) =>
+                  item.external ? (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-foreground hover:text-primary transition-colors"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <Link key={item.href} href={item.href} className="block text-foreground hover:text-primary transition-colors">{item.label}</Link>
+                  )
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Yoga Therapie */}
-          <div>
-            <p className="text-small font-semibold mb-4 text-primary">{t.therapieHeading}</p>
-            <div className="space-y-2 text-small">
-              {t.therapieLinks.map((item) => (
-                <Link key={item.href} href={item.href} className="block text-foreground hover:text-primary transition-colors">{item.label}</Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Kali Yoga */}
-          <div>
-            <p className="text-small font-semibold mb-4 text-primary">{t.brandHeading}</p>
-            <div className="space-y-2 text-small">
-              {t.brandLinks.map((item) => (
-                <Link key={item.href} href={item.href} className="block text-foreground hover:text-primary transition-colors">{item.label}</Link>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Bottom */}
@@ -156,6 +195,9 @@ export default function Footer({
             <Link href={t.imprint.href} className="hover:text-primary transition-colors">{t.imprint.label}</Link>
           </div>
         </div>
+        {footerData?.bottomText ? (
+          <p className="mt-4 text-small text-foreground/60 text-center sm:text-left">{footerData.bottomText}</p>
+        ) : null}
       </div>
     </footer>
   );

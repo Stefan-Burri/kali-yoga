@@ -5,19 +5,27 @@ import StickyNavbar, { HeroNavbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroLottie from "@/components/HeroLottie";
 import ScrollReveal from "@/components/ScrollReveal";
+import BuilderHero from "@/components/builder/Hero";
+import PageSections from "@/components/builder/Sections";
 import { GoldLine, ChevronRight, GlassCard, SectionHeading, QuoteSection, StudioSection, KarinSection, ScheduleGrid, TestimonialCard, secondaryBtnClass } from "@/components/ui";
 import { yogaSchedule, yogaTestimonials } from "@/lib/data";
 import { filterUpcomingSchedule } from "@/lib/schedule";
 import { client } from "@/lib/sanity";
+import { getFooter, getNavigation, getPageBySlug, getSharedData } from "@/lib/builder";
 
 export const revalidate = 60;
 
+const BUILDER_SLUG = "startseite";
+
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = await client
-    .fetch<{ seoTitle?: string; seoDescription?: string } | null>(
-      `*[_type == "homepage"][0]{seoTitle, seoDescription}`
-    )
-    .catch(() => null);
+  const page = await getPageBySlug(BUILDER_SLUG, "de");
+  const seo = page
+    ? { seoTitle: page.seoTitle ?? undefined, seoDescription: page.seoDescription ?? undefined }
+    : await client
+        .fetch<{ seoTitle?: string; seoDescription?: string } | null>(
+          `*[_type == "homepage"][0]{seoTitle, seoDescription}`
+        )
+        .catch(() => null);
   return {
     title: seo?.seoTitle || "Kali Yoga · Yoga für «Every Body» · Yoga Studio in Bern",
     description:
@@ -140,6 +148,58 @@ async function getData(): Promise<[HomepageDoc, ScheduleEntryDoc[] | null, Testi
 /* ─── Page ─── */
 
 export default async function Home() {
+  // New page-builder homepage: render the `startseite` builder doc when it
+  // exists; otherwise fall back to the current hardcoded homepage below.
+  const [page, shared, nav, footerData] = await Promise.all([
+    getPageBySlug(BUILDER_SLUG, "de"),
+    getSharedData("de"),
+    getNavigation("de"),
+    getFooter("de"),
+  ]);
+
+  if (page) {
+    const translationHref = page.translationSlug
+      ? page.translationSlug === "home"
+        ? "/en"
+        : `/en/${page.translationSlug}`
+      : undefined;
+    const sections = page.sections ?? [];
+    const hasHeroSection = sections.some((s) => s._type === "heroSection");
+
+    return (
+      <div className="min-h-screen">
+        <StickyNavbar lang="de" nav={nav} translationHref={translationHref} />
+
+        <main>
+          {!hasHeroSection && page.hero ? (
+            <BuilderHero hero={page.hero} slug={BUILDER_SLUG} lang="de" nav={nav} translationHref={translationHref} />
+          ) : null}
+          {!hasHeroSection && !page.hero ? (
+            <section className="pt-3">
+              <HeroNavbar lang="de" nav={nav} translationHref={translationHref} />
+            </section>
+          ) : null}
+
+          <PageSections sections={sections} data={shared} lang="de" nav={nav} translationHref={translationHref} />
+        </main>
+
+        <Footer lang="de" footerData={footerData} />
+      </div>
+    );
+  }
+
+  return <LegacyHome nav={nav} footerData={footerData} />;
+}
+
+/* ─── Legacy homepage (fallback until the `startseite` builder doc exists) ─── */
+
+async function LegacyHome({
+  nav,
+  footerData,
+}: {
+  nav: Awaited<ReturnType<typeof getNavigation>>;
+  footerData: Awaited<ReturnType<typeof getFooter>>;
+}) {
   const [homepage, scheduleEntries, sanityTestimonials, siteSettings, quoteDoc] = await getData();
 
   const heroTitle = homepage?.heroTitle ?? FALLBACK_HERO_TITLE;
@@ -180,12 +240,12 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
-      <StickyNavbar />
+      <StickyNavbar nav={nav} />
 
       <main>
       {/* ─── Hero ─── */}
       <section className="relative min-h-[100dvh] flex flex-col overflow-hidden">
-        <HeroNavbar />
+        <HeroNavbar nav={nav} />
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
         <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
           {/* Curved text */}
@@ -305,6 +365,7 @@ export default async function Home() {
       </main>
 
       <Footer
+        footerData={footerData}
         address={siteSettings?.address ?? undefined}
         city={siteSettings?.city ?? undefined}
         phone={siteSettings?.phone ?? undefined}

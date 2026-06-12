@@ -3,7 +3,7 @@ import Image from "next/image";
 import { HeroNavbar } from "@/components/Navbar";
 import HeroLottie from "@/components/HeroLottie";
 import { primaryBtnClass, secondaryBtnClass } from "@/components/ui";
-import type { Hero, HeroButton } from "@/lib/builder";
+import type { Hero, HeroButton, Lang, NavigationDoc } from "@/lib/builder";
 
 /* ─── Buttons ─── */
 
@@ -65,11 +65,19 @@ export default function BuilderHero({
   hero,
   slug,
   withNavbar = true,
+  lang = "de",
+  nav,
+  translationHref,
 }: {
   hero: Hero;
   slug: string;
   /** The page decides whether the hero renders the top navbar inside itself. */
   withNavbar?: boolean;
+  lang?: Lang;
+  /** CMS navigation doc, threaded into the HeroNavbar. */
+  nav?: NavigationDoc;
+  /** Exact language-switch target, threaded into the HeroNavbar. */
+  translationHref?: string;
 }) {
   if (!hero) return null;
 
@@ -77,12 +85,13 @@ export default function BuilderHero({
   const pathId = `curve-${slug}`;
   const title = hero.title ?? "";
   const curvedTitle = hero.curvedTitle ?? title;
+  const navbar = <HeroNavbar lang={lang} nav={nav} translationHref={translationHref} />;
 
   /* ── 'simple': centered h1 hero (stundenplan style) ── */
   if (variant === "simple") {
     return (
       <section className="pt-3 pb-[64px]">
-        {withNavbar ? <HeroNavbar /> : null}
+        {withNavbar ? navbar : null}
         <div className="flex flex-col items-center text-center px-6 pt-16 sm:pt-24 lg:pt-32 pb-8">
           <h1 className="font-display text-h1 font-bold text-primary max-w-[640px] text-balance">{title}</h1>
           {hero.text ? (
@@ -98,7 +107,7 @@ export default function BuilderHero({
   if (variant === "home") {
     return (
       <section className="relative min-h-[100dvh] flex flex-col overflow-hidden">
-        {withNavbar ? <HeroNavbar /> : null}
+        {withNavbar ? navbar : null}
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
           <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
             <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} />
@@ -121,7 +130,7 @@ export default function BuilderHero({
     <section className="min-h-[100dvh] flex flex-col">
       {withNavbar ? (
         <div className="pt-3 shrink-0">
-          <HeroNavbar />
+          {navbar}
         </div>
       ) : null}
       <div className="flex-1 flex items-center justify-center px-6">

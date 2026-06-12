@@ -17,7 +17,7 @@ import {
   secondaryBtnClass,
   imageShadow,
 } from "@/components/ui";
-import type { PageSection, SectionCard, SharedData } from "@/lib/builder";
+import type { Lang, NavigationDoc, PageSection, SectionCard, SharedData } from "@/lib/builder";
 
 /* ─── Portable Text styling (matches the site's body text) ─── */
 
@@ -326,7 +326,7 @@ function QuoteSectionBlock({ section, id }: { section: PageSection; id?: string 
 
 /* ─── scheduleSection ─── */
 
-function ScheduleSectionBlock({ section, data, id }: { section: PageSection; data: SharedData; id?: string }) {
+function ScheduleSectionBlock({ section, data, lang, id }: { section: PageSection; data: SharedData; lang: Lang; id?: string }) {
   return (
     <SectionShell section={section} id={id}>
       {(section.title || section.intro) && (
@@ -334,8 +334,8 @@ function ScheduleSectionBlock({ section, data, id }: { section: PageSection; dat
       )}
       <ScheduleGrid
         items={data.schedule}
-        ctaLabel={section.ctaLabel ?? "Anmelden"}
-        ctaHref={section.ctaHref ?? "/anmeldung-yoga-klasse"}
+        ctaLabel={section.ctaLabel ?? (lang === "en" ? "Sign Up" : "Anmelden")}
+        ctaHref={section.ctaHref ?? (lang === "en" ? "/en/registration-yoga-class" : "/anmeldung-yoga-klasse")}
       />
     </SectionShell>
   );
@@ -371,7 +371,7 @@ function TestimonialsSectionBlock({ section, id }: { section: PageSection; id?: 
 
 /* ─── pricingSection ─── */
 
-function PricingSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+function PricingSectionBlock({ section, lang, id }: { section: PageSection; lang: Lang; id?: string }) {
   const plans = (section.cards ?? []).map((c) => ({
     title: c.title ?? "",
     price: c.price ?? "",
@@ -395,7 +395,7 @@ function PricingSectionBlock({ section, id }: { section: PageSection; id?: strin
 
       {section.ctaLabel && (
         <div className="flex justify-center mt-8">
-          <SmartLink href={section.ctaHref ?? "/anmeldung-yoga-klasse"} className={primaryBtnClass}>
+          <SmartLink href={section.ctaHref ?? (lang === "en" ? "/en/registration-yoga-class" : "/anmeldung-yoga-klasse")} className={primaryBtnClass}>
             {section.ctaLabel}
           </SmartLink>
         </div>
@@ -417,7 +417,7 @@ function PricingSectionBlock({ section, id }: { section: PageSection; id?: strin
 
 /* ─── courseDetailsSection ─── */
 
-function CourseDetailsSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+function CourseDetailsSectionBlock({ section, lang, id }: { section: PageSection; lang: Lang; id?: string }) {
   const details = section.details ?? [];
   const dates = section.dates ?? [];
 
@@ -438,7 +438,9 @@ function CourseDetailsSectionBlock({ section, id }: { section: PageSection; id?:
 
       {dates.length > 0 && (
         <>
-          <h3 className="font-display text-h5 font-bold text-primary text-center mb-6">{dates.length} Termine</h3>
+          <h3 className="font-display text-h5 font-bold text-primary text-center mb-6">
+            {dates.length} {lang === "en" ? "Dates" : "Termine"}
+          </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
             {dates.map((dateStr, i) => {
               const parts = dateStr.split(", ");
@@ -477,7 +479,7 @@ function CourseDetailsSectionBlock({ section, id }: { section: PageSection; id?:
 
 /* ─── ctaSection ─── */
 
-function CtaSectionBlock({ section, id }: { section: PageSection; id?: string }) {
+function CtaSectionBlock({ section, lang, id }: { section: PageSection; lang: Lang; id?: string }) {
   const glass = section.appearance !== "plain";
   return (
     <SectionShell section={section} id={id}>
@@ -491,7 +493,7 @@ function CtaSectionBlock({ section, id }: { section: PageSection; id?: string })
         {section.text && <p className="mt-4 text-body text-foreground leading-relaxed">{section.text}</p>}
         {section.buttonLabel && (
           <div className="flex justify-center mt-8">
-            <SmartLink href={section.buttonLink ?? "/kontakt"} className={primaryBtnClass}>
+            <SmartLink href={section.buttonLink ?? (lang === "en" ? "/en/contact" : "/kontakt")} className={primaryBtnClass}>
               {section.buttonLabel}
             </SmartLink>
           </div>
@@ -503,13 +505,25 @@ function CtaSectionBlock({ section, id }: { section: PageSection; id?: string })
 
 /* ─── formSection ─── */
 
+/** UI strings passed straight through to AnmeldungForm (defaults are German). */
+type FormStrings = {
+  submitLabel?: string;
+  sendingLabel?: string;
+  successTitle?: string;
+  successMessage?: string;
+  errorMessage?: string;
+  privacyText?: string;
+  privacyLinkLabel?: string;
+};
+
 type FormConfig = {
-  /** The `type` string sent to /api/contact (must match the existing pages). */
+  /** The `type` string sent to /api/contact (must match the existing pages – German values, also on EN forms). */
   type: string;
   eyebrow?: string;
   defaultTitle?: string;
   defaultIntro?: React.ReactNode;
   fields: (data: SharedData) => FormField[];
+  strings?: FormStrings;
 };
 
 const KLEINGRUPPE_BASE_FIELDS: FormField[] = [
@@ -520,7 +534,7 @@ const KLEINGRUPPE_BASE_FIELDS: FormField[] = [
   { name: "phone", label: "Telefon", type: "tel" },
 ];
 
-const FORM_CONFIGS: Record<string, FormConfig> = {
+const FORM_CONFIGS_DE: Record<string, FormConfig> = {
   kontakt: {
     type: "contact",
     fields: () => [
@@ -604,8 +618,126 @@ const FORM_CONFIGS: Record<string, FormConfig> = {
   },
 };
 
-function FormSectionBlock({ section, data, id }: { section: PageSection; data: SharedData; id?: string }) {
-  const config = FORM_CONFIGS[section.form ?? ""];
+/* EN configs: labels/placeholders/options ported from the existing EN pages.
+   The `type` identifiers and select VALUES sent to /api/contact stay German. */
+
+const EN_FORM_STRINGS: FormStrings = {
+  submitLabel: "Send",
+  sendingLabel: "Sending...",
+  successTitle: "Thank you!",
+  successMessage: "Your registration has been sent. I will get back to you as soon as possible.",
+  errorMessage: "An error occurred. Please try again.",
+  privacyText: "I accept the",
+  privacyLinkLabel: "privacy policy",
+};
+
+const KLEINGRUPPE_BASE_FIELDS_EN: FormField[] = [
+  { name: "name", label: "First and last name", type: "text", required: true },
+  { name: "address", label: "Address", type: "text", required: true },
+  { name: "plz", label: "Postcode | City", type: "text", required: true },
+  { name: "email", label: "Email", type: "email", required: true },
+  { name: "phone", label: "Phone", type: "tel" },
+];
+
+const FORM_CONFIGS_EN: Record<string, FormConfig> = {
+  kontakt: {
+    type: "contact",
+    fields: () => [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "message", label: "Message", type: "textarea", placeholder: "Your message..." },
+    ],
+    strings: {
+      ...EN_FORM_STRINGS,
+      successMessage: "Your message has been sent. I will get back to you as soon as possible.",
+    },
+  },
+  yogaklasse: {
+    type: "Anmeldung Yoga Klasse",
+    eyebrow: "Yoga Class",
+    defaultTitle: "Yoga Class Registration",
+    defaultIntro:
+      "Please register for classes by 10:00 pm the evening before. Payment after the lesson in cash or by Twint. If you like, I can invite you to my WhatsApp group after registration so you always receive the latest updates about the classes. Max. 10 participants per class",
+    fields: (data) => [
+      {
+        name: "klasse",
+        label: "Class",
+        type: "select",
+        required: true,
+        options: [
+          { value: "", label: "Choose a date...", disabled: true },
+          ...data.classOptions.map((opt) => ({ value: opt, label: opt })),
+        ],
+      },
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "phone", label: "Phone", type: "tel" },
+      { name: "message", label: "Remarks", type: "textarea", placeholder: "Remarks..." },
+    ],
+    strings: EN_FORM_STRINGS,
+  },
+  yogatherapie: {
+    type: "Anmeldung Yoga Therapie",
+    eyebrow: "Yoga Therapy",
+    defaultTitle: "Yoga Therapy Registration",
+    defaultIntro:
+      "I look forward to accompanying you on your journey. Together we will use the power of yoga to support your health and well-being.",
+    fields: () => [
+      { name: "name", label: "Name", type: "text", required: true },
+      { name: "email", label: "Email", type: "email", required: true },
+      { name: "phone", label: "Phone", type: "tel" },
+      { name: "message", label: "Remarks", type: "textarea", placeholder: "Remarks..." },
+    ],
+    strings: EN_FORM_STRINGS,
+  },
+  kleingruppe: {
+    type: "Anmeldung Kleingruppe Burnout",
+    eyebrow: "Stress, Exhaustion & Burnout",
+    defaultTitle: "Small Group Registration",
+    defaultIntro: (
+      <>
+        After registering, you will receive a confirmation by email. I will also send you suggested dates for the one-on-one conversation, which will take place before the course starts, <strong>between 20.08. and 25.08.2026</strong>.
+      </>
+    ),
+    fields: () => [
+      ...KLEINGRUPPE_BASE_FIELDS_EN,
+      { name: "message", label: "Remarks", type: "textarea", placeholder: "Remarks..." },
+    ],
+    strings: EN_FORM_STRINGS,
+  },
+  gelenkschmerzen: {
+    type: "Anmeldung Kleingruppe Gelenkschmerzen",
+    eyebrow: "Holistic support for joint pain",
+    defaultTitle: "Small Group Registration",
+    defaultIntro: (
+      <>
+        After registering, you will receive a confirmation by email. We will also send you suggested dates for the <strong>one-on-one conversation,</strong> which will take place before the course starts, <strong>between 20.08. and 25.08.2026</strong>.
+      </>
+    ),
+    fields: () => [
+      ...KLEINGRUPPE_BASE_FIELDS_EN,
+      {
+        name: "teilnahme",
+        label: "On site / online (recording)",
+        type: "select",
+        options: [
+          { value: "Vor Ort", label: "On site" },
+          { value: "Online", label: "Online" },
+        ],
+      },
+      { name: "message", label: "Remarks", type: "textarea", placeholder: "Remarks..." },
+    ],
+    strings: EN_FORM_STRINGS,
+  },
+};
+
+const FORM_CONFIGS: Record<Lang, Record<string, FormConfig>> = {
+  de: FORM_CONFIGS_DE,
+  en: FORM_CONFIGS_EN,
+};
+
+function FormSectionBlock({ section, data, lang, id, asPageTitle = false }: { section: PageSection; data: SharedData; lang: Lang; id?: string; asPageTitle?: boolean }) {
+  const config = FORM_CONFIGS[lang][section.form ?? ""];
   if (!config) return null;
 
   const title = section.title ?? config.defaultTitle;
@@ -618,7 +750,11 @@ function FormSectionBlock({ section, data, id }: { section: PageSection; data: S
           {config.eyebrow && <p className="text-body text-foreground/60 uppercase tracking-wider mb-3">{config.eyebrow}</p>}
           {title && (
             <>
-              <h2 className="font-display text-h2 font-bold text-primary">{title}</h2>
+              {asPageTitle ? (
+                <h1 className="font-display text-h2 font-bold text-primary">{title}</h1>
+              ) : (
+                <h2 className="font-display text-h2 font-bold text-primary">{title}</h2>
+              )}
               <GoldLine />
             </>
           )}
@@ -626,14 +762,28 @@ function FormSectionBlock({ section, data, id }: { section: PageSection; data: S
         </div>
       )}
 
-      <AnmeldungForm type={config.type} fields={config.fields(data)} />
+      <AnmeldungForm type={config.type} fields={config.fields(data)} {...config.strings} />
     </SectionShell>
   );
 }
 
 /* ─── Renderer ─── */
 
-export default function PageSections({ sections, data }: { sections: PageSection[]; data: SharedData }) {
+export default function PageSections({
+  sections,
+  data,
+  lang = "de",
+  nav,
+  translationHref,
+}: {
+  sections: PageSection[];
+  data: SharedData;
+  lang?: Lang;
+  /** CMS navigation doc – threaded into heroSection blocks (HeroNavbar). */
+  nav?: NavigationDoc;
+  /** Exact language-switch target – threaded into heroSection blocks. */
+  translationHref?: string;
+}) {
   // The hero's "Mehr Erfahren" button points to #angebot – anchor the first
   // non-hero section so that link keeps working (matches existing pages).
   const firstContentIndex = sections.findIndex((s) => s._type !== "heroSection");
@@ -661,6 +811,9 @@ export default function PageSections({ sections, data }: { sections: PageSection
                 }}
                 slug={section._key}
                 withNavbar={index === 0}
+                lang={lang}
+                nav={nav}
+                translationHref={translationHref}
               />
             );
           case "textSection":
@@ -670,17 +823,17 @@ export default function PageSections({ sections, data }: { sections: PageSection
           case "quoteSection":
             return <QuoteSectionBlock key={section._key} section={section} id={id} />;
           case "scheduleSection":
-            return <ScheduleSectionBlock key={section._key} section={section} data={data} id={id} />;
+            return <ScheduleSectionBlock key={section._key} section={section} data={data} lang={lang} id={id} />;
           case "testimonialsSection":
             return <TestimonialsSectionBlock key={section._key} section={section} id={id} />;
           case "pricingSection":
-            return <PricingSectionBlock key={section._key} section={section} id={id} />;
+            return <PricingSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "courseDetailsSection":
-            return <CourseDetailsSectionBlock key={section._key} section={section} id={id} />;
+            return <CourseDetailsSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "ctaSection":
-            return <CtaSectionBlock key={section._key} section={section} id={id} />;
+            return <CtaSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "formSection":
-            return <FormSectionBlock key={section._key} section={section} data={data} id={id} />;
+            return <FormSectionBlock key={section._key} section={section} data={data} lang={lang} id={id} asPageTitle={!sections.some((s) => s._type === "heroSection")} />;
           default:
             return null;
         }

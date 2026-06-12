@@ -5,32 +5,35 @@ import Footer from "@/components/Footer";
 import BuilderHero from "@/components/builder/Hero";
 import PageSections from "@/components/builder/Sections";
 import { getFooter, getNavigation, getPageBySlug, getSharedData } from "@/lib/builder";
+import { getEnglishEnabled } from "@/lib/i18n";
 
 export const revalidate = 60;
 
-/** DE page → its English counterpart (from the doc's translationSlug). */
+/** EN page → its German counterpart (from the doc's translationSlug). */
 function buildTranslationHref(translationSlug?: string | null): string | undefined {
   if (!translationSlug) return undefined;
-  return translationSlug === "home" ? "/en" : `/en/${translationSlug}`;
+  return translationSlug === "startseite" ? "/" : `/${translationSlug}`;
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const page = await getPageBySlug(slug, "de");
+  const page = await getPageBySlug(slug, "en");
   return {
     title: page?.seoTitle || (page?.title ? `${page.title} · Kali Yoga` : "Kali Yoga"),
     description: page?.seoDescription || undefined,
   };
 }
 
-export default async function CmsPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CmsPageEn({ params }: { params: Promise<{ slug: string }> }) {
+  if (!(await getEnglishEnabled())) notFound();
+
   const { slug } = await params;
 
   const [page, shared, nav, footerData] = await Promise.all([
-    getPageBySlug(slug, "de"),
-    getSharedData("de"),
-    getNavigation("de"),
-    getFooter("de"),
+    getPageBySlug(slug, "en"),
+    getSharedData("en"),
+    getNavigation("en"),
+    getFooter("en"),
   ]);
 
   if (!page) notFound();
@@ -41,26 +44,26 @@ export default async function CmsPage({ params }: { params: Promise<{ slug: stri
 
   return (
     <div className="min-h-screen">
-      <StickyNavbar lang="de" nav={nav} translationHref={translationHref} />
+      <StickyNavbar lang="en" nav={nav} translationHref={translationHref} />
 
       <main>
         {/* Backward compatibility: old docs with the fixed `hero` field and
             no heroSection block keep rendering their hero before the sections. */}
         {!hasHeroSection && page.hero ? (
-          <BuilderHero hero={page.hero} slug={slug} lang="de" nav={nav} translationHref={translationHref} />
+          <BuilderHero hero={page.hero} slug={slug} lang="en" nav={nav} translationHref={translationHref} />
         ) : null}
 
         {/* No hero at all: still show the top navigation, like the simple pages. */}
         {!hasHeroSection && !page.hero ? (
           <section className="pt-3">
-            <HeroNavbar lang="de" nav={nav} translationHref={translationHref} />
+            <HeroNavbar lang="en" nav={nav} translationHref={translationHref} />
           </section>
         ) : null}
 
-        <PageSections sections={sections} data={shared} lang="de" nav={nav} translationHref={translationHref} />
+        <PageSections sections={sections} data={shared} lang="en" nav={nav} translationHref={translationHref} />
       </main>
 
-      <Footer lang="de" footerData={footerData} />
+      <Footer lang="en" footerData={footerData} />
     </div>
   );
 }
