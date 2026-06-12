@@ -34,7 +34,9 @@
 
 ## ⭐ Der Seiten-Baukasten (aktuelles System, seit 12.06.2026)
 
-**Die ganze Website besteht aus Baukasten-Seiten.** Bearbeitung: https://kali-yoga.sanity.studio → **«Seite (Baukasten)»**
+**Die ganze Website besteht aus Baukasten-Seiten.** Bearbeitung: **https://kali-yoga-cms.sanity.studio** (das EINE Studio — alle anderen Studio-Adressen sind veraltet und können im Sanity-Dashboard gelöscht werden)
+
+Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧 Seiten – English** · Navigation (Menü) · Footer · Stundenplan-Eintrag (zentrale Tabelle) · Allgemeine Angaben
 
 - **Jede Seite** = ein Dokument mit Titel, Sprache (DE/EN), Adresse (Slug) und einer **Sektionen-Liste** (Drag & Drop sortieren, hinzufügen, entfernen)
 - **Sektions-Typen:** Hero (3 Varianten, weglassbar) · About/Text & Bild · Feature-Karten · Zitat · **Stundenplan (einzige zentrale Tabelle!)** · Feedbacks (inline) · Preise inkl. Bezahlung (inline) · Kursdetails+Termine · Anmelde-Aufruf · Formular (5 Typen)
@@ -102,6 +104,7 @@ Eine Beispielseite ist angelegt: `/beispiel-workshop` (im Studio bearbeit- oder 
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-06-12: Studio finalisiert — EIN sauberes Studio (kali-yoga-cms.sanity.studio) mit zwei Seiten-Ordnern 🇩🇪/🇬🇧, klaren Seitentiteln, ohne Alt-Typen; englische Seiten als eigener Typ (kein doppelter Bearbeitungsort)
 - 2026-06-12: KOMPLETT-UMBAU zum Page-Builder — alle 26 Seiten sind Baukasten-Dokumente (Sektionen per Drag & Drop), Navigation/Footer aus dem CMS, nur der Stundenplan bleibt zentrale Tabelle, 22 statische Seitendateien und 34 Alt-Dokumente entfernt
 - 2026-06-12: Studio in 3 getrennte Bereiche aufgeteilt (Zweisprachige Inhalte / Deutsch / English, je eigene URL) und alle 14 SEO-Felder mit suchmaschinenoptimierten Titeln und Beschreibungen befüllt
 - 2026-06-12: PageSpeed-Optimierung — SEO-Felder (🔎 Titel + Beschreibung) in allen Seiten-Dokumenten im Studio bearbeitbar, <main>-Landmarke und korrekte Überschriften-Reihenfolge auf allen Seiten (Barrierefreiheit), Live-Domain bei Sanity freigeschaltet (behebt Konsolenfehler + Sprachschalter auf der Live-Site)
