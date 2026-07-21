@@ -84,6 +84,7 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-07-21 (abends): Hero-Feinschliff — Steine-Icon (Yoga Therapie) mit gleichem Abstand zum Bogen-Titel wie das Yogaklassen-Icon; gerade Hero-Titel auf max. 960px begrenzt (brechen ausgewogen um statt volle Breite); auf dem Handy mehr Abstand zwischen Titel und Bild (Karin-Porträt überlappte)
 - 2026-07-21: Grosses Feinschliff-Paket nach Vergleich mit der alten Website:
   - **Kurs-Seiten (Burnout + Gelenkschmerzen, DE+EN):** keine gebogenen Titel mehr (zu lang); neues Hero-Feld «Untertitel» (fette Zeile, z.B. «Yoga Therapie & Ernährungstherapie bei Gelenkbeschwerden»); Kursdetails als übersichtliche Zeilen mit fetten Beschriftungen statt Kärtchen (Doppelpunkt gehört zur Beschriftung im CMS); Termin-Kärtchen: Uhrzeit im gleichen Stil wie Wochentag; neues Feld «Einleitung über den Terminen» (ersetzt «5 Termine», auf Gelenkschmerzen gesetzt); neues Feld «Hinweistext mit Formatierung» (Absätze + fette Stellen, von der alten Website übernommen); «Dieser Kurs ist hilfreich bei:» mit Gutzeichen (✓) linksbündig (neues Feld «Aufzählungs-Stil» in Text-Sektionen)
   - **Über mich:** Bildergalerie endet bündig mit dem Text (grosses Bild dehnt sich); Diplome-Logos gross wie auf der alten Seite (160px); Abstand «Karin»-Titel zum Porträt auf Handy/Tablet reduziert; Titelbogen passt sich schmalen Fenstern an (kein abgeschnittener Text mehr)
