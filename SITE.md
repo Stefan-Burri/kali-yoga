@@ -74,7 +74,13 @@ Die Website gibt es auf Deutsch und Englisch:
 ## Veröffentlichung
 - **Live-Website:** https://kali-yoga.vercel.app
 - **Code:** github.com/Stefan-Burri/kali-yoga — jeder Push auf `main` löst automatisch einen neuen Vercel-Build aus
-- **Offen:** Für den E-Mail-Versand der Formulare muss auf Vercel die Umgebungsvariable `RESEND_API_KEY` gesetzt werden (bis dahin zeigen die Formulare beim Absenden eine Fehlermeldung)
+- **Offen für Go-Live:** 1) Auf Vercel `RESEND_API_KEY` setzen (bis dahin zeigen die Formulare beim Absenden eine Fehlermeldung) und die Domain kali-yoga.ch bei Resend verifizieren. 2) Domain kali-yoga.ch auf Vercel umhängen. 3) Nach der Domain-Umstellung auf Vercel `NEXT_PUBLIC_SITE_URL=https://www.kali-yoga.ch` setzen (steuert Sitemap, Vorschaubilder und robots.txt — Fallback ist die Vercel-Adresse)
+
+## Tracking & Cookie-Einwilligung
+- **Custom Code** (Studio → «Allgemein»): z.B. das Google-Tag-Manager-Snippet einfügen und publizieren
+- Sobald Custom Code hinterlegt ist, wechselt der Cookie-Banner automatisch in den **Einwilligungs-Modus** («Einverstanden» / «Nur notwendige», DE + EN). Das Snippet wird **erst nach Zustimmung** geladen — konform mit dem Schweizer Datenschutzrecht. Ohne Custom Code bleibt der bisherige Hinweis-Banner («nur technisch notwendige Cookies»)
+- Die Datenschutzerklärung (CMS-Seite Datenschutz) wurde ergänzt: Cookies mit Einwilligung, externe Dienste (Vercel, Sanity, Resend) und Abschnitt «Google Tag Manager und Webanalyse»
+- Widerruf: Cookies der Website im Browser löschen → Banner fragt beim nächsten Besuch neu
 
 ## Contact Info
 - **Address:** Aarbergergasse 40, 4. Stock, 3011 Bern
@@ -84,6 +90,7 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-07-21 (Go-Live-Vorbereitung): sitemap.xml + robots.txt (alle CMS-Seiten automatisch, DE + EN); eigene 404-Seite im Kali-Design mit Link zur Startseite; Vorschaubild beim Teilen (OG-Image, automatisch aus Logo + Markenfarben generiert); Cookie-Banner mit echter Einwilligung sobald Tracking-Code hinterlegt ist (Snippet lädt erst nach «Einverstanden»); Datenschutzerklärung ergänzt (Cookies, externe Dienste, Google Tag Manager)
 - 2026-07-21 (spät): Studio neu veröffentlicht unter **https://kali-yoga-studio.sanity.studio** — die alte Adresse kali-yoga-cms zeigte noch das eingefrorene alte Schema («Unknown fields»-Warnungen, alter Name «Allgemeine Angaben») und liess sich nicht überschreiben. Alte Adresse im Sanity-Dashboard löschen!
 - 2026-07-21 (spät): CMS aufgeräumt + Custom Code: «Allgemeine Angaben» heisst jetzt **«Allgemein»** und enthält nur noch den Englisch-Schalter und das neue Feld **«Custom Code»** (z.B. Google-Tag-Manager-Snippet einfügen → läuft auf allen Seiten). Die Kontaktdaten (Adresse, Telefon, E-Mail, Facebook, Instagram) sind ins **Footer-Dokument** umgezogen, wo sie auch angezeigt werden — vorher waren sie im Code fest hinterlegt und die CMS-Werte wurden ignoriert. Ausserdem Hero-Abstände vereinheitlicht: randlose Bilder (Steine-Icon, Karin-Porträt) bekommen unten gleich viel Luft zum Text wie die anderen Icons, und der Bild-Hochzug wächst mit der Fensterbreite (behebt Überlappung von «Karin» um 640px)
 - 2026-07-21 (abends): Hero-Feinschliff — Steine-Icon (Yoga Therapie) mit gleichem Abstand zum Bogen-Titel wie das Yogaklassen-Icon; gerade Hero-Titel auf max. 960px begrenzt (brechen ausgewogen um statt volle Breite); auf dem Handy mehr Abstand zwischen Titel und Bild (Karin-Porträt überlappte)
