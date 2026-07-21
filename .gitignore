@@ -42,3 +42,6 @@ next-env.d.ts
 
 # ShipStudio metadata
 .shipstudio/
+
+# playwright test logs
+/.playwright-mcp/

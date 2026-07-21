@@ -9,7 +9,7 @@ export default function HeroLottie() {
 
   useEffect(() => {
     if (lottieRef.current) {
-      lottieRef.current.setSpeed(0.35);
+      lottieRef.current.setSpeed(0.2);
     }
   }, []);
 

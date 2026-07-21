@@ -28,8 +28,9 @@
 - **Anmeldung Kleingruppe Gelenkschmerzen** (`/anmeldung-kleingruppe-gelenkschmerzen`) — Registrierungsformular mit vor-Ort/online Auswahl
 
 ## Components
-- **Navbar** — Logo links, Navigation (Yoga, Yoga Therapie, Über mich, Kontakt), Anmelden-Button rechts
+- **Navbar** — Logo links, Navigation (Yoga, Yoga Therapie, Über mich, Kontakt), Anmelden-Button rechts. Unter 1024px Fensterbreite erscheint das Hamburger-Menü (vorher 768px — die Navigation war bei mittleren Breiten gequetscht)
 - **Footer** — Logo, Adresse, Kontakt, Social Media, Navigation
+- **CookieBanner** — Dezenter Hinweis unten rechts («nur technisch notwendige Cookies»), Link zur Datenschutzerklärung, DE/EN automatisch. Nach Klick auf «Alles klar» erscheint er auf diesem Gerät nicht mehr (im Browser gespeichert)
 - **AnmeldungForm** — Flexible registration form component supporting text, email, tel, textarea, select fields with Datenschutz checkbox and /api/contact POST
 
 ## ⭐ Der Seiten-Baukasten (aktuelles System, seit 12.06.2026)
@@ -83,6 +84,8 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-07-20: Studio-Adresse repariert — kali-yoga-cms.sanity.studio existierte nicht mehr (nur das veraltete kali-yoga-baukasten.sanity.studio war erreichbar und kannte die Hero-Sektion nicht; dabei ging kurzzeitig der Hero der Kleingruppen-Seite verloren → wiederhergestellt). Das Studio wurde mit dem aktuellen Schema neu auf https://kali-yoga-cms.sanity.studio deployt. Alte Studios im Sanity-Dashboard löschen!
+- 2026-07-20: Feinschliff-Paket — Cookie-Banner (DE/EN); Startseiten-Animation langsamer; Stundenplan-Karten: Abstand zwischen Tag und Zeit, Zeit bricht nicht mehr um, mehr vertikaler Abstand zwischen Kartenreihen und nach dem Einleitungstext; Preis-Karten: «CHF» immer vor dem Preis auf einer Zeile, Haken bei zweizeiligem Text oben ausgerichtet; Yogaklassen-Icons Entspannung/Funktionalität getauscht (Dateien getauscht, wirkt auf DE+EN); Steine-Icon im Hero kleiner (Yoga Therapie + Kleingruppe); Kleingruppe Burnout: runder Hero-Titel mit Steine-Icon (im CMS publiziert, DE+EN); Buttons «Anmeldung»/«Mehr Erfahren» gleiche Schriftgrösse; Hamburger-Menü schon unter 1024px; Feedbacks und Bild-Text-Sektionen (Studio, Karin) erst ab 1024px zweispaltig; Hero-Texte respektieren Zeilenumbrüche aus dem CMS; CORS-Freigabe für lokale Vorschau (Port 3640)
 - 2026-06-12: About-Sektion mit «Weitere Einträge»: mehrere Bild-Text-Einträge in EINER Box (Kursleiterinnen Daniela + Karin auf der Gelenkschmerzen-Seite DE + EN zusammengeführt); gerade Hero-Titel (H1) nutzen die volle Breite (keine unglücklichen Worttrennungen mehr)
 - 2026-06-12: Studio finalisiert — EIN sauberes Studio (kali-yoga-cms.sanity.studio) mit zwei Seiten-Ordnern 🇩🇪/🇬🇧, klaren Seitentiteln, ohne Alt-Typen; englische Seiten als eigener Typ (kein doppelter Bearbeitungsort)
 - 2026-06-12: KOMPLETT-UMBAU zum Page-Builder — alle 26 Seiten sind Baukasten-Dokumente (Sektionen per Drag & Drop), Navigation/Footer aus dem CMS, nur der Stundenplan bleibt zentrale Tabelle, 22 statische Seitendateien und 34 Alt-Dokumente entfernt

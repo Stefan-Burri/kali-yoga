@@ -268,7 +268,7 @@ function MobileMenu({
   translationHref?: string;
 }) {
   return (
-    <div className="md:hidden px-6 py-6 space-y-4 border-t border-foreground/10 mt-3">
+    <div className="lg:hidden px-6 py-6 space-y-4 border-t border-foreground/10 mt-3">
       {items.map((item) =>
         item.children ? (
           <div key={item.label} className="space-y-4">
@@ -315,14 +315,14 @@ export function HeroNavbar({ lang = "de", nav, translationHref }: NavbarProps = 
           <Link href={t.home} className="shrink-0">
             <Image src="/images/logo-v2.svg" alt="Kali Yoga" width={150} height={20} className="h-[18px] w-auto" />
           </Link>
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden lg:flex items-center gap-10">
             <NavLinks items={items} />
           </div>
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-6">
             <button onClick={() => setModalOpen(true)} className={`inline-flex ${ctaBtnClass}`}>{cta}</button>
             <LanguageSwitch targetOverride={translationHref} />
           </div>
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-foreground" aria-label={t.menuAria}>
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 text-foreground" aria-label={t.menuAria}>
             {mobileOpen ? (
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
             ) : (
@@ -382,14 +382,14 @@ export default function StickyNavbar({ lang = "de", nav, translationHref }: Navb
           <Link href={t.home} className="shrink-0">
             <Image src="/images/logo-v2.svg" alt="Kali Yoga" width={150} height={20} className="h-[18px] w-auto" />
           </Link>
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden lg:flex items-center gap-10">
             <NavLinks items={items} />
           </div>
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-6">
             <button onClick={() => setModalOpen(true)} className={`inline-flex ${ctaBtnClass}`}>{cta}</button>
             <LanguageSwitch targetOverride={translationHref} />
           </div>
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-foreground" aria-label={t.menuAria}>
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2 text-foreground" aria-label={t.menuAria}>
             {mobileOpen ? (
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
             ) : (

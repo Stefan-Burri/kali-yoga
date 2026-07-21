@@ -110,6 +110,11 @@ export default function BuilderHero({
 
   const variant = hero.variant ?? "curved";
   const fullHeight = hero.fullHeight !== false;
+  /* Das Steine-Icon (stones.svg) füllt seine Bildfläche fast randlos und wirkt
+     dadurch deutlich grösser als die anderen Hero-Icons – kleiner rendern. */
+  const heroIconClass = hero.imagePath?.includes("stones")
+    ? "h-[160px] sm:h-[220px] w-auto"
+    : "h-[240px] sm:h-[320px] w-auto";
   const pathId = `curve-${slug}`;
   const title = hero.title ?? "";
   const curvedTitle = hero.curvedTitle ?? title;
@@ -144,7 +149,7 @@ export default function BuilderHero({
             </div>
             <h1 className="mt-8 font-display text-h5 font-bold text-primary">{title}</h1>
             {hero.text ? (
-              <p className="mt-3 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed">{hero.text}</p>
+              <p className="mt-3 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
             ) : null}
             <HeroButtons buttons={hero.buttons} />
           </div>
@@ -175,12 +180,12 @@ export default function BuilderHero({
                   alt={title}
                   width={320}
                   height={320}
-                  className="h-[240px] sm:h-[320px] w-auto"
+                  className={heroIconClass}
                 />
               </div>
             ) : null}
             {hero.text ? (
-              <p className="mt-6 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed">{hero.text}</p>
+              <p className="mt-6 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
             ) : null}
             <HeroButtons buttons={hero.buttons} />
           </div>
@@ -210,12 +215,12 @@ export default function BuilderHero({
                   alt={title}
                   width={200}
                   height={200}
-                  className="h-[240px] sm:h-[320px] w-auto"
+                  className={heroIconClass}
                 />
               </div>
             ) : null}
             {hero.text ? (
-              <p className="mt-10 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed">{hero.text}</p>
+              <p className="mt-10 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
             ) : null}
             <HeroButtons buttons={hero.buttons} />
           </div>
@@ -242,12 +247,12 @@ export default function BuilderHero({
                 alt={title}
                 width={320}
                 height={320}
-                className="h-[240px] sm:h-[320px] w-auto"
+                className={heroIconClass}
               />
             </div>
           ) : null}
           {hero.text ? (
-            <p className="mt-6 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed">{hero.text}</p>
+            <p className="mt-6 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
           ) : null}
           <HeroButtons buttons={hero.buttons} />
         </div>

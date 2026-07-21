@@ -3,6 +3,7 @@ import { Fraunces, Work_Sans } from "next/font/google";
 import "./globals.css";
 import { AgentationProvider } from "@/components/AgentationProvider";
 import AnimatedGradientBg from "@/components/AnimatedGradientBg";
+import CookieBanner from "@/components/CookieBanner";
 import SmoothScroll from "@/components/SmoothScroll";
 
 const fraunces = Fraunces({
@@ -33,6 +34,7 @@ export default function RootLayout({
         <AnimatedGradientBg />
         <SmoothScroll />
         {children}
+        <CookieBanner />
         <AgentationProvider />
       </body>
     </html>

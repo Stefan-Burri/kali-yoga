@@ -343,7 +343,7 @@ async function LegacyHome({
               Feedbacks Yogaklassen
             </h2>
             <GoldLine />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-14 mt-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-14 mt-12">
               {testimonials.map((t) => (
                 <TestimonialCard key={t.name} quote={t.quote} name={t.name} />
               ))}

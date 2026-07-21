@@ -224,7 +224,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
       <SectionShell section={section} id={id}>
         <div className={glass ? undefined : "p-8 sm:p-12 lg:p-16"}>
           {section.title && <SectionHeading title={section.title} />}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
             <div className="space-y-5 text-body text-foreground leading-[1.8]">
               <Body value={section.body} />
               {section.buttonLabel && section.buttonLink && (
@@ -283,13 +283,13 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
       <SectionShell section={section} id={id}>
         <div className={`space-y-10${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
           {rows.map((row) => (
-            <div key={row.key} className="grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch">
+            <div key={row.key} className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
               {row.imageSrc && (
                 <BuilderImageCard
                   src={row.imageSrc}
                   alt={row.title ?? ""}
                   remote={row.remote}
-                  className={imageOnRight ? "md:order-2" : ""}
+                  className={imageOnRight ? "lg:order-2" : ""}
                 />
               )}
               <div className="flex flex-col justify-center">
@@ -582,7 +582,9 @@ function ScheduleSectionBlock({ section, data, lang, id }: { section: BuilderSec
   return (
     <SectionShell section={section} id={id}>
       {(section.title || section.intro) && (
-        <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
+        <div className="mb-4">
+          <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
+        </div>
       )}
       <ScheduleGrid
         items={data.schedule}
@@ -606,7 +608,7 @@ function TestimonialsSectionBlock({ section, id }: { section: BuilderSection; id
         </>
       )}
       {testimonials.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-14 mt-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-14 mt-12">
           {testimonials.map((t, i) => (
             <TestimonialCard
               key={t._key ?? i}

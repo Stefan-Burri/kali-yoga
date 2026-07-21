@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 /* ─── Design Token Constants ─── */
-export const secondaryBtnClass = "inline-flex items-center w-fit gap-2 px-5 py-2 text-small font-medium text-primary rounded-[6px] border-2 border-primary hover:border-secondary hover:text-secondary transition-colors";
+export const secondaryBtnClass = "inline-flex items-center w-fit gap-2 px-5 py-2 text-body font-medium text-primary rounded-[6px] border-2 border-primary hover:border-secondary hover:text-secondary transition-colors";
 
 export const primaryBtnClass = "inline-flex items-center self-start px-5 py-2.5 text-body font-medium rounded-[6px] bg-primary text-primary-light hover:bg-secondary transition-colors";
 
@@ -47,7 +47,7 @@ export function GlassCard({ children, className = "" }: { children: React.ReactN
 export function SectionHeading({ title, description }: { title: string; description?: React.ReactNode }) {
   return (
     <div className="text-center max-w-[768px] mx-auto mb-12">
-      <h2 className="font-display text-h2 font-bold text-primary">{title}</h2>
+      {title && <h2 className="font-display text-h2 font-bold text-primary">{title}</h2>}
       <GoldLine />
       {description && <p className="mt-4 text-body text-foreground leading-relaxed">{description}</p>}
     </div>
@@ -84,7 +84,7 @@ export function ScheduleGrid({
   ctaHref?: string;
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-8">
       {items.map((item, i) =>
         item.type === "pause" ? (
           <div key={i} className="rounded-[16px] border-2 border-primary p-7 flex flex-col justify-between min-h-[260px]">
@@ -97,9 +97,9 @@ export function ScheduleGrid({
         ) : (
           <div key={i} className="rounded-[16px] border-2 border-primary p-7 flex flex-col justify-between min-h-[260px]">
             <div>
-              <div className="flex justify-between text-h6 text-foreground">
+              <div className="flex flex-wrap justify-between gap-x-4 text-h6 text-foreground">
                 <span>{item.day}</span>
-                <span>{item.time}</span>
+                <span className="whitespace-nowrap">{item.time}</span>
               </div>
               <p className="text-body-lg font-bold text-foreground mt-1">{item.date}</p>
             </div>
@@ -168,20 +168,20 @@ export function PricingGrid({ plans }: { plans: PricingGridPlan[] }) {
           <div className="p-7 flex flex-col flex-1">
             <div className="text-center">
               <h3 className="font-display text-h5 font-bold text-primary mb-4">{p.title}</h3>
-              <p className="text-primary leading-none">
+              <p className="text-primary leading-none whitespace-nowrap">
                 <span className="text-body font-semibold">CHF </span>
                 <span className="text-h2 font-bold">{p.price.replace("CHF ", "")}</span>
               </p>
               <p className="text-body text-foreground/60 mt-2">{p.reduced}</p>
             </div>
             <div className="mt-auto pt-6 flex flex-col items-center space-y-1">
-              <p className="text-body text-foreground flex items-center gap-2">
-                <svg className="w-4 h-4 text-gold flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+              <p className="text-body text-foreground flex items-start gap-2">
+                <svg className="w-4 h-4 mt-1 text-gold flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                 {p.detail}
               </p>
               {p.validity && (
-                <p className="text-body text-foreground flex items-center gap-2">
-                  <svg className="w-4 h-4 text-gold flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                <p className="text-body text-foreground flex items-start gap-2">
+                  <svg className="w-4 h-4 mt-1 text-gold flex-shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                   {p.validity}
                 </p>
               )}
@@ -244,7 +244,7 @@ export function StudioSection({
   padded?: boolean;
 } = {}) {
   const content = (
-    <div className={`grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch${padded ? " p-8 sm:p-12 lg:p-16" : ""}`}>
+    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch${padded ? " p-8 sm:p-12 lg:p-16" : ""}`}>
       <ImageCard src={imageSrc} alt={imageAlt} width={1080} height={720} reveal={imageReveal} />
       <div className="flex flex-col justify-center">
         <h2 className="font-display text-h3 font-bold text-primary">{title}</h2>
@@ -301,7 +301,7 @@ export function KarinSection({
   const defaultBio = "Auf einer Reise durch Nord- und Mittelamerika 2018 bin ich in Mexiko per Zufall am Wegweiser der Solstice Yoga Schule vorbei gekommen. Nach einer Recherche über die Schule habe ich diese Abzweigung gewählt und absolvierte das 200 Stunden Yoga Teacher Training mit Schwerpunkt restauratives und therapeutisches Yoga. Es war der Anfang einer kontinuierlichen Weiterentwicklung.";
 
   const content = (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-stretch p-8 sm:p-12 lg:p-16">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch p-8 sm:p-12 lg:p-16">
       <ImageCard src={imageSrc} alt={imageAlt} width={800} height={533} reveal={imageReveal} />
       <div className="flex flex-col justify-center">
         <h2 className="font-display text-h3 font-bold text-primary">{title}</h2>
