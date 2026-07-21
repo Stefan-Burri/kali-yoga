@@ -29,7 +29,7 @@
 
 ## Components
 - **Navbar** — Logo links, Navigation (Yoga, Yoga Therapie, Über mich, Kontakt), Anmelden-Button rechts. Unter 1024px Fensterbreite erscheint das Hamburger-Menü (vorher 768px — die Navigation war bei mittleren Breiten gequetscht)
-- **Footer** — Logo, Adresse, Kontakt, Social Media, Navigation
+- **Footer** — Logo, Adresse, Kontakt, Social Media, Navigation. Adresse/Telefon/E-Mail/Facebook/Instagram werden im Studio direkt im **Footer-Dokument** gepflegt (je DE + EN)
 - **CookieBanner** — Dezenter Hinweis unten rechts («nur technisch notwendige Cookies»), Link zur Datenschutzerklärung, DE/EN automatisch. Nach Klick auf «Alles klar» erscheint er auf diesem Gerät nicht mehr (im Browser gespeichert)
 - **AnmeldungForm** — Flexible registration form component supporting text, email, tel, textarea, select fields with Datenschutz checkbox and /api/contact POST
 
@@ -37,7 +37,7 @@
 
 **Die ganze Website besteht aus Baukasten-Seiten.** Bearbeitung: **https://kali-yoga-cms.sanity.studio** (das EINE Studio — alle anderen Studio-Adressen sind veraltet und können im Sanity-Dashboard gelöscht werden)
 
-Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧 Seiten – English** · Navigation (Menü) · Footer · Stundenplan-Eintrag (zentrale Tabelle) · Allgemeine Angaben
+Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧 Seiten – English** · Navigation (Menü) · Footer · Stundenplan-Eintrag (zentrale Tabelle) · Allgemein
 
 - **Jede Seite** = ein Dokument mit Titel, Sprache (DE/EN), Adresse (Slug) und einer **Sektionen-Liste** (Drag & Drop sortieren, hinzufügen, entfernen)
 - **Sektions-Typen:** Hero (3 Varianten, weglassbar) · About/Text & Bild (kann via «Weitere Einträge» mehrere Bild-Text-Einträge in derselben Box zeigen, z.B. zwei Kursleiterinnen) · Feature-Karten · Zitat · **Stundenplan (einzige zentrale Tabelle!)** · Feedbacks (inline) · Preise inkl. Bezahlung (inline) · Kursdetails+Termine · Anmelde-Aufruf · Formular (5 Typen)
@@ -45,7 +45,7 @@ Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧
 - **Neue Seite:** Dokument anlegen, Slug vergeben, Sektionen bauen, Publish → sofort unter /slug (DE) bzw. /en/slug (EN) online
 - **Navigation & Footer:** eigene Dokumente «Navigation (Menü)» und «Footer» (je DE + EN) — Menüpunkte/Spalten frei editierbar (interner Pfad oder externe URL, Dropdowns)
 - **Sprachschalter:** läuft über das Feld «Slug der Schwesterseite» der Seiten-Dokumente
-- **Technik:** Routen `app/[slug]` + `app/en/[slug]` (+ Homepages), Renderer `components/builder/`, Daten `lib/builder.ts`. Stundenplan-Tabelle + Allgemeine Angaben bleiben zentrale Dokumente.
+- **Technik:** Routen `app/[slug]` + `app/en/[slug]` (+ Homepages), Renderer `components/builder/`, Daten `lib/builder.ts`. Stundenplan-Tabelle + Allgemein bleiben zentrale Dokumente.
 
 ## Inhalte bearbeiten (Sanity CMS)
 Alle Texte werden im **einen** Studio gepflegt — ohne Code:
@@ -57,7 +57,7 @@ Alle Texte werden im **einen** Studio gepflegt — ohne Code:
 ### Englische Version (zweisprachige Website)
 Die Website gibt es auf Deutsch und Englisch:
 
-- **Ein/Aus:** Im Studio unter «Allgemeine Angaben» → Schalter **«Englische Version aktiv»**. Ausgeschaltet = Sprachschalter verschwindet und alle /en-Seiten zeigen «Seite nicht gefunden».
+- **Ein/Aus:** Im Studio unter «Allgemein» → Schalter **«Englische Version aktiv»**. Ausgeschaltet = Sprachschalter verschwindet und alle /en-Seiten zeigen «Seite nicht gefunden».
 - **Sprachschalter:** «DE | EN» in der Navigation (Desktop und Mobile), wechselt zur gleichen Seite in der anderen Sprache.
 - **Englische Adressen:** /en, /en/yoga-classes-bern, /en/yoga-therapy-bern, /en/schedule, /en/small-group-burnout, /en/small-group-joint-pain, /en/about-me, /en/contact + 4 Anmeldeformulare unter /en/registration-...
 - **Bearbeiten im Studio:** Die englischen Seiten sind eigene Einträge, mit 🇬🇧 gekennzeichnet (z.B. «🇬🇧 Startseite (English)»). Bei Stundenplan, Feedbacks, Preisen und Allgemeinen Angaben gibt es 🇬🇧-Felder direkt am gleichen Eintrag — Termine/Preise werden nur EINMAL gepflegt, die englischen Textfelder sind optional (leer = automatische Übersetzung der Standardwörter wie Freitag→Friday).
@@ -84,6 +84,7 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-07-21 (spät): CMS aufgeräumt + Custom Code: «Allgemeine Angaben» heisst jetzt **«Allgemein»** und enthält nur noch den Englisch-Schalter und das neue Feld **«Custom Code»** (z.B. Google-Tag-Manager-Snippet einfügen → läuft auf allen Seiten). Die Kontaktdaten (Adresse, Telefon, E-Mail, Facebook, Instagram) sind ins **Footer-Dokument** umgezogen, wo sie auch angezeigt werden — vorher waren sie im Code fest hinterlegt und die CMS-Werte wurden ignoriert. Ausserdem Hero-Abstände vereinheitlicht: randlose Bilder (Steine-Icon, Karin-Porträt) bekommen unten gleich viel Luft zum Text wie die anderen Icons, und der Bild-Hochzug wächst mit der Fensterbreite (behebt Überlappung von «Karin» um 640px)
 - 2026-07-21 (abends): Hero-Feinschliff — Steine-Icon (Yoga Therapie) mit gleichem Abstand zum Bogen-Titel wie das Yogaklassen-Icon; gerade Hero-Titel auf max. 960px begrenzt (brechen ausgewogen um statt volle Breite); auf dem Handy mehr Abstand zwischen Titel und Bild (Karin-Porträt überlappte)
 - 2026-07-21: Grosses Feinschliff-Paket nach Vergleich mit der alten Website:
   - **Kurs-Seiten (Burnout + Gelenkschmerzen, DE+EN):** keine gebogenen Titel mehr (zu lang); neues Hero-Feld «Untertitel» (fette Zeile, z.B. «Yoga Therapie & Ernährungstherapie bei Gelenkbeschwerden»); Kursdetails als übersichtliche Zeilen mit fetten Beschriftungen statt Kärtchen (Doppelpunkt gehört zur Beschriftung im CMS); Termin-Kärtchen: Uhrzeit im gleichen Stil wie Wochentag; neues Feld «Einleitung über den Terminen» (ersetzt «5 Termine», auf Gelenkschmerzen gesetzt); neues Feld «Hinweistext mit Formatierung» (Absätze + fette Stellen, von der alten Website übernommen); «Dieser Kurs ist hilfreich bei:» mit Gutzeichen (✓) linksbündig (neues Feld «Aufzählungs-Stil» in Text-Sektionen)

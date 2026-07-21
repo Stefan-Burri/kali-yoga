@@ -162,6 +162,13 @@ export type FooterDoc = {
   language?: Lang | null;
   columns?: FooterColumn[] | null;
   bottomText?: string | null;
+  /* Contact block shown on the left (moved here from siteSettings). */
+  address?: string | null;
+  city?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
 } | null;
 
 /* ─── Shared (central) content shapes ─── */
@@ -215,7 +222,7 @@ export async function getNavigation(lang: Lang): Promise<NavigationDoc> {
   }
 }
 
-const FOOTER_QUERY = `*[_type == "footer" && language == $lang][0]{language, bottomText, columns[]{_key, title, links[]{_key, label, linkType, path, url}}}`;
+const FOOTER_QUERY = `*[_type == "footer" && language == $lang][0]{language, bottomText, address, city, phone, email, facebook, instagram, columns[]{_key, title, links[]{_key, label, linkType, path, url}}}`;
 
 /** Fetches the footer singleton for a language. Null when missing or unreachable. */
 export async function getFooter(lang: Lang): Promise<FooterDoc> {

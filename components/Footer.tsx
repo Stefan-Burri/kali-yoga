@@ -107,13 +107,20 @@ const COLUMN_GRID: Record<number, string> = {
 export default function Footer({
   lang = "de",
   footerData,
-  address = "Aarbergergasse 40",
-  city = "3011 Bern",
-  phone = "076 262 05 62",
-  email = "info@kali-yoga.ch",
-  facebook = "https://www.facebook.com/KaliYogaBern/",
-  instagram = "https://www.instagram.com/kali_yogabern/",
+  address: addressProp,
+  city: cityProp,
+  phone: phoneProp,
+  email: emailProp,
+  facebook: facebookProp,
+  instagram: instagramProp,
 }: FooterProps = {}) {
+  /* Contact block: CMS footer doc first, legacy props second, hardcoded last. */
+  const address = footerData?.address ?? addressProp ?? "Aarbergergasse 40";
+  const city = footerData?.city ?? cityProp ?? "3011 Bern";
+  const phone = footerData?.phone ?? phoneProp ?? "076 262 05 62";
+  const email = footerData?.email ?? emailProp ?? "info@kali-yoga.ch";
+  const facebook = footerData?.facebook ?? facebookProp ?? "https://www.facebook.com/KaliYogaBern/";
+  const instagram = footerData?.instagram ?? instagramProp ?? "https://www.instagram.com/kali_yogabern/";
   const phoneHref = phone.replace(/\s+/g, "").replace(/^0/, "+41");
   const t = footerDict[lang];
   const columns = resolveColumns(footerData ?? null, lang);

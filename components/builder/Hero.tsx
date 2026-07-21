@@ -133,10 +133,22 @@ export default function BuilderHero({
      Titelbogen, sonst klebt es an der Überschrift (andere Icons bringen
      eigenen Leerraum oben mit). */
   const isStonesIcon = Boolean(hero.imagePath?.includes("stones"));
+  /* Randlose Bilder (Steine-Icon, rundes Porträt) brauchen unten zusätzlichen
+     Abstand zum Text, damit die Lücke gleich gross wirkt wie bei Icons mit
+     eingebautem Leerraum (z.B. Yogaklassen-Pose). */
+  const isEdgeToEdgeImage = /stones|profilbild|rund/.test(hero.imagePath ?? "");
   const heroIconClass = isStonesIcon
     ? "h-[160px] sm:h-[220px] w-auto"
     : "h-[240px] sm:h-[320px] w-auto";
-  const curvedIconPull = isStonesIcon ? "mt-0 sm:-mt-14 lg:-mt-20" : "-mt-4 sm:-mt-32 lg:-mt-44";
+  /* Der Titelbogen wächst mit der Fensterbreite – der Hochzug des Bildes muss
+     mitwachsen (fixe Werte überlappen sonst um 640px herum). */
+  const curvedIconPull = `${
+    isStonesIcon
+      ? "mt-0 sm:-mt-10 md:-mt-14 lg:-mt-20"
+      : isEdgeToEdgeImage
+        ? "-mt-4 sm:-mt-16 md:-mt-24 lg:-mt-44"
+        : "-mt-4 sm:-mt-24 md:-mt-32 lg:-mt-44"
+  }${isEdgeToEdgeImage ? " mb-4 sm:mb-8" : ""}`;
   const pathId = `curve-${slug}`;
   const title = hero.title ?? "";
   const curvedTitle = hero.curvedTitle ?? title;
