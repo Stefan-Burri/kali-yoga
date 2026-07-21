@@ -35,7 +35,7 @@
 
 ## ⭐ Der Seiten-Baukasten (aktuelles System, seit 12.06.2026)
 
-**Die ganze Website besteht aus Baukasten-Seiten.** Bearbeitung: **https://kali-yoga-cms.sanity.studio** (das EINE Studio — alle anderen Studio-Adressen sind veraltet und können im Sanity-Dashboard gelöscht werden)
+**Die ganze Website besteht aus Baukasten-Seiten.** Bearbeitung: **https://kali-yoga-studio.sanity.studio** (das EINE Studio — alle anderen Studio-Adressen sind veraltet und können im Sanity-Dashboard gelöscht werden)
 
 Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧 Seiten – English** · Navigation (Menü) · Footer · Stundenplan-Eintrag (zentrale Tabelle) · Allgemein
 
@@ -50,7 +50,7 @@ Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧
 ## Inhalte bearbeiten (Sanity CMS)
 Alle Texte werden im **einen** Studio gepflegt — ohne Code:
 
-- **Studio:** https://kali-yoga-cms.sanity.studio (Login mit dem Sanity-Konto). Ältere Studio-Adressen (kali-yoga, kali-yoga-inhalte, kali-yoga-deutsch, kali-yoga-english, kali-yoga-baukasten) sind veraltet — im Sanity-Dashboard löschen.
+- **Studio:** https://kali-yoga-studio.sanity.studio (Login mit dem Sanity-Konto). Ältere Studio-Adressen (kali-yoga, kali-yoga-inhalte, kali-yoga-deutsch, kali-yoga-english, kali-yoga-baukasten, kali-yoga-cms) sind veraltet — im Sanity-Dashboard löschen. Hintergrund: Ein veröffentlichtes Studio friert das Schema ein und lässt sich unter derselben Adresse nicht überschreiben — bei Schema-Änderungen entsteht darum eine neue Adresse.
 - **So geht's:** Seite anklicken → Sektion öffnen → Text ändern → unten rechts auf **Publish** klicken → die Website aktualisiert sich innert ca. 1 Minute
 - **Sicherheitsnetz:** Wird ein Feld in Sanity geleert, zeigt die Website automatisch den ursprünglichen Text. Nichts kann kaputtgehen.
 
@@ -84,6 +84,7 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-07-21 (spät): Studio neu veröffentlicht unter **https://kali-yoga-studio.sanity.studio** — die alte Adresse kali-yoga-cms zeigte noch das eingefrorene alte Schema («Unknown fields»-Warnungen, alter Name «Allgemeine Angaben») und liess sich nicht überschreiben. Alte Adresse im Sanity-Dashboard löschen!
 - 2026-07-21 (spät): CMS aufgeräumt + Custom Code: «Allgemeine Angaben» heisst jetzt **«Allgemein»** und enthält nur noch den Englisch-Schalter und das neue Feld **«Custom Code»** (z.B. Google-Tag-Manager-Snippet einfügen → läuft auf allen Seiten). Die Kontaktdaten (Adresse, Telefon, E-Mail, Facebook, Instagram) sind ins **Footer-Dokument** umgezogen, wo sie auch angezeigt werden — vorher waren sie im Code fest hinterlegt und die CMS-Werte wurden ignoriert. Ausserdem Hero-Abstände vereinheitlicht: randlose Bilder (Steine-Icon, Karin-Porträt) bekommen unten gleich viel Luft zum Text wie die anderen Icons, und der Bild-Hochzug wächst mit der Fensterbreite (behebt Überlappung von «Karin» um 640px)
 - 2026-07-21 (abends): Hero-Feinschliff — Steine-Icon (Yoga Therapie) mit gleichem Abstand zum Bogen-Titel wie das Yogaklassen-Icon; gerade Hero-Titel auf max. 960px begrenzt (brechen ausgewogen um statt volle Breite); auf dem Handy mehr Abstand zwischen Titel und Bild (Karin-Porträt überlappte)
 - 2026-07-21: Grosses Feinschliff-Paket nach Vergleich mit der alten Website:
