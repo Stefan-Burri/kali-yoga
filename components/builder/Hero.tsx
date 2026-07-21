@@ -128,10 +128,15 @@ export default function BuilderHero({
   const variant = hero.variant ?? "curved";
   const fullHeight = hero.fullHeight !== false;
   /* Das Steine-Icon (stones.svg) füllt seine Bildfläche fast randlos und wirkt
-     dadurch deutlich grösser als die anderen Hero-Icons – kleiner rendern. */
-  const heroIconClass = hero.imagePath?.includes("stones")
+     dadurch deutlich grösser als die anderen Hero-Icons – kleiner rendern.
+     Im gebogenen Hero braucht es zudem einen kleineren Hochzug unter den
+     Titelbogen, sonst klebt es an der Überschrift (andere Icons bringen
+     eigenen Leerraum oben mit). */
+  const isStonesIcon = Boolean(hero.imagePath?.includes("stones"));
+  const heroIconClass = isStonesIcon
     ? "h-[160px] sm:h-[220px] w-auto"
     : "h-[240px] sm:h-[320px] w-auto";
+  const curvedIconPull = isStonesIcon ? "mt-0 sm:-mt-14 lg:-mt-20" : "-mt-4 sm:-mt-32 lg:-mt-44";
   const pathId = `curve-${slug}`;
   const title = hero.title ?? "";
   const curvedTitle = hero.curvedTitle ?? title;
@@ -186,7 +191,7 @@ export default function BuilderHero({
         <div className="flex flex-col items-center text-center px-6 pt-16 sm:pt-24 lg:pt-32 pb-8">
           <div className={`${variant === "straight" ? "w-full" : "max-w-[768px]"} mx-auto flex flex-col items-center`}>
             {variant === "straight" ? (
-              <h1 className="font-display text-h1 font-bold text-primary w-full text-balance">{title}</h1>
+              <h1 className="font-display text-h1 font-bold text-primary w-full max-w-[960px] text-balance">{title}</h1>
             ) : (
               <CurvedTitle curvedTitle={curvedTitle} title={title} pathId={pathId} viewBox="-50 0 700 280" />
             )}
@@ -220,7 +225,7 @@ export default function BuilderHero({
         ) : null}
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="w-full mx-auto flex flex-col items-center text-center">
-            <h1 className="font-display text-h1 font-bold text-primary w-full text-balance">
+            <h1 className="font-display text-h1 font-bold text-primary w-full max-w-[960px] text-balance">
               {title}
             </h1>
             {hero.imagePath ? (
@@ -254,7 +259,7 @@ export default function BuilderHero({
         <div className="max-w-[768px] mx-auto flex flex-col items-center text-center">
           <CurvedTitle curvedTitle={curvedTitle} title={title} pathId={pathId} />
           {hero.imagePath ? (
-            <div className="-mt-10 sm:-mt-32 lg:-mt-44">
+            <div className={curvedIconPull}>
               <Image
                 src={hero.imagePath}
                 alt={title}
