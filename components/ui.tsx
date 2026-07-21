@@ -167,7 +167,7 @@ export function PricingGrid({ plans }: { plans: PricingGridPlan[] }) {
           )}
           <div className="p-7 flex flex-col flex-1">
             <div className="text-center">
-              <h3 className="font-display text-h5 font-bold text-primary mb-4">{p.title}</h3>
+              <h3 className="font-display text-h5 font-bold text-primary mb-4 -mx-3 [hyphens:auto] [-webkit-hyphens:auto]">{p.title}</h3>
               <p className="text-primary leading-none whitespace-nowrap">
                 <span className="text-body font-semibold">CHF </span>
                 <span className="text-h2 font-bold">{p.price.replace("CHF ", "")}</span>

@@ -15,8 +15,25 @@ export type HeroData =
       variant?: "curved" | "simple" | "home" | "straight" | null;
       /** false → compact hero (legal-page style), default true. */
       fullHeight?: boolean | null;
+      /** Bold line between title/icon and text (original course subtitle). */
+      subtitle?: string | null;
     })
   | null;
+
+/** Bold subtitle line + optional text – shared by all hero variants. The text
+    hugs the subtitle (mt-4) when both are present. */
+function HeroSubtitleText({ subtitle, text, textMargin }: { subtitle?: string | null; text?: string | null; textMargin: string }) {
+  return (
+    <>
+      {subtitle ? (
+        <p className={`${textMargin} text-h6 font-bold text-foreground max-w-[768px] mx-auto leading-relaxed`}>{subtitle}</p>
+      ) : null}
+      {text ? (
+        <p className={`${subtitle ? "mt-4" : textMargin} text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line`}>{text}</p>
+      ) : null}
+    </>
+  );
+}
 
 /* ─── Buttons ─── */
 
@@ -69,7 +86,7 @@ function CurvedTitle({
       {title !== undefined ? <h1 className="sr-only">{title}</h1> : null}
       <svg
         viewBox={viewBox}
-        className="w-[600px] sm:w-[800px] lg:w-[1060px] h-auto hidden sm:block"
+        className="w-[600px] sm:w-full sm:max-w-[800px] lg:w-[1060px] lg:max-w-none h-auto hidden sm:block"
         role="img"
         aria-label={curvedTitle}
       >
@@ -184,9 +201,7 @@ export default function BuilderHero({
                 />
               </div>
             ) : null}
-            {hero.text ? (
-              <p className="mt-6 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
-            ) : null}
+            <HeroSubtitleText subtitle={hero.subtitle} text={hero.text} textMargin="mt-6" />
             <HeroButtons buttons={hero.buttons} />
           </div>
         </div>
@@ -219,9 +234,7 @@ export default function BuilderHero({
                 />
               </div>
             ) : null}
-            {hero.text ? (
-              <p className="mt-10 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
-            ) : null}
+            <HeroSubtitleText subtitle={hero.subtitle} text={hero.text} textMargin="mt-10" />
             <HeroButtons buttons={hero.buttons} />
           </div>
         </div>
@@ -241,7 +254,7 @@ export default function BuilderHero({
         <div className="max-w-[768px] mx-auto flex flex-col items-center text-center">
           <CurvedTitle curvedTitle={curvedTitle} title={title} pathId={pathId} />
           {hero.imagePath ? (
-            <div className="-mt-8 sm:-mt-16 lg:-mt-44">
+            <div className="-mt-10 sm:-mt-32 lg:-mt-44">
               <Image
                 src={hero.imagePath}
                 alt={title}
@@ -251,9 +264,7 @@ export default function BuilderHero({
               />
             </div>
           ) : null}
-          {hero.text ? (
-            <p className="mt-6 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
-          ) : null}
+          <HeroSubtitleText subtitle={hero.subtitle} text={hero.text} textMargin="mt-6" />
           <HeroButtons buttons={hero.buttons} />
         </div>
       </div>

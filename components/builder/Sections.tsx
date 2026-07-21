@@ -36,6 +36,7 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   /* heroSection */
   variant?: "curved" | "simple" | "home" | "straight" | null;
   fullHeight?: boolean | null;
+  subtitle?: string | null;
   /* cardGridSection */
   layout?: "grid-2" | "grid-3" | "grid-4" | "list" | "logos" | null;
   cards?: BuilderCard[] | null;
@@ -44,6 +45,10 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   galleryImages?: SanityImageRef[] | null;
   logoPaths?: string[] | null;
   align?: "center" | "left" | null;
+  listStyle?: "bullet" | "check" | null;
+  /* courseDetailsSection */
+  datesIntro?: unknown[] | null;
+  noteBody?: unknown[] | null;
 };
 
 /* ─── Portable Text styling (matches the site's body text) ─── */
@@ -77,9 +82,31 @@ const ptComponents: PortableTextComponents = {
   },
 };
 
-function Body({ value }: { value?: unknown[] | null }) {
+/* Check-style bullet list (original "Dieser Kurs ist hilfreich bei:"):
+   left-aligned items with the gold pricing checkmark, block centered. */
+const checkPtComponents: PortableTextComponents = {
+  ...ptComponents,
+  list: {
+    bullet: ({ children }) => (
+      <ul className="space-y-3 mb-4 text-body text-foreground leading-[1.8] text-left w-fit mx-auto">{children}</ul>
+    ),
+    number: ({ children }) => <ol className="list-decimal pl-5 space-y-2 mb-4 text-body text-foreground leading-[1.8]">{children}</ol>,
+  },
+  listItem: {
+    bullet: ({ children }) => (
+      <li className="flex items-start gap-3">
+        <svg className="w-4 h-4 mt-[7px] text-gold flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+        </svg>
+        <span>{children}</span>
+      </li>
+    ),
+  },
+};
+
+function Body({ value, components }: { value?: unknown[] | null; components?: PortableTextComponents }) {
   if (!Array.isArray(value) || value.length === 0) return null;
-  return <PortableText value={value as never[]} components={ptComponents} />;
+  return <PortableText value={value as never[]} components={components ?? ptComponents} />;
 }
 
 /* ─── Section wrapper: py-section + container + glass/plain + reveal ─── */
@@ -224,7 +251,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
       <SectionShell section={section} id={id}>
         <div className={glass ? undefined : "p-8 sm:p-12 lg:p-16"}>
           {section.title && <SectionHeading title={section.title} />}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
             <div className="space-y-5 text-body text-foreground leading-[1.8]">
               <Body value={section.body} />
               {section.buttonLabel && section.buttonLink && (
@@ -234,8 +261,22 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
                 </SmartLink>
               )}
             </div>
-            <div className={`grid grid-cols-1 gap-6${imagesFirst ? " md:order-first" : ""}`}>
-              <GalleryImageCard src={imageSrc} alt={section.title ?? ""} width={800} height={533} />
+            {/* Gallery matches the text column height: the large image absorbs
+                the difference (lg:flex-1), the small pair keeps its aspect. */}
+            <div className={`flex flex-col gap-6${imagesFirst ? " md:order-first" : ""}`}>
+              <div
+                className="relative rounded-[12px] overflow-hidden image-reveal aspect-[3/2] lg:aspect-auto lg:flex-1 lg:min-h-[280px]"
+                style={{ boxShadow: imageShadow }}
+              >
+                <Image
+                  src={imageSrc}
+                  alt={section.title ?? ""}
+                  width={800}
+                  height={533}
+                  unoptimized={/^https?:\/\//.test(imageSrc)}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              </div>
               <div className="grid grid-cols-2 gap-6">
                 {extraImages.map((src, i) => (
                   <GalleryImageCard key={`${src}-${i}`} src={src} alt={section.title ?? ""} width={600} height={400} />
@@ -328,7 +369,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
           </>
         )}
         <div className="mt-4">
-          <Body value={section.body} />
+          <Body value={section.body} components={section.listStyle === "check" ? checkPtComponents : undefined} />
         </div>
         <LogoRow logos={logoPaths.map((src) => ({ src, alt: logoAlt(src) }))} className="mt-10" />
         {section.buttonLabel && section.buttonLink && (
@@ -372,12 +413,12 @@ function GridCard({ card }: { card: BuilderCard }) {
   if (card.logoPath) {
     return (
       <div className="text-center flex flex-col items-center">
-        <div className="w-[80px] h-[80px] mb-5 flex items-center justify-center">
+        <div className="w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] mb-5 flex items-center justify-center">
           <Image
             src={card.logoPath}
             alt={card.title ?? ""}
-            width={80}
-            height={80}
+            width={160}
+            height={160}
             className="max-w-full max-h-full object-contain"
           />
         </div>
@@ -674,27 +715,37 @@ function PricingSectionBlock({ section, lang, id }: { section: BuilderSection; l
 function CourseDetailsSectionBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
   const details = section.details ?? [];
   const dates = section.dates ?? [];
+  const hasDatesIntro = Array.isArray(section.datesIntro) && section.datesIntro.length > 0;
+  const hasNoteBody = Array.isArray(section.noteBody) && section.noteBody.length > 0;
 
   return (
     <SectionShell section={section} id={id}>
       {section.title && <SectionHeading title={section.title} />}
 
+      {/* Original layout: one centered block, bold label + value per line.
+          Labels carry their own colon (the CMS decides – "Online Teilnahme"
+          continues into its value without one). */}
       {details.length > 0 && (
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6${dates.length > 0 ? " mb-12" : ""}`}>
+        <div className={`text-body text-foreground leading-[2] text-center${dates.length > 0 ? " mb-12" : ""}`}>
           {details.map((d, i) => (
-            <div key={d._key ?? i} className="rounded-[16px] border-2 border-primary p-7">
-              <p className="text-small text-foreground/60 uppercase tracking-wider mb-2">{d.label}</p>
-              <p className="text-h6 font-bold text-foreground">{d.value}</p>
-            </div>
+            <p key={d._key ?? i}>
+              <strong className="font-bold">{d.label}</strong> {d.value}
+            </p>
           ))}
         </div>
       )}
 
       {dates.length > 0 && (
         <>
-          <h3 className="font-display text-h5 font-bold text-primary text-center mb-6">
-            {dates.length} {lang === "en" ? "Dates" : "Termine"}
-          </h3>
+          {hasDatesIntro ? (
+            <div className="text-center max-w-[768px] mx-auto mb-6">
+              <Body value={section.datesIntro} />
+            </div>
+          ) : (
+            <h3 className="font-display text-h5 font-bold text-primary text-center mb-6">
+              {dates.length} {lang === "en" ? "Dates" : "Termine"}
+            </h3>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
             {dates.map((dateStr, i) => {
               const parts = dateStr.split(", ");
@@ -704,7 +755,7 @@ function CourseDetailsSectionBlock({ section, lang, id }: { section: BuilderSect
                     <>
                       <p className="text-body text-foreground">{parts[0]}</p>
                       <p className="text-body-lg font-bold text-foreground mt-1">{parts[1]}</p>
-                      <p className="font-display text-h6 font-bold text-primary mt-2">{parts[2]}</p>
+                      <p className="text-body text-foreground mt-1">{parts[2]}</p>
                     </>
                   ) : (
                     <p className="text-body-lg font-bold text-foreground">{dateStr}</p>
@@ -716,11 +767,15 @@ function CourseDetailsSectionBlock({ section, lang, id }: { section: BuilderSect
         </>
       )}
 
-      {section.note && (
+      {hasNoteBody ? (
+        <div className="mt-8 text-body text-foreground leading-relaxed max-w-[768px] mx-auto text-center">
+          <Body value={section.noteBody} />
+        </div>
+      ) : section.note ? (
         <div className="mt-8 space-y-3 text-body text-foreground leading-relaxed max-w-[768px] mx-auto text-center">
           <p>{section.note}</p>
         </div>
-      )}
+      ) : null}
 
       {section.ctaLabel && section.ctaHref && (
         <div className="flex justify-center mt-8">
@@ -775,6 +830,8 @@ type FormConfig = {
   type: string;
   eyebrow?: string;
   defaultTitle?: string;
+  /** Bold display-font line under the title (original h6, e.g. "Ich freue mich über deine Nachricht"). */
+  defaultSubtitle?: string;
   defaultIntro?: React.ReactNode;
   fields: (data: SharedData) => FormField[];
   strings?: FormStrings;
@@ -791,6 +848,10 @@ const KLEINGRUPPE_BASE_FIELDS: FormField[] = [
 const FORM_CONFIGS_DE: Record<string, FormConfig> = {
   kontakt: {
     type: "contact",
+    defaultTitle: "Kontaktformular",
+    defaultSubtitle: "Ich freue mich über deine Nachricht",
+    defaultIntro:
+      "Gerne kannst du mir über das Kontaktformular eine Nachricht schicken. Ich beantworte deine Anfrage möglichst bald.",
     fields: () => [
       { name: "name", label: "Name", type: "text", required: true },
       { name: "email", label: "Email", type: "email", required: true },
@@ -802,7 +863,7 @@ const FORM_CONFIGS_DE: Record<string, FormConfig> = {
     eyebrow: "Yogaklasse",
     defaultTitle: "Anmeldung Yogaklassen",
     defaultIntro:
-      "Bitte jeweils bis am Vorabend um 22:00 Uhr für die Klassen anmelden. Bezahlung nach der Lektion in Bar oder Twint. Wenn gewünscht kann ich dich nach der Anmeldung in meine WhatsApp Gruppe einladen und du erhältst dann immer die neusten Updates zu den jeweiligen Klassen. Max. 10 Teilnehmer*innen pro Klasse",
+      "Bitte jeweils bis am Vorabend um 22:00 Uhr für die Klassen anmelden.\nBezahlung nach der Lektion in Bar oder Twint.\n\nWenn gewünscht kann ich dich nach der Anmeldung in meine WhatsApp Gruppe einladen und du erhältst dann immer die neusten Updates zu den jeweiligen Klassen.\n\nMax. 10 Teilnehmer*innen pro Klasse",
     fields: (data) => [
       {
         name: "klasse",
@@ -896,6 +957,10 @@ const KLEINGRUPPE_BASE_FIELDS_EN: FormField[] = [
 const FORM_CONFIGS_EN: Record<string, FormConfig> = {
   kontakt: {
     type: "contact",
+    defaultTitle: "Contact Form",
+    defaultSubtitle: "I look forward to your message",
+    defaultIntro:
+      "Feel free to send me a message via the contact form. I will get back to you as soon as possible.",
     fields: () => [
       { name: "name", label: "Name", type: "text", required: true },
       { name: "email", label: "Email", type: "email", required: true },
@@ -911,7 +976,7 @@ const FORM_CONFIGS_EN: Record<string, FormConfig> = {
     eyebrow: "Yoga Class",
     defaultTitle: "Yoga Class Registration",
     defaultIntro:
-      "Please register for classes by 10:00 pm the evening before. Payment after the lesson in cash or by Twint. If you like, I can invite you to my WhatsApp group after registration so you always receive the latest updates about the classes. Max. 10 participants per class",
+      "Please register for classes by 10:00 pm the evening before.\nPayment after the lesson in cash or by Twint.\n\nIf you like, I can invite you to my WhatsApp group after registration so you always receive the latest updates about the classes.\n\nMax. 10 participants per class",
     fields: (data) => [
       {
         name: "klasse",
@@ -995,11 +1060,12 @@ function FormSectionBlock({ section, data, lang, id, asPageTitle = false }: { se
   if (!config) return null;
 
   const title = section.title ?? config.defaultTitle;
+  const subtitle = section.subtitle ?? config.defaultSubtitle;
   const intro = section.intro ?? config.defaultIntro;
 
   return (
     <SectionShell section={section} id={id}>
-      {(title || intro) && (
+      {(title || subtitle || intro) && (
         <div className="text-center max-w-[768px] mx-auto mb-12">
           {config.eyebrow && <p className="text-body text-foreground/60 uppercase tracking-wider mb-3">{config.eyebrow}</p>}
           {title && (
@@ -1012,7 +1078,8 @@ function FormSectionBlock({ section, data, lang, id, asPageTitle = false }: { se
               <GoldLine />
             </>
           )}
-          {intro && <p className="mt-4 text-body text-foreground leading-relaxed">{intro}</p>}
+          {subtitle && <p className="mt-5 font-display text-h5 font-bold text-primary">{subtitle}</p>}
+          {intro && <p className={`${subtitle ? "mt-3" : "mt-4"} text-body text-foreground leading-relaxed whitespace-pre-line`}>{intro}</p>}
         </div>
       )}
 
@@ -1064,6 +1131,7 @@ export default function PageSections({
                   variant: section.variant,
                   curvedTitle: section.curvedTitle,
                   title: section.title,
+                  subtitle: section.subtitle,
                   text: section.text,
                   imagePath: section.imagePath,
                   buttons: section.buttons,
