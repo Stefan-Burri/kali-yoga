@@ -72,15 +72,18 @@ function CurvedTitle({
   title,
   pathId,
   viewBox = "-50 75 700 205",
+  small = false,
 }: {
   curvedTitle: string;
   title?: string;
   pathId: string;
   viewBox?: string;
+  /** Slightly smaller lettering (homepage «Yoga for Every Body»). */
+  small?: boolean;
 }) {
   return (
     <>
-      <p aria-hidden="true" className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">
+      <p aria-hidden="true" className={`sm:hidden font-display ${small ? "text-h3" : "text-h2"} font-bold text-primary text-center mb-6`}>
         {curvedTitle}
       </p>
       {title !== undefined ? <h1 className="sr-only">{title}</h1> : null}
@@ -93,7 +96,7 @@ function CurvedTitle({
         <defs>
           <path id={pathId} d="M 0,280 Q 300,-10 600,280" fill="none" />
         </defs>
-        <text className="fill-primary font-display" style={{ fontSize: "54px", fontWeight: 700 }}>
+        <text className="fill-primary font-display" style={{ fontSize: small ? "48px" : "54px", fontWeight: 700 }}>
           <textPath href={`#${pathId}`} startOffset="50%" textAnchor="middle">
             {curvedTitle}
           </textPath>
@@ -177,7 +180,7 @@ export default function BuilderHero({
         {withNavbar ? navbar : null}
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
           <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
-            <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} />
+            <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} small />
             <div className="mt-8 sm:mt-0 lg:-mt-28">
               <HeroLottie />
             </div>

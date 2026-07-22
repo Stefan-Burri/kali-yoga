@@ -47,6 +47,8 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   logoImages?: SanityLogoImage[] | null;
   align?: "center" | "left" | null;
   listStyle?: "bullet" | "check" | null;
+  /** One step smaller section heading (old-site Kostenbeteiligung style). */
+  smallTitle?: boolean | null;
   /* courseDetailsSection */
   datesIntro?: unknown[] | null;
   noteBody?: unknown[] | null;
@@ -371,7 +373,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
       <div className={`max-w-[768px] mx-auto${alignLeft ? "" : " text-center"}${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
         {section.title && (
           <>
-            <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
+            <h2 className={`font-display ${section.smallTitle ? "text-h4" : "text-h3"} font-bold text-primary`}>{section.title}</h2>
             <GoldLine centered={!alignLeft} />
           </>
         )}
@@ -399,13 +401,17 @@ const GRID_CLASSES: Record<string, string> = {
   "grid-4": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8",
 };
 
+/* Pinned to the card bottom (mt-auto) so the buttons of all cards in a row
+   sit on the same height, regardless of text length. */
 function CardLink({ card }: { card: BuilderCard }) {
   if (!card.linkLabel || !card.linkHref) return null;
   return (
-    <SmartLink href={card.linkHref} className={`mt-6 ${secondaryBtnClass}`}>
-      {card.linkLabel}
-      <ChevronRight />
-    </SmartLink>
+    <div className="mt-auto pt-6">
+      <SmartLink href={card.linkHref} className={secondaryBtnClass}>
+        {card.linkLabel}
+        <ChevronRight />
+      </SmartLink>
+    </div>
   );
 }
 
@@ -419,7 +425,7 @@ function GridCard({ card }: { card: BuilderCard }) {
      the same image in both fields. */
   if (card.logoPath) {
     return (
-      <div className="text-center flex flex-col items-center">
+      <div className="text-center flex flex-col items-center h-full">
         <div className="w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] mb-5 flex items-center justify-center">
           <Image
             src={card.logoPath}
@@ -457,7 +463,7 @@ function GridCard({ card }: { card: BuilderCard }) {
   /* Icon card: feature style (icon on top, no border) */
   if (iconSrc) {
     return (
-      <div className="text-center flex flex-col items-center">
+      <div className="text-center flex flex-col items-center h-full">
         <div className="mb-4">
           <Image
             src={iconSrc}
@@ -480,7 +486,7 @@ function GridCard({ card }: { card: BuilderCard }) {
 
   /* Bordered card (course-content / steps style) */
   return (
-    <div className="rounded-[16px] border-2 border-primary p-7 text-center flex flex-col items-center">
+    <div className="rounded-[16px] border-2 border-primary p-7 text-center flex flex-col items-center h-full">
       {card.badge && <p className="text-small font-medium text-foreground/60 uppercase tracking-wider mb-2">{card.badge}</p>}
       {card.title && <h3 className="font-display text-body-lg font-bold text-primary mb-3">{card.title}</h3>}
       {card.subtitle && <p className="text-body text-foreground/70 italic mb-3">{card.subtitle}</p>}
