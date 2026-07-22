@@ -22,15 +22,22 @@ export async function POST(request: NextRequest) {
       ? `${type} — ${name}`
       : `Kontaktanfrage von ${name}`;
 
-    // Build email body from all fields
+    // Build email body from ALL submitted fields — known fields get a readable
+    // label, unknown fields fall back to their name so nothing is ever dropped.
+    const FIELD_LABELS: Record<string, string> = {
+      klasse: "Klasse",
+      phone: "Telefon",
+      address: "Adresse",
+      plz: "PLZ | Ort",
+      teilnahme: "Teilnahme",
+      date: "Gewünschtes Datum",
+    };
     const lines = [
       `Name: ${name}`,
       `Email: ${email}`,
-      rest.phone ? `Telefon: ${rest.phone}` : null,
-      rest.address ? `Adresse: ${rest.address}` : null,
-      rest.plz ? `PLZ | Ort: ${rest.plz}` : null,
-      rest.teilnahme ? `Teilnahme: ${rest.teilnahme}` : null,
-      rest.date ? `Gewünschtes Datum: ${rest.date}` : null,
+      ...Object.entries(rest)
+        .filter(([key, value]) => key !== "message" && typeof value === "string" && value.trim() !== "")
+        .map(([key, value]) => `${FIELD_LABELS[key] ?? key}: ${value}`),
       type ? `Typ: ${type}` : null,
       rest.message ? `\nNachricht:\n${rest.message}` : null,
     ].filter(Boolean).join("\n");
