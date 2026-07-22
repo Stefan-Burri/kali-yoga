@@ -76,7 +76,7 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Live-Website:** https://kali-yoga.vercel.app
 - **Code:** github.com/Stefan-Burri/kali-yoga — jeder Push auf `main` löst automatisch einen neuen Vercel-Build aus
 - **E-Mail-Versand (Formulare):** ✅ eingerichtet (22.07.2026) — `RESEND_API_KEY` ist auf Vercel (Production) und lokal in `.env.local` hinterlegt, Domain kali-yoga.ch bei Resend verifiziert, Versand getestet. Alle 5 Formulare senden an info@kali-yoga.ch (Absender noreply@kali-yoga.ch, Antworten gehen direkt an die Adresse aus dem Formular)
-- **Offen für Go-Live:** 1) Domain kali-yoga.ch auf Vercel umhängen. 2) Nach der Domain-Umstellung auf Vercel `NEXT_PUBLIC_SITE_URL=https://www.kali-yoga.ch` setzen (steuert Sitemap, Vorschaubilder und robots.txt — Fallback ist die Vercel-Adresse)
+- **Go-Live-Stand (22.07.2026):** Domains bei Vercel angelegt (www.kali-yoga.ch = Produktion, kali-yoga.ch leitet auf www um), `NEXT_PUBLIC_SITE_URL=https://www.kali-yoga.ch` gesetzt, Domain bei Sanity (CORS) freigeschaltet. **Offen:** Bei Cloudflare die zwei Einträge umstellen — 1) A-Eintrag `kali-yoga.ch` (198.202.211.1) löschen und ersetzen durch CNAME `@` → `892b3a76b5f971d3.vercel-dns-017.com` (Proxy AUS = «Nur DNS»); 2) CNAME `www` von `cdn.webflow.com` auf denselben Wert ändern (Proxy AUS). MX/TXT-Einträge (iCloud-Mail, Resend, Google-Verifizierung) NICHT anfassen. Danach in Vercel bei beiden Domains auf «Refresh» klicken
 
 ## Tracking & Cookie-Einwilligung
 - **Custom Code** (Studio → «Allgemein»): z.B. das Google-Tag-Manager-Snippet einfügen und publizieren
