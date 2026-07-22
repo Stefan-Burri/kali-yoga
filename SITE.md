@@ -91,7 +91,15 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Facebook:** facebook.com/KaliYogaBern
 - **Instagram:** instagram.com/kali_yogabern
 
+## Stundenplan aufräumen (vergangene Termine)
+Vergangene Termine werden auf der Website automatisch ausgeblendet, bleiben aber im CMS. Aufräumen von Hand im Studio (Bereich «Stundenplan-Eintrag»):
+1. Die Einträge zeigen in der Liste jetzt **Datum + Klassen-Name** (seit 22.07.2026) — vergangene sind so sofort erkennbar
+2. Eintrag öffnen → Menü **⋮** oben rechts → **Duplicate** → die Kopie ist ein unpublizierter Entwurf (= Vorlage, falls der nächste Termin noch nicht sicher ist)
+3. Alten Eintrag löschen (Menü ⋮ → Delete)
+4. Sobald der neue Termin feststeht: Entwurf öffnen, Datum anpassen, **Publish**
+
 ## Recent Changes
+- 2026-07-22 (spät): Stundenplan-Einträge zeigen im Studio jetzt Datum + Klassen-Name in der Liste (vorher nur «class» — Einträge waren nicht unterscheidbar). Anleitung zum Aufräumen vergangener Termine oben ergänzt
 - 2026-07-22 (spät): Feinschliff-Paket wie alte Website — (1) Startseiten-Bogentitel «Yoga for Every Body» etwas kleiner (48px statt 54px, Handy eine Stufe kleiner). (2) Karten-Buttons («Mehr Erfahren»/«Kontakt») stehen jetzt in jeder Kartenreihe auf gleicher Höhe (unten angepinnt). (3) Kursdetails: statt automatisch «5 Termine» steht neu ein bearbeitbarer Text über den Terminen («Der Kurs umfasst **fünf Termine:**», CMS-Feld «Text über den Terminen»); der Hinweistext unter den Terminen ist neu formatierbar (CMS-Feld «Hinweistext» mit Fett-Knopf) — Texte samt Fettungen von der alten Website übernommen (Burnout + Gelenkschmerzen, DE + EN; Gelenkschmerzen hat zusätzlich den Absatz zur ernährungstherapeutischen Begleitung mit 25 % Rabatt). (4) «Kostenbeteiligung/Kostenübernahme Zusatzversicherung»-Überschriften eine Stufe kleiner wie im Original (neuer Schalter «Kleinere Überschrift» in der About-Sektion; gesetzt auf Yoga Therapie + beiden Kleingruppen, DE + EN). Ausserdem: leerer Logo-Eintrag im Yoga-Therapie-Entwurf entfernt
 - 2026-07-22 (abends): Datenschutzerklärung fürs Google-Tracking nachgeschärft (revDSG) — Garantien für USA-Übermittlungen ergänzt (Swiss–U.S. Data Privacy Framework, anerkannt seit 15.09.2024, bzw. Standardvertragsklauseln); Kontakt-E-Mail für Datenschutzanfragen (Ziffern 2 + 7); Google-Abschnitt präzisiert (Google Analytics 4, keine vollständigen IP-Adressen, Löschung nach 14 Monaten); Formular-Feldliste an die echten Formulare angepasst; Newsletter-Abschnitt bleibt (Newsletter ist geplant). Neu: englische Datenschutzerklärung unter /en/privacy-policy (deutsche Fassung bleibt rechtlich massgebend), englischer Footer + Cookie-Banner verlinken darauf, Sprachschalter verbindet beide Seiten. WICHTIG vor Tracking-Start: In Google Analytics die Aufbewahrung auf 14 Monate stellen und die Google-Datenverarbeitungsbedingungen akzeptieren
 - 2026-07-22 (abends): Anmelden-Overlay 2-spaltig — die 4 Auswahlkarten waren zu schmal (Beschriftung «Kleingruppe Gelenkschmerzen» abgeschnitten); jetzt 2×2 auf Tablet/Desktop, 1 Spalte auf dem Handy (geprüft auf 390/768/1440px)
