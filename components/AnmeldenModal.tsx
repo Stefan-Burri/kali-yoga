@@ -54,7 +54,7 @@ export default function AnmeldenModal({ open, onClose }: { open: boolean; onClos
         </div>
 
         {/* Options Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {options.map((option) => (
             <Link
               key={option.href}
