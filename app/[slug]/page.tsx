@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import BuilderHero from "@/components/builder/Hero";
 import PageSections from "@/components/builder/Sections";
 import { getFooter, getNavigation, getPageBySlug, getSharedData } from "@/lib/builder";
+import { buildCourseJsonLd } from "@/lib/courseJsonLd";
 import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
@@ -49,9 +50,13 @@ export default async function CmsPage({ params }: { params: Promise<{ slug: stri
   const translationHref = buildTranslationHref(page.translationSlug);
   const sections = page.sections ?? [];
   const hasHeroSection = sections.some((s) => s._type === "heroSection");
+  const courseJsonLd = buildCourseJsonLd(page, `${SITE_URL}/${slug}`);
 
   return (
     <div className="min-h-screen">
+      {courseJsonLd ? (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }} />
+      ) : null}
       <StickyNavbar lang="de" nav={nav} translationHref={translationHref} />
 
       <main>
