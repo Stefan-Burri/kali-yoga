@@ -17,7 +17,7 @@ import {
   secondaryBtnClass,
   imageShadow,
 } from "@/components/ui";
-import type { Lang, NavigationDoc, PageSection, SanityImageRef, SectionCard, SharedData } from "@/lib/builder";
+import type { Lang, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, SectionCard, SharedData } from "@/lib/builder";
 
 /* ─── Widened section shapes ───
    The deployed schema grew new fields (hero 'straight' variant + fullHeight,
@@ -44,6 +44,7 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   imagePaths?: string[] | null;
   galleryImages?: SanityImageRef[] | null;
   logoPaths?: string[] | null;
+  logoImages?: SanityLogoImage[] | null;
   align?: "center" | "left" | null;
   listStyle?: "bullet" | "check" | null;
   /* courseDetailsSection */
@@ -235,7 +236,13 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
   const sanityUrl = section.image?.asset?.url ?? null;
   const imageSrc = sanityUrl ?? section.imagePath ?? null;
   const glass = section.appearance !== "plain";
-  const logoPaths = section.logoPaths ?? [];
+  /* Logo row: file paths first, then uploaded logos (alt text from the file name). */
+  const logos = [
+    ...(section.logoPaths ?? []).filter(Boolean).map((src) => ({ src, alt: logoAlt(src) })),
+    ...(section.logoImages ?? [])
+      .filter((logo): logo is NonNullable<SanityLogoImage> => Boolean(logo?.url))
+      .map((logo) => ({ src: logo.url as string, alt: logoAlt(logo.filename ?? "") })),
+  ];
 
   /* Additional images: sanity gallery first, then static paths. */
   const extraImages = [
@@ -371,7 +378,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
         <div className="mt-4">
           <Body value={section.body} components={section.listStyle === "check" ? checkPtComponents : undefined} />
         </div>
-        <LogoRow logos={logoPaths.map((src) => ({ src, alt: logoAlt(src) }))} className="mt-10" />
+        <LogoRow logos={logos} className="mt-10" />
         {section.buttonLabel && section.buttonLink && (
           <div className={alignLeft ? "mt-8" : "flex justify-center mt-8"}>
             <SmartLink href={section.buttonLink} className={primaryBtnClass}>
@@ -581,7 +588,8 @@ function isMergedIntoCardGrid(section: BuilderSection | undefined, prev: Builder
     section._type === "textSection" &&
     !section.image &&
     !section.imagePath &&
-    !(section.logoPaths && section.logoPaths.length > 0)
+    !(section.logoPaths && section.logoPaths.length > 0) &&
+    !(section.logoImages && section.logoImages.length > 0)
   );
 }
 

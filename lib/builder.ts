@@ -17,6 +17,9 @@ export type Lang = "de" | "en";
 
 export type SanityImageRef = { asset?: { url?: string | null } | null } | null;
 
+/** Uploaded logo with the original file name (for readable alt text). */
+export type SanityLogoImage = { _key?: string; url?: string | null; filename?: string | null } | null;
+
 export type HeroButton = {
   _key?: string;
   label?: string | null;
@@ -83,6 +86,8 @@ export type PageSection = {
   imagePath?: string | null;
   image?: SanityImageRef;
   imagePosition?: "left" | "right" | null;
+  /** Uploaded logos shown in the logo row (together with logoPaths). */
+  logoImages?: SanityLogoImage[] | null;
   buttonLabel?: string | null;
   buttonLink?: string | null;
   entries?: AboutEntry[] | null;
@@ -195,7 +200,7 @@ export type SharedData = {
 // returns all their fields (variant, curvedTitle, title, text, imagePath) including
 // the inline `buttons[]{label, href, style}` array.
 // The document type implies the language: `page` is German, `pageEn` is English.
-const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, cards[]{..., image{asset->{url}}}, entries[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
+const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, galleryImages[]{_key, asset->{url}}, logoImages[]{_key, "url": asset->url, "filename": asset->originalFilename}, cards[]{..., image{asset->{url}}}, entries[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
 
 const PAGE_QUERY_DE = `*[_type == "page" && slug.current == $slug][0]${PAGE_PROJECTION}`;
 const PAGE_QUERY_EN = `*[_type == "pageEn" && slug.current == $slug][0]${PAGE_PROJECTION}`;

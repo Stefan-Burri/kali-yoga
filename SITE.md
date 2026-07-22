@@ -35,7 +35,7 @@
 
 ## ⭐ Der Seiten-Baukasten (aktuelles System, seit 12.06.2026)
 
-**Die ganze Website besteht aus Baukasten-Seiten.** Bearbeitung: **https://kali-yoga-studio.sanity.studio** (das EINE Studio — alle anderen Studio-Adressen sind veraltet und können im Sanity-Dashboard gelöscht werden)
+**Die ganze Website besteht aus Baukasten-Seiten.** Bearbeitung: **https://kali-yoga-cms.sanity.studio** (das EINE Studio — die früher dokumentierte Adresse kali-yoga-studio.sanity.studio existiert nicht mehr)
 
 Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧 Seiten – English** · Navigation (Menü) · Footer · Stundenplan-Eintrag (zentrale Tabelle) · Allgemein
 
@@ -50,8 +50,9 @@ Das Studio zeigt genau 6 Bereiche: **🇩🇪 Seiten – Deutsch** · **🇬🇧
 ## Inhalte bearbeiten (Sanity CMS)
 Alle Texte werden im **einen** Studio gepflegt — ohne Code:
 
-- **Studio:** https://kali-yoga-studio.sanity.studio (Login mit dem Sanity-Konto). Ältere Studio-Adressen (kali-yoga, kali-yoga-inhalte, kali-yoga-deutsch, kali-yoga-english, kali-yoga-baukasten, kali-yoga-cms) sind veraltet — im Sanity-Dashboard löschen. Hintergrund: Ein veröffentlichtes Studio friert das Schema ein und lässt sich unter derselben Adresse nicht überschreiben — bei Schema-Änderungen entsteht darum eine neue Adresse.
+- **Studio:** https://kali-yoga-cms.sanity.studio (Login mit dem Sanity-Konto). Das ist das einzige existierende Studio — erreichbar auch über das Sanity-Dashboard («Kali Yoga»). Die früher dokumentierte Adresse kali-yoga-studio.sanity.studio wurde gelöscht und ist tot. Schema-Änderungen werden seit 22.07.2026 auf derselben Adresse aktualisiert (kein Adresswechsel mehr nötig).
 - **So geht's:** Seite anklicken → Sektion öffnen → Text ändern → unten rechts auf **Publish** klicken → die Website aktualisiert sich innert ca. 1 Minute
+- **Logos hochladen (z.B. Zusatzversicherung):** Seite öffnen (z.B. «Yoga Therapie») → Sektion «Kostenübernahme Zusatzversicherung» anklicken → Feld **«Logos hochladen (optional)»** → «Add item» → Bild hochladen → Publish. Die hochgeladenen Logos erscheinen in der Logo-Reihe unter dem Text, nach den bestehenden Logo-Dateien. (Das Feld «Logo-Reihe» darüber ist nur für Dateipfade aus dem Code, z.B. /images/emr-logo.svg — dort nichts hochladen.)
 - **Sicherheitsnetz:** Wird ein Feld in Sanity geleert, zeigt die Website automatisch den ursprünglichen Text. Nichts kann kaputtgehen.
 
 ### Englische Version (zweisprachige Website)
@@ -90,6 +91,7 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-07-22 (abends): Logos hochladen im CMS — die «About-Sektion (Text & Bild)» hat ein neues Feld **«Logos hochladen (optional)»**: eigene Logo-Bilder direkt im Studio hochladen, sie erscheinen in der Logo-Reihe unter dem Text (z.B. Zusatzversicherung auf Yoga Therapie / Kleingruppen-Seiten), nach den bestehenden Logo-Dateien. Dabei entdeckt und korrigiert: Die dokumentierte Studio-Adresse kali-yoga-studio.sanity.studio existierte nicht mehr — das aktive Studio läuft unter **https://kali-yoga-cms.sanity.studio** und wurde mit dem aktuellen Schema neu veröffentlicht (gleiche Adresse; zusätzlich abgeglichen: Footer-Kontaktfelder, «Allgemein» mit Custom Code, «Weitere Einträge» und Aufzählungs-Stil in der About-Sektion). Hochgeladene Galerie-Bilder («Weitere Bilder hochladen») werden jetzt ebenfalls korrekt von der Website geladen.
 - 2026-07-22: AEO (Antwortmaschinen wie ChatGPT/Perplexity) — Kurs-Seiten liefern maschinenlesbare Kurs-Daten (schema.org Course: Preise, Start-/Enddatum, Ort — automatisch aus der Kursdetails-Sektion jeder Seite, DE + EN); neue Übersichtsdatei /llms.txt für KI-Crawler (Angebote, Kontakt, Qualifikationen — bewusst ohne Preise/Termine, die stehen auf den verlinkten Seiten)
 - 2026-07-22: SEO-Maximierung — Canonical-URLs und DE↔EN-Verknüpfung (hreflang) auf allen Seiten; englische Seiten melden jetzt Sprache «en»; strukturierte Daten (schema.org LocalBusiness mit Adresse/Kontakt aus dem Footer-Dokument) für die lokale Google-Suche; Startseiten-Animation lädt erst nach dem Seitenaufbau (PageSpeed: weniger blockierendes JavaScript, schnelleres grösstes Element); Footer-Kontaktlinks mit grösseren Touch-Flächen (Barrierefreiheit)
 - 2026-07-21 (Go-Live-Vorbereitung): sitemap.xml + robots.txt (alle CMS-Seiten automatisch, DE + EN); eigene 404-Seite im Kali-Design mit Link zur Startseite; Vorschaubild beim Teilen (OG-Image, automatisch aus Logo + Markenfarben generiert); Cookie-Banner mit echter Einwilligung sobald Tracking-Code hinterlegt ist (Snippet lädt erst nach «Einverstanden»); Datenschutzerklärung ergänzt (Cookies, externe Dienste, Google Tag Manager)
