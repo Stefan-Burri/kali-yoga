@@ -58,8 +58,8 @@ const footerDict = {
       { href: "/en/about-me", label: "About me" },
       { href: "/en/contact", label: "Contact" },
     ],
-    // No English versions exist for these pages — always link to the German ones
-    privacy: { href: "/datenschutz", label: "Privacy policy" },
+    // Impressum has no English version — always link to the German one
+    privacy: { href: "/en/privacy-policy", label: "Privacy policy" },
     imprint: { href: "/impressum", label: "Legal notice" },
   },
 } as const;

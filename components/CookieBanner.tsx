@@ -53,7 +53,7 @@ export default function CookieBanner({ tracking = false }: { tracking?: boolean 
   };
 
   const privacyLink = (
-    <Link href="/datenschutz" className="text-primary underline underline-offset-2 hover:text-secondary transition-colors">
+    <Link href={isEn ? "/en/privacy-policy" : "/datenschutz"} className="text-primary underline underline-offset-2 hover:text-secondary transition-colors">
       {isEn ? "privacy policy" : "Datenschutzerklärung"}
     </Link>
   );
