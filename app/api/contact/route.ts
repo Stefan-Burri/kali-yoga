@@ -6,10 +6,21 @@ const TO_EMAIL = process.env.CONTACT_EMAIL || "info@kali-yoga.ch";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, type, ...rest } = body;
+    const { name, email, type, website, _elapsedMs, ...rest } = body;
 
     if (!name || !email) {
       return NextResponse.json({ error: "Name und Email sind erforderlich." }, { status: 400 });
+    }
+
+    // Spam-Schutz: Honeypot-Feld ausgefüllt oder in unter 2 Sekunden abgeschickt
+    // → sehr sicher ein Roboter. Wir antworten mit "Erfolg", senden aber nichts
+    // (damit der Bot nicht merkt, dass er ausgefiltert wurde).
+    const isBot =
+      (typeof website === "string" && website.trim() !== "") ||
+      (typeof _elapsedMs === "number" && _elapsedMs >= 0 && _elapsedMs < 2000);
+    if (isBot) {
+      console.warn("Spam-Verdacht — Nachricht verworfen (Honeypot/Zeitprüfung).");
+      return NextResponse.json({ success: true, message: "Nachricht wurde gesendet." });
     }
 
     if (!process.env.RESEND_API_KEY) {

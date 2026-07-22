@@ -4,6 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import { inputClass, selectChevron, submitBtnClass } from "@/components/ui";
 
+/* Browser-Autofill: maps our field names to standard autocomplete tokens. */
+const AUTOCOMPLETE: Record<string, string> = {
+  name: "name",
+  email: "email",
+  phone: "tel",
+  address: "street-address",
+  plz: "postal-code",
+};
+
 export interface FormField {
   name: string;
   label: string;
@@ -47,6 +56,9 @@ export default function AnmeldungForm({
   });
   const [accepted, setAccepted] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  /* Spam-Schutz: unsichtbares Honeypot-Feld + Zeitmessung seit Seitenaufbau. */
+  const [website, setWebsite] = useState("");
+  const [startTime] = useState(() => Date.now());
 
   const updateField = (name: string, value: string) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -61,7 +73,7 @@ export default function AnmeldungForm({
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, type }),
+        body: JSON.stringify({ ...form, type, website, _elapsedMs: Date.now() - startTime }),
       });
       if (res.ok) {
         setStatus("success");
@@ -89,7 +101,7 @@ export default function AnmeldungForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-[600px] mx-auto">
+    <form onSubmit={handleSubmit} className="relative space-y-6 max-w-[600px] mx-auto">
       {fields.map((field) => {
         if (field.type === "checkbox") return null;
 
@@ -98,6 +110,7 @@ export default function AnmeldungForm({
             <div key={field.name}>
               <label className="block text-body font-medium text-foreground mb-2">{field.label}</label>
               <select
+                name={field.name}
                 required={field.required}
                 value={form[field.name] || ""}
                 onChange={(e) => updateField(field.name, e.target.value)}
@@ -119,6 +132,8 @@ export default function AnmeldungForm({
               <label className="block text-body font-medium text-foreground mb-2">{field.label}</label>
               <textarea
                 rows={6}
+                name={field.name}
+                required={field.required}
                 value={form[field.name] || ""}
                 onChange={(e) => updateField(field.name, e.target.value)}
                 className={`${inputClass} resize-y`}
@@ -133,6 +148,8 @@ export default function AnmeldungForm({
             <label className="block text-body font-medium text-foreground mb-2">{field.label}</label>
             <input
               type={field.type}
+              name={field.name}
+              autoComplete={AUTOCOMPLETE[field.name]}
               required={field.required}
               value={form[field.name] || ""}
               onChange={(e) => updateField(field.name, e.target.value)}
@@ -142,6 +159,21 @@ export default function AnmeldungForm({
           </div>
         );
       })}
+
+      {/* Honeypot: für Menschen unsichtbar — füllt es ein Roboter aus, wird die
+          Nachricht serverseitig verworfen. */}
+      <div className="absolute -left-[9999px] w-px h-px overflow-hidden" aria-hidden="true">
+        <label htmlFor={`website-${type}`}>Website</label>
+        <input
+          id={`website-${type}`}
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+        />
+      </div>
 
       <div className="flex items-start gap-3">
         <input

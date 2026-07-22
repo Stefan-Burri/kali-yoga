@@ -850,7 +850,7 @@ const KLEINGRUPPE_BASE_FIELDS: FormField[] = [
   { name: "address", label: "Adresse", type: "text", required: true },
   { name: "plz", label: "PLZ | Ort", type: "text", required: true },
   { name: "email", label: "Email", type: "email", required: true },
-  { name: "phone", label: "Telefon", type: "tel" },
+  { name: "phone", label: "Telefon", type: "tel", required: true },
 ];
 
 const FORM_CONFIGS_DE: Record<string, FormConfig> = {
@@ -885,7 +885,7 @@ const FORM_CONFIGS_DE: Record<string, FormConfig> = {
       },
       { name: "name", label: "Name", type: "text", required: true },
       { name: "email", label: "Email", type: "email", required: true },
-      { name: "phone", label: "Telefon", type: "tel" },
+      { name: "phone", label: "Telefon", type: "tel", required: true },
       { name: "message", label: "Bemerkung", type: "textarea", placeholder: "Bemerkung..." },
     ],
   },
@@ -898,7 +898,7 @@ const FORM_CONFIGS_DE: Record<string, FormConfig> = {
     fields: () => [
       { name: "name", label: "Name", type: "text", required: true },
       { name: "email", label: "Email", type: "email", required: true },
-      { name: "phone", label: "Telefon", type: "tel" },
+      { name: "phone", label: "Telefon", type: "tel", required: true },
       { name: "message", label: "Bemerkung", type: "textarea", placeholder: "Bemerkung..." },
     ],
   },
@@ -931,6 +931,7 @@ const FORM_CONFIGS_DE: Record<string, FormConfig> = {
         name: "teilnahme",
         label: "Vor Ort / online (Aufzeichnung)",
         type: "select",
+        required: true,
         options: [
           { value: "Vor Ort", label: "Vor Ort" },
           { value: "Online", label: "Online" },
@@ -959,7 +960,7 @@ const KLEINGRUPPE_BASE_FIELDS_EN: FormField[] = [
   { name: "address", label: "Address", type: "text", required: true },
   { name: "plz", label: "Postcode | City", type: "text", required: true },
   { name: "email", label: "Email", type: "email", required: true },
-  { name: "phone", label: "Phone", type: "tel" },
+  { name: "phone", label: "Phone", type: "tel", required: true },
 ];
 
 const FORM_CONFIGS_EN: Record<string, FormConfig> = {
@@ -998,7 +999,7 @@ const FORM_CONFIGS_EN: Record<string, FormConfig> = {
       },
       { name: "name", label: "Name", type: "text", required: true },
       { name: "email", label: "Email", type: "email", required: true },
-      { name: "phone", label: "Phone", type: "tel" },
+      { name: "phone", label: "Phone", type: "tel", required: true },
       { name: "message", label: "Remarks", type: "textarea", placeholder: "Remarks..." },
     ],
     strings: EN_FORM_STRINGS,
@@ -1012,7 +1013,7 @@ const FORM_CONFIGS_EN: Record<string, FormConfig> = {
     fields: () => [
       { name: "name", label: "Name", type: "text", required: true },
       { name: "email", label: "Email", type: "email", required: true },
-      { name: "phone", label: "Phone", type: "tel" },
+      { name: "phone", label: "Phone", type: "tel", required: true },
       { name: "message", label: "Remarks", type: "textarea", placeholder: "Remarks..." },
     ],
     strings: EN_FORM_STRINGS,
@@ -1047,6 +1048,7 @@ const FORM_CONFIGS_EN: Record<string, FormConfig> = {
         name: "teilnahme",
         label: "On site / online (recording)",
         type: "select",
+        required: true,
         options: [
           { value: "Vor Ort", label: "On site" },
           { value: "Online", label: "Online" },
