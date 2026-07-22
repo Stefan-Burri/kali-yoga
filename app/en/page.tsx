@@ -14,6 +14,7 @@ import { filterUpcomingSchedule } from "@/lib/schedule";
 import { client } from "@/lib/sanity";
 import { translateDay, translateLocation, translatePauseLabel, getEnglishEnabled } from "@/lib/i18n";
 import { getFooter, getNavigation, getPageBySlug, getSharedData } from "@/lib/builder";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -29,6 +30,10 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       seo?.seoDescription ||
       "Yoga for everyone, regardless of age, gender, body shape or physical condition. Yoga studio in Bern at Aarbergergasse 40.",
+    alternates: {
+      canonical: `${SITE_URL}/en`,
+      languages: { en: `${SITE_URL}/en`, de: `${SITE_URL}/`, "x-default": `${SITE_URL}/` },
+    },
   };
 }
 

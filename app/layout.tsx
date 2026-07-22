@@ -5,7 +5,9 @@ import { AgentationProvider } from "@/components/AgentationProvider";
 import AnimatedGradientBg from "@/components/AnimatedGradientBg";
 import CookieBanner from "@/components/CookieBanner";
 import CustomCode from "@/components/CustomCode";
+import LangAttribute from "@/components/LangAttribute";
 import SmoothScroll from "@/components/SmoothScroll";
+import { getFooter } from "@/lib/builder";
 import { client } from "@/lib/sanity";
 import { SITE_URL } from "@/lib/site";
 
@@ -47,11 +49,38 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const customCode = await getCustomCode();
+  const [customCode, footer] = await Promise.all([getCustomCode(), getFooter("de")]);
+
+  /* Strukturierte Daten (schema.org LocalBusiness) für die lokale Google-Suche
+     und Google Maps – Kontaktdaten kommen aus dem Footer-Dokument im CMS. */
+  const phone = footer?.phone ?? "076 262 05 62";
+  const [postalCode, ...localityParts] = (footer?.city ?? "3011 Bern").split(" ");
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${SITE_URL}/#studio`,
+    name: "Kali Yoga",
+    description: "Yoga Studio in Bern — Yogaklassen, Yoga Therapie und Kleingruppen für «Every Body».",
+    url: SITE_URL,
+    telephone: phone.replace(/\s+/g, "").replace(/^0/, "+41"),
+    email: footer?.email ?? "info@kali-yoga.ch",
+    image: `${SITE_URL}/opengraph-image`,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: footer?.address ?? "Aarbergergasse 40",
+      postalCode,
+      addressLocality: localityParts.join(" ") || "Bern",
+      addressCountry: "CH",
+    },
+    sameAs: [footer?.facebook, footer?.instagram].filter(Boolean),
+  };
+
   return (
     <html lang="de" className={`${fraunces.variable} ${workSans.variable}`}>
       <body className="font-sans antialiased">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         {customCode ? <CustomCode html={customCode} /> : null}
+        <LangAttribute />
         <AnimatedGradientBg />
         <SmoothScroll />
         {children}

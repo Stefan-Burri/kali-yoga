@@ -134,22 +134,21 @@ export default function Footer({
             <Link href={t.home} className="inline-block">
               <Image src="/images/logo-v2.svg" alt="Kali Yoga" width={120} height={16} className="h-[16px] w-auto" />
             </Link>
-            <div className="mt-5 space-y-1 text-small text-foreground">
+            {/* py-1.5 auf den Links: genug grosse Touch-Flächen (Barrierefreiheit) */}
+            <div className="mt-4 text-small text-foreground">
               <a
                 href="https://www.google.com/maps/place/KALI+Yoga/@46.9496842,7.4419812,20.63z"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block hover:text-primary transition-colors"
+                className="block py-1.5 hover:text-primary transition-colors"
               >
                 {address}<br />
                 {city}
               </a>
-              <div className="pt-2">
-                <a href={`tel:${phoneHref}`} className="block hover:text-primary transition-colors">
-                  {phone}
-                </a>
-              </div>
-              <a href={`mailto:${email}`} className="block hover:text-primary transition-colors">
+              <a href={`tel:${phoneHref}`} className="block py-1.5 hover:text-primary transition-colors">
+                {phone}
+              </a>
+              <a href={`mailto:${email}`} className="block py-1.5 hover:text-primary transition-colors">
                 {email}
               </a>
             </div>

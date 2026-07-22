@@ -12,6 +12,7 @@ import { yogaSchedule, yogaTestimonials } from "@/lib/data";
 import { filterUpcomingSchedule } from "@/lib/schedule";
 import { client } from "@/lib/sanity";
 import { getFooter, getNavigation, getPageBySlug, getSharedData } from "@/lib/builder";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -31,6 +32,10 @@ export async function generateMetadata(): Promise<Metadata> {
     description:
       seo?.seoDescription ||
       "Yoga für Alle, unabhängig von Alter, Geschlecht, Körperform oder körperlicher Verfassung. Yoga Studio in Bern an der Aarbergergasse 40.",
+    alternates: {
+      canonical: `${SITE_URL}/`,
+      languages: { de: `${SITE_URL}/`, en: `${SITE_URL}/en`, "x-default": `${SITE_URL}/` },
+    },
   };
 }
 

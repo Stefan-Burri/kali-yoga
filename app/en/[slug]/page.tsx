@@ -6,6 +6,7 @@ import BuilderHero from "@/components/builder/Hero";
 import PageSections from "@/components/builder/Sections";
 import { getFooter, getNavigation, getPageBySlug, getSharedData } from "@/lib/builder";
 import { getEnglishEnabled } from "@/lib/i18n";
+import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -18,9 +19,19 @@ function buildTranslationHref(translationSlug?: string | null): string | undefin
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const page = await getPageBySlug(slug, "en");
+  const canonical = `${SITE_URL}/en/${slug}`;
+  const deHref = buildTranslationHref(page?.translationSlug);
+  const deUrl = deHref ? (deHref === "/" ? `${SITE_URL}/` : `${SITE_URL}${deHref}`) : undefined;
   return {
     title: page?.seoTitle || (page?.title ? `${page.title} · Kali Yoga` : "Kali Yoga"),
     description: page?.seoDescription || undefined,
+    alternates: {
+      canonical,
+      languages: {
+        en: canonical,
+        ...(deUrl ? { de: deUrl, "x-default": deUrl } : {}),
+      },
+    },
   };
 }
 
