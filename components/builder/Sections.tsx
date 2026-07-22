@@ -865,6 +865,9 @@ const FORM_CONFIGS_DE: Record<string, FormConfig> = {
       { name: "email", label: "Email", type: "email", required: true },
       { name: "message", label: "Nachricht", type: "textarea", placeholder: "Deine Nachricht..." },
     ],
+    strings: {
+      successMessage: "Deine Nachricht wurde gesendet. Ich melde mich so bald wie möglich bei dir.",
+    },
   },
   yogaklasse: {
     type: "Anmeldung Yoga Klasse",
