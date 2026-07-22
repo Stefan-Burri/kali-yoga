@@ -75,7 +75,8 @@ Die Website gibt es auf Deutsch und Englisch:
 ## Veröffentlichung
 - **Live-Website:** https://kali-yoga.vercel.app
 - **Code:** github.com/Stefan-Burri/kali-yoga — jeder Push auf `main` löst automatisch einen neuen Vercel-Build aus
-- **Offen für Go-Live:** 1) Auf Vercel `RESEND_API_KEY` setzen (bis dahin zeigen die Formulare beim Absenden eine Fehlermeldung) und die Domain kali-yoga.ch bei Resend verifizieren. 2) Domain kali-yoga.ch auf Vercel umhängen. 3) Nach der Domain-Umstellung auf Vercel `NEXT_PUBLIC_SITE_URL=https://www.kali-yoga.ch` setzen (steuert Sitemap, Vorschaubilder und robots.txt — Fallback ist die Vercel-Adresse)
+- **E-Mail-Versand (Formulare):** ✅ eingerichtet (22.07.2026) — `RESEND_API_KEY` ist auf Vercel (Production) und lokal in `.env.local` hinterlegt, Domain kali-yoga.ch bei Resend verifiziert, Versand getestet. Alle 5 Formulare senden an info@kali-yoga.ch (Absender noreply@kali-yoga.ch, Antworten gehen direkt an die Adresse aus dem Formular)
+- **Offen für Go-Live:** 1) Domain kali-yoga.ch auf Vercel umhängen. 2) Nach der Domain-Umstellung auf Vercel `NEXT_PUBLIC_SITE_URL=https://www.kali-yoga.ch` setzen (steuert Sitemap, Vorschaubilder und robots.txt — Fallback ist die Vercel-Adresse)
 
 ## Tracking & Cookie-Einwilligung
 - **Custom Code** (Studio → «Allgemein»): z.B. das Google-Tag-Manager-Snippet einfügen und publizieren
@@ -91,6 +92,7 @@ Die Website gibt es auf Deutsch und Englisch:
 - **Instagram:** instagram.com/kali_yogabern
 
 ## Recent Changes
+- 2026-07-22 (abends): E-Mail-Versand aktiviert — Resend-API-Schlüssel auf Vercel (Production) und lokal hinterlegt, Domain war bei Resend bereits verifiziert, Testversand erfolgreich. Die 5 Formulare (Kontakt, Yogaklasse, Yoga Therapie, 2× Kleingruppe) senden jetzt E-Mails an info@kali-yoga.ch
 - 2026-07-22 (abends): Logos hochladen im CMS — die «About-Sektion (Text & Bild)» hat ein neues Feld **«Logos hochladen (optional)»**: eigene Logo-Bilder direkt im Studio hochladen, sie erscheinen in der Logo-Reihe unter dem Text (z.B. Zusatzversicherung auf Yoga Therapie / Kleingruppen-Seiten), nach den bestehenden Logo-Dateien. Dabei entdeckt und korrigiert: Die dokumentierte Studio-Adresse kali-yoga-studio.sanity.studio existierte nicht mehr — das aktive Studio läuft unter **https://kali-yoga-cms.sanity.studio** und wurde mit dem aktuellen Schema neu veröffentlicht (gleiche Adresse; zusätzlich abgeglichen: Footer-Kontaktfelder, «Allgemein» mit Custom Code, «Weitere Einträge» und Aufzählungs-Stil in der About-Sektion). Hochgeladene Galerie-Bilder («Weitere Bilder hochladen») werden jetzt ebenfalls korrekt von der Website geladen.
 - 2026-07-22: AEO (Antwortmaschinen wie ChatGPT/Perplexity) — Kurs-Seiten liefern maschinenlesbare Kurs-Daten (schema.org Course: Preise, Start-/Enddatum, Ort — automatisch aus der Kursdetails-Sektion jeder Seite, DE + EN); neue Übersichtsdatei /llms.txt für KI-Crawler (Angebote, Kontakt, Qualifikationen — bewusst ohne Preise/Termine, die stehen auf den verlinkten Seiten)
 - 2026-07-22: SEO-Maximierung — Canonical-URLs und DE↔EN-Verknüpfung (hreflang) auf allen Seiten; englische Seiten melden jetzt Sprache «en»; strukturierte Daten (schema.org LocalBusiness mit Adresse/Kontakt aus dem Footer-Dokument) für die lokale Google-Suche; Startseiten-Animation lädt erst nach dem Seitenaufbau (PageSpeed: weniger blockierendes JavaScript, schnelleres grösstes Element); Footer-Kontaktlinks mit grösseren Touch-Flächen (Barrierefreiheit)
