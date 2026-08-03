@@ -72,6 +72,13 @@ export type InlineTestimonial = {
   name?: string | null;
 };
 
+/** One collapsible question/answer of a faqSection. */
+export type FaqEntry = {
+  _key?: string;
+  question?: string | null;
+  answer?: unknown[] | null;
+};
+
 export type PageSection = {
   _type: string;
   _key: string;
@@ -115,6 +122,8 @@ export type PageSection = {
   text?: string | null;
   /* formSection */
   form?: "kontakt" | "yogaklasse" | "yogatherapie" | "kleingruppe" | "gelenkschmerzen" | null;
+  /* faqSection */
+  faqs?: FaqEntry[] | null;
 };
 
 export type PageDoc = {

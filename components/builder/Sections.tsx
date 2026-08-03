@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import BuilderHero from "@/components/builder/Hero";
+import FaqItem from "@/components/FaqItem";
 import AnmeldungForm from "@/components/AnmeldungForm";
 import type { FormField } from "@/components/AnmeldungForm";
 import {
@@ -801,6 +802,56 @@ function CourseDetailsSectionBlock({ section, lang, id }: { section: BuilderSect
   );
 }
 
+/* ─── faqSection ─── */
+
+/** Portable Text → plain text (for the FAQPage structured data). */
+function portableToPlainText(blocks?: unknown[] | null): string {
+  if (!Array.isArray(blocks)) return "";
+  return blocks
+    .map((block) => {
+      const children = (block as { children?: { text?: string }[] })?.children;
+      if (!Array.isArray(children)) return "";
+      return children.map((child) => child?.text ?? "").join("");
+    })
+    .filter(Boolean)
+    .join("\n");
+}
+
+function FaqSectionBlock({ section, id }: { section: BuilderSection; id?: string }) {
+  const glass = section.appearance !== "plain";
+  const faqs = (section.faqs ?? []).filter((f) => f?.question);
+  if (faqs.length === 0) return null;
+
+  /* FAQPage structured data: the questions can appear directly in Google. */
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: portableToPlainText(f.answer) },
+    })),
+  };
+
+  return (
+    <SectionShell section={section} id={id}>
+      <div className={glass ? undefined : "p-8 sm:p-12 lg:p-16"}>
+        {(section.title || section.intro) && (
+          <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
+        )}
+        <div className="max-w-[768px] mx-auto">
+          {faqs.map((f, i) => (
+            <FaqItem key={f._key ?? i} question={f.question ?? ""}>
+              <Body value={f.answer} />
+            </FaqItem>
+          ))}
+        </div>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      </div>
+    </SectionShell>
+  );
+}
+
 /* ─── ctaSection ─── */
 
 function CtaSectionBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
@@ -1191,6 +1242,8 @@ export default function PageSections({
             return <PricingSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "courseDetailsSection":
             return <CourseDetailsSectionBlock key={section._key} section={section} lang={lang} id={id} />;
+          case "faqSection":
+            return <FaqSectionBlock key={section._key} section={section} id={id} />;
           case "ctaSection":
             return <CtaSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "formSection":
