@@ -4,6 +4,7 @@ import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import BuilderHero from "@/components/builder/Hero";
 import FaqItem from "@/components/FaqItem";
+import NewsletterForm from "@/components/NewsletterForm";
 import AnmeldungForm from "@/components/AnmeldungForm";
 import type { FormField } from "@/components/AnmeldungForm";
 import {
@@ -852,6 +853,42 @@ function FaqSectionBlock({ section, id }: { section: BuilderSection; id?: string
   );
 }
 
+/* ─── newsletterSection ─── */
+
+function NewsletterSectionBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
+  const glass = section.appearance !== "plain";
+  const en = lang === "en";
+  return (
+    <SectionShell section={section} id={id}>
+      <div className={`max-w-[768px] mx-auto text-center${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
+        {section.title && (
+          <>
+            <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
+            <GoldLine />
+          </>
+        )}
+        {section.intro && (
+          <p className="mt-4 text-body text-foreground leading-relaxed whitespace-pre-line">{section.intro}</p>
+        )}
+        <NewsletterForm
+          buttonLabel={section.buttonLabel ?? (en ? "Subscribe" : "Anmelden")}
+          placeholder={en ? "Your email address" : "Deine E-Mail-Adresse"}
+          sendingLabel={en ? "Sending..." : "Wird gesendet..."}
+          successMessage={
+            en
+              ? "Thank you! Your newsletter subscription has been received."
+              : "Danke! Deine Newsletter-Anmeldung ist bei mir eingegangen."
+          }
+          errorMessage={en ? "An error occurred. Please try again." : "Es ist ein Fehler aufgetreten. Bitte versuche es noch einmal."}
+          privacyText={en ? "By subscribing you accept the" : "Mit der Anmeldung akzeptierst du die"}
+          privacyLinkLabel={en ? "privacy policy" : "Datenschutzerklärung"}
+          privacyHref={en ? "/en/privacy-policy" : "/datenschutz"}
+        />
+      </div>
+    </SectionShell>
+  );
+}
+
 /* ─── ctaSection ─── */
 
 function CtaSectionBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
@@ -1244,6 +1281,8 @@ export default function PageSections({
             return <CourseDetailsSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "faqSection":
             return <FaqSectionBlock key={section._key} section={section} id={id} />;
+          case "newsletterSection":
+            return <NewsletterSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "ctaSection":
             return <CtaSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "formSection":
