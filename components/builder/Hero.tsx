@@ -83,7 +83,7 @@ function CurvedTitle({
 }) {
   return (
     <>
-      <p aria-hidden="true" className={`sm:hidden font-display ${small ? "text-h3" : "text-h2"} font-bold text-primary text-center mb-6`}>
+      <p aria-hidden="true" className={`sm:hidden font-display ${small ? "text-h3" : "text-h1"} font-bold text-primary text-center mb-6`}>
         {curvedTitle}
       </p>
       {title !== undefined ? <h1 className="sr-only">{title}</h1> : null}
