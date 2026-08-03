@@ -44,12 +44,22 @@ export function GlassCard({ children, className = "" }: { children: React.ReactN
   );
 }
 
-export function SectionHeading({ title, description }: { title: string; description?: React.ReactNode }) {
+export function SectionHeading({
+  title,
+  description,
+  asPageTitle = false,
+}: {
+  title: string;
+  description?: React.ReactNode;
+  /** Render as h1 (page title) when the page has no hero – same look. */
+  asPageTitle?: boolean;
+}) {
+  const Tag = asPageTitle ? "h1" : "h2";
   return (
     <div className="text-center max-w-[768px] mx-auto mb-12">
-      {title && <h2 className="font-display text-h2 font-bold text-primary">{title}</h2>}
+      {title && <Tag className="font-display text-h2 font-bold text-primary">{title}</Tag>}
       <GoldLine />
-      {description && <p className="mt-4 text-body text-foreground leading-relaxed">{description}</p>}
+      {description && <p className="mt-4 text-body text-foreground leading-relaxed whitespace-pre-line">{description}</p>}
     </div>
   );
 }

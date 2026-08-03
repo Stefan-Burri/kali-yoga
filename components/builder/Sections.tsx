@@ -637,12 +637,12 @@ function QuoteSectionBlock({ section, id }: { section: BuilderSection; id?: stri
 
 /* ─── scheduleSection ─── */
 
-function ScheduleSectionBlock({ section, data, lang, id }: { section: BuilderSection; data: SharedData; lang: Lang; id?: string }) {
+function ScheduleSectionBlock({ section, data, lang, id, asPageTitle = false }: { section: BuilderSection; data: SharedData; lang: Lang; id?: string; asPageTitle?: boolean }) {
   return (
     <SectionShell section={section} id={id}>
       {(section.title || section.intro) && (
         <div className="mb-4">
-          <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
+          <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} asPageTitle={asPageTitle} />
         </div>
       )}
       <ScheduleGrid
@@ -1300,7 +1300,16 @@ export default function PageSections({
           case "quoteSection":
             return <QuoteSectionBlock key={section._key} section={section} id={id} />;
           case "scheduleSection":
-            return <ScheduleSectionBlock key={section._key} section={section} data={data} lang={lang} id={id} />;
+            return (
+              <ScheduleSectionBlock
+                key={section._key}
+                section={section}
+                data={data}
+                lang={lang}
+                id={id}
+                asPageTitle={index === firstContentIndex && !sections.some((s) => s._type === "heroSection")}
+              />
+            );
           case "testimonialsSection":
             return <TestimonialsSectionBlock key={section._key} section={section} id={id} />;
           case "pricingSection":
