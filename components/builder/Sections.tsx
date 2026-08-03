@@ -900,6 +900,8 @@ function NewsletterSectionBlock({ section, lang, id }: { section: BuilderSection
         )}
         <NewsletterForm
           buttonLabel={section.buttonLabel ?? (en ? "Subscribe" : "Anmelden")}
+          firstNamePlaceholder={en ? "First name" : "Vorname"}
+          lastNamePlaceholder={en ? "Last name" : "Nachname"}
           placeholder={en ? "Your email address" : "Deine E-Mail-Adresse"}
           sendingLabel={en ? "Sending..." : "Wird gesendet..."}
           successMessage={
