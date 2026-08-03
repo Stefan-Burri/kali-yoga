@@ -4,6 +4,7 @@ import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import BuilderHero from "@/components/builder/Hero";
 import FaqItem from "@/components/FaqItem";
+import GallerySlider from "@/components/GallerySlider";
 import NewsletterForm from "@/components/NewsletterForm";
 import AnmeldungForm from "@/components/AnmeldungForm";
 import type { FormField } from "@/components/AnmeldungForm";
@@ -348,7 +349,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
               <div className="flex flex-col justify-center">
                 {row.title && (
                   <>
-                    <h2 className="font-display text-h3 font-bold text-primary">{row.title}</h2>
+                    <h2 className="font-display text-h2 font-bold text-primary">{row.title}</h2>
                     <GoldLine centered={false} />
                   </>
                 )}
@@ -376,7 +377,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
       <div className={`max-w-[768px] mx-auto${alignLeft ? "" : " text-center"}${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
         {section.title && (
           <>
-            <h2 className={`font-display ${section.smallTitle ? "text-h4" : "text-h3"} font-bold text-primary`}>{section.title}</h2>
+            <h2 className={`font-display ${section.smallTitle ? "text-h4" : "text-h2"} font-bold text-primary`}>{section.title}</h2>
             <GoldLine centered={!alignLeft} />
           </>
         )}
@@ -661,7 +662,7 @@ function TestimonialsSectionBlock({ section, id }: { section: BuilderSection; id
     <SectionShell section={section} id={id}>
       {section.title && (
         <>
-          <h2 className="text-center font-display text-h3 font-bold text-primary mb-2">{section.title}</h2>
+          <h2 className="text-center font-display text-h2 font-bold text-primary mb-2">{section.title}</h2>
           <GoldLine />
         </>
       )}
@@ -853,6 +854,33 @@ function FaqSectionBlock({ section, id }: { section: BuilderSection; id?: string
   );
 }
 
+/* ─── gallerySection ─── */
+
+function GallerySectionBlock({ section, id }: { section: BuilderSection; id?: string }) {
+  const glass = section.appearance !== "plain";
+  const alt = section.title ?? "Galerie";
+  /* Uploaded photos first, then optional static file paths. */
+  const images = [
+    ...(section.galleryImages ?? [])
+      .map((img) => img?.asset?.url)
+      .filter((url): url is string => Boolean(url))
+      .map((src) => ({ src, alt })),
+    ...(section.imagePaths ?? []).filter(Boolean).map((src) => ({ src, alt })),
+  ];
+  if (images.length === 0) return null;
+
+  return (
+    <SectionShell section={section} id={id}>
+      <div className={glass ? undefined : "p-8 sm:p-12 lg:p-16"}>
+        {(section.title || section.intro) && (
+          <SectionHeading title={section.title ?? ""} description={section.intro ?? undefined} />
+        )}
+        <GallerySlider images={images} />
+      </div>
+    </SectionShell>
+  );
+}
+
 /* ─── newsletterSection ─── */
 
 function NewsletterSectionBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
@@ -863,7 +891,7 @@ function NewsletterSectionBlock({ section, lang, id }: { section: BuilderSection
       <div className={`max-w-[768px] mx-auto text-center${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
         {section.title && (
           <>
-            <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
+            <h2 className="font-display text-h2 font-bold text-primary">{section.title}</h2>
             <GoldLine />
           </>
         )}
@@ -898,7 +926,7 @@ function CtaSectionBlock({ section, lang, id }: { section: BuilderSection; lang:
       <div className={`max-w-[768px] mx-auto text-center${glass ? "" : " p-8 sm:p-12 lg:p-16"}`}>
         {section.title && (
           <>
-            <h2 className="font-display text-h3 font-bold text-primary">{section.title}</h2>
+            <h2 className="font-display text-h2 font-bold text-primary">{section.title}</h2>
             <GoldLine />
           </>
         )}
@@ -1283,6 +1311,8 @@ export default function PageSections({
             return <FaqSectionBlock key={section._key} section={section} id={id} />;
           case "newsletterSection":
             return <NewsletterSectionBlock key={section._key} section={section} lang={lang} id={id} />;
+          case "gallerySection":
+            return <GallerySectionBlock key={section._key} section={section} id={id} />;
           case "ctaSection":
             return <CtaSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "formSection":
