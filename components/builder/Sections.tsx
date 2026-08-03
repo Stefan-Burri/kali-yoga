@@ -52,6 +52,8 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   /* courseDetailsSection */
   datesIntro?: unknown[] | null;
   noteBody?: unknown[] | null;
+  /** Set by PageSections on legal pages: render without scroll-reveal. */
+  noReveal?: boolean;
 };
 
 /* ─── Portable Text styling (matches the site's body text) ─── */
@@ -127,15 +129,14 @@ function SectionShell({
   id?: string;
 }) {
   const glass = section.appearance !== "plain";
+  const content = glass ? <GlassCard>{children}</GlassCard> : children;
   return (
     <section id={id} className="py-section">
       <div className="mx-auto max-w-[1280px] px-6">
-        {glass ? (
-          <ScrollReveal variant={reveal ?? "scale"}>
-            <GlassCard>{children}</GlassCard>
-          </ScrollReveal>
+        {section.noReveal ? (
+          content
         ) : (
-          <ScrollReveal variant={reveal ?? "up"}>{children}</ScrollReveal>
+          <ScrollReveal variant={reveal ?? (glass ? "scale" : "up")}>{content}</ScrollReveal>
         )}
       </div>
     </section>
@@ -1115,6 +1116,7 @@ export default function PageSections({
   lang = "de",
   nav,
   translationHref,
+  noReveal = false,
 }: {
   sections: PageSection[];
   data: SharedData;
@@ -1123,6 +1125,8 @@ export default function PageSections({
   nav?: NavigationDoc;
   /** Exact language-switch target – threaded into heroSection blocks. */
   translationHref?: string;
+  /** Legal pages (Datenschutz/Impressum): render without scroll-reveal. */
+  noReveal?: boolean;
 }) {
   // The hero's "Mehr Erfahren" button points to #angebot – anchor the first
   // non-hero section so that link keeps working (matches existing pages).
@@ -1131,7 +1135,7 @@ export default function PageSections({
   return (
     <>
       {sections.map((rawSection, index) => {
-        const section: BuilderSection = rawSection;
+        const section: BuilderSection = noReveal ? { ...rawSection, noReveal: true } : rawSection;
         const id = index === firstContentIndex ? "angebot" : undefined;
 
         /* Sections folded into the preceding plain card grid (original

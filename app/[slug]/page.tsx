@@ -10,6 +10,10 @@ import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 60;
 
+/* Legal pages render without scroll-reveal: the long text would otherwise
+   never reach the reveal threshold on small screens and stay invisible. */
+const NO_REVEAL_SLUGS = ["datenschutz", "impressum"];
+
 /** DE page → its English counterpart (from the doc's translationSlug). */
 function buildTranslationHref(translationSlug?: string | null): string | undefined {
   if (!translationSlug) return undefined;
@@ -73,7 +77,7 @@ export default async function CmsPage({ params }: { params: Promise<{ slug: stri
           </section>
         ) : null}
 
-        <PageSections sections={sections} data={shared} lang="de" nav={nav} translationHref={translationHref} />
+        <PageSections sections={sections} data={shared} lang="de" nav={nav} translationHref={translationHref} noReveal={NO_REVEAL_SLUGS.includes(slug)} />
       </main>
 
       <Footer lang="de" footerData={footerData} />

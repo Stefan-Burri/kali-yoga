@@ -52,13 +52,33 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-hyphens: none;
   overflow-wrap: break-word;
   color: var(--primary);
+  text-wrap: balance;
 }
 
-/* Silbentrennung nur auf Mobile (unter 640px) */
-@media (max-width: 639px) {
+/* Ausgewogene Zeilenumbrüche: Überschriften/Zitate brechen in etwa gleich
+   lange Zeilen (balance), Fliesstext vermeidet einzelne Wörter auf der
+   letzten Zeile (pretty). */
+blockquote {
+  text-wrap: balance;
+}
+
+p, li {
+  text-wrap: pretty;
+}
+
+/* Silbentrennung in Überschriften nur bei sehr langen Wörtern: normale
+   Wörter («Therapie», «Yogaklassen») brechen als Ganzes auf die nächste
+   Zeile; erst ab 13 Buchstaben («Zusatzversicherung») wird getrennt, mit
+   mindestens 6 Buchstaben vor und nach dem Trennstrich. Browser ohne
+   Längen-Regel (z.B. Firefox) trennen gar nicht – dort greift weiterhin
+   der Umbruch ganzer Wörter. */
+@supports (hyphenate-limit-chars: 13 6 6) or (-webkit-hyphenate-limit-before: 6) {
   h1, h2, h3, h4, h5, h6 {
     hyphens: auto;
     -webkit-hyphens: auto;
+    hyphenate-limit-chars: 13 6 6;
+    -webkit-hyphenate-limit-before: 6;
+    -webkit-hyphenate-limit-after: 6;
   }
 }
 

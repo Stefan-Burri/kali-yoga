@@ -47,7 +47,13 @@ export default function ScrollReveal({
           }
         }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+      {
+        // For elements taller than the viewport a fixed 15% ratio is never
+        // reached (long legal texts on phones) – scale the threshold so that
+        // ~15% of the VIEWPORT worth of the element is enough to trigger.
+        threshold: Math.min(0.15, (window.innerHeight * 0.15) / Math.max(el.offsetHeight, 1)),
+        rootMargin: "0px 0px -40px 0px",
+      }
     );
 
     observer.observe(el);
