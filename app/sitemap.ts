@@ -17,8 +17,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       englishEnabled: boolean | null;
     }>(
       `{
-        "de": *[_type == "page"].slug.current,
-        "en": *[_type == "pageEn"].slug.current,
+        "de": *[_type == "page" && draft != true].slug.current,
+        "en": *[_type == "pageEn" && draft != true].slug.current,
         "englishEnabled": *[_type == "siteSettings"][0].englishEnabled
       }`
     );

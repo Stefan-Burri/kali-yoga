@@ -211,8 +211,9 @@ export type SharedData = {
 // The document type implies the language: `page` is German, `pageEn` is English.
 const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, galleryImages[]{_key, asset->{url}}, logoImages[]{_key, "url": asset->url, "filename": asset->originalFilename}, cards[]{..., image{asset->{url}}}, entries[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
 
-const PAGE_QUERY_DE = `*[_type == "page" && slug.current == $slug][0]${PAGE_PROJECTION}`;
-const PAGE_QUERY_EN = `*[_type == "pageEn" && slug.current == $slug][0]${PAGE_PROJECTION}`;
+// `draft != true` takes pages marked «🚧 Entwurf – Seite offline» in the Studio off the site.
+const PAGE_QUERY_DE = `*[_type == "page" && slug.current == $slug && draft != true][0]${PAGE_PROJECTION}`;
+const PAGE_QUERY_EN = `*[_type == "pageEn" && slug.current == $slug && draft != true][0]${PAGE_PROJECTION}`;
 
 /** Fetches a builder page document by slug and language (`page` for German, `pageEn` for English). */
 export async function getPageBySlug(slug: string, lang: Lang = "de"): Promise<PageDoc> {
@@ -225,7 +226,8 @@ export async function getPageBySlug(slug: string, lang: Lang = "de"): Promise<Pa
 
 /* ─── Navigation / Footer fetch ─── */
 
-const NAVIGATION_QUERY = `*[_type == "navigation" && language == $lang][0]{language, ctaLabel, items[]{_key, label, linkType, path, url, children[]{_key, label, linkType, path, url}}}`;
+// `draft != true` hides menu entries marked as «Entwurf» in the Studio until the toggle is turned off.
+const NAVIGATION_QUERY = `*[_type == "navigation" && language == $lang][0]{language, ctaLabel, items[draft != true]{_key, label, linkType, path, url, children[draft != true]{_key, label, linkType, path, url}}}`;
 
 /** Fetches the navigation singleton for a language. Null when missing or unreachable. */
 export async function getNavigation(lang: Lang): Promise<NavigationDoc> {
