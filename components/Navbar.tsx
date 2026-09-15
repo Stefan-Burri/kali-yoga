@@ -260,12 +260,13 @@ function NavDropdown({ label, items }: { label: string; items: readonly Resolved
       </button>
       {open && (
         <div className="absolute top-full left-0 pt-2 z-50">
-          <div className="bg-background/95 backdrop-blur-md border border-foreground/10 rounded-[8px] shadow-lg py-2 min-w-[260px]" style={{ backgroundImage: "url('/images/grain-texture.webp')" }}>
+          {/* w-max: the dropdown grows with its content (labels + badges on one line) and only wraps past 480px. */}
+          <div className="bg-background/95 backdrop-blur-md border border-foreground/10 rounded-[8px] shadow-lg py-2 min-w-[260px] w-max max-w-[480px]" style={{ backgroundImage: "url('/images/grain-texture.webp')" }}>
             {items.map((item, index) =>
               item.heading ? (
                 <p
                   key={`${item.label}-${index}`}
-                  className="px-5 pt-3 pb-1 mt-1.5 border-t border-foreground/10 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/50"
+                  className="px-5 pt-3.5 pb-1 mt-1.5 border-t border-foreground/10 text-[13px] font-semibold uppercase tracking-[0.14em] text-foreground/55"
                 >
                   {item.label}
                 </p>
@@ -318,7 +319,7 @@ function MobileMenu({
             <p className="text-small font-semibold text-foreground/60 uppercase tracking-wider pt-2 first:pt-0">{item.label}</p>
             {item.children.map((child, index) =>
               child.heading ? (
-                <p key={`${child.label}-${index}`} className="pl-3 pt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/45">
+                <p key={`${child.label}-${index}`} className="pl-3 pt-1 text-[13px] font-semibold uppercase tracking-[0.14em] text-foreground/55">
                   {child.label}
                 </p>
               ) : child.href ? (
