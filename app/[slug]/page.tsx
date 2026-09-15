@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import StickyNavbar, { HeroNavbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BuilderHero from "@/components/builder/Hero";
 import PageSections from "@/components/builder/Sections";
-import { getFooter, getNavigation, getPageBySlug, getSharedData } from "@/lib/builder";
+import { getFooter, getNavigation, getPageBySlug, getRedirectTarget, getSharedData } from "@/lib/builder";
 import { buildCourseJsonLd } from "@/lib/courseJsonLd";
 import { SITE_URL } from "@/lib/site";
 
@@ -49,7 +49,12 @@ export default async function CmsPage({ params }: { params: Promise<{ slug: stri
     getFooter("de"),
   ]);
 
-  if (!page) notFound();
+  if (!page) {
+    // Unknown or offline slug: follow a CMS-managed redirect («Allgemein» → Weiterleitungen) if one exists.
+    const redirectTarget = await getRedirectTarget(`/${slug}`);
+    if (redirectTarget) permanentRedirect(redirectTarget);
+    notFound();
+  }
 
   const translationHref = buildTranslationHref(page.translationSlug);
   const sections = page.sections ?? [];

@@ -53,12 +53,20 @@ const navDict = {
 
 /* ─── Resolved nav model (shared by CMS + fallback rendering) ─── */
 
-type ResolvedLink = { label: string; href: string };
+type ResolvedLink = {
+  label: string;
+  href?: string;
+  /** Section heading inside the dropdown («Zwischentitel») – no link. */
+  heading?: boolean;
+  /** Course-date badge: "ab 15. Nov" (green) or "in Planung" (grey). */
+  badge?: string | null;
+  badgeIsDate?: boolean;
+};
 type ResolvedItem = { label: string; href?: string; children?: ResolvedLink[] };
 
 function resolveHref(item: { linkType?: string | null; path?: string | null; url?: string | null }): string | undefined {
   if (item.linkType === "external") return item.url ?? undefined;
-  if (item.linkType === "none") return undefined;
+  if (item.linkType === "none" || item.linkType === "heading") return undefined;
   // "internal" (default)
   return item.path ?? undefined;
 }
@@ -67,8 +75,17 @@ function resolveNavItems(items: NavItem[]): ResolvedItem[] {
   return items
     .map((item): ResolvedItem => {
       const children = (item.children ?? [])
-        .map((child) => ({ label: child.label ?? "", href: resolveHref(child) ?? "" }))
-        .filter((child) => child.label !== "" && child.href !== "");
+        .map((child): ResolvedLink => {
+          if (child.linkType === "heading") return { label: child.label ?? "", heading: true };
+          return {
+            label: child.label ?? "",
+            // Offline (🚧 Entwurf) target pages render as plain text instead of a dead link.
+            href: child.targetOffline ? undefined : resolveHref(child),
+            badge: child.badge,
+            badgeIsDate: child.badgeIsDate,
+          };
+        })
+        .filter((child) => child.label !== "" && (child.heading || child.href !== undefined || child.badge));
       return {
         label: item.label ?? "",
         href: resolveHref(item),
@@ -219,8 +236,18 @@ function NavLinks({ items }: { items: ResolvedItem[] }) {
   );
 }
 
+/* ─── Course-date badge («ab 15. Nov» green / «in Planung» grey) ─── */
+function NavBadge({ badge, badgeIsDate }: { badge?: string | null; badgeIsDate?: boolean }) {
+  if (!badge) return null;
+  return (
+    <span className={`shrink-0 text-[13px] font-medium ${badgeIsDate ? "text-emerald-700" : "text-foreground/45"}`}>
+      {badge}
+    </span>
+  );
+}
+
 /* ─── Dropdown Menu ─── */
-function NavDropdown({ label, items }: { label: string; items: readonly { href: string; label: string }[] }) {
+function NavDropdown({ label, items }: { label: string; items: readonly ResolvedLink[] }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -233,17 +260,33 @@ function NavDropdown({ label, items }: { label: string; items: readonly { href: 
       </button>
       {open && (
         <div className="absolute top-full left-0 pt-2 z-50">
-          <div className="bg-background/95 backdrop-blur-md border border-foreground/10 rounded-[8px] shadow-lg py-2 min-w-[220px]" style={{ backgroundImage: "url('/images/grain-texture.webp')" }}>
-            {items.map((item) => (
-              <NavSmartLink
-                key={item.href}
-                href={item.href}
-                className="block px-5 py-2.5 text-small text-foreground hover:text-primary hover:bg-primary/5 transition-colors"
-                onClick={() => setOpen(false)}
-              >
-                {item.label}
-              </NavSmartLink>
-            ))}
+          <div className="bg-background/95 backdrop-blur-md border border-foreground/10 rounded-[8px] shadow-lg py-2 min-w-[260px]" style={{ backgroundImage: "url('/images/grain-texture.webp')" }}>
+            {items.map((item, index) =>
+              item.heading ? (
+                <p
+                  key={`${item.label}-${index}`}
+                  className="px-5 pt-3 pb-1 mt-1.5 border-t border-foreground/10 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/50"
+                >
+                  {item.label}
+                </p>
+              ) : item.href ? (
+                <NavSmartLink
+                  key={`${item.label}-${index}`}
+                  href={item.href}
+                  className="flex items-center justify-between gap-5 px-5 py-2.5 text-small text-foreground hover:text-primary hover:bg-primary/5 transition-colors"
+                  onClick={() => setOpen(false)}
+                >
+                  <span>{item.label}</span>
+                  <NavBadge badge={item.badge} badgeIsDate={item.badgeIsDate} />
+                </NavSmartLink>
+              ) : (
+                /* Offline target («in Planung»): plain text, not clickable. */
+                <span key={`${item.label}-${index}`} className="flex items-center justify-between gap-5 px-5 py-2.5 text-small text-foreground/70">
+                  <span>{item.label}</span>
+                  <NavBadge badge={item.badge} badgeIsDate={item.badgeIsDate} />
+                </span>
+              )
+            )}
           </div>
         </div>
       )}
@@ -273,11 +316,23 @@ function MobileMenu({
         item.children ? (
           <div key={item.label} className="space-y-4">
             <p className="text-small font-semibold text-foreground/60 uppercase tracking-wider pt-2 first:pt-0">{item.label}</p>
-            {item.children.map((child) => (
-              <NavSmartLink key={child.href} href={child.href} className="block pl-3 text-foreground hover:text-primary" onClick={onClose}>
-                {child.label}
-              </NavSmartLink>
-            ))}
+            {item.children.map((child, index) =>
+              child.heading ? (
+                <p key={`${child.label}-${index}`} className="pl-3 pt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/45">
+                  {child.label}
+                </p>
+              ) : child.href ? (
+                <NavSmartLink key={`${child.label}-${index}`} href={child.href} className="flex items-center justify-between gap-4 pl-3 text-foreground hover:text-primary" onClick={onClose}>
+                  <span>{child.label}</span>
+                  <NavBadge badge={child.badge} badgeIsDate={child.badgeIsDate} />
+                </NavSmartLink>
+              ) : (
+                <span key={`${child.label}-${index}`} className="flex items-center justify-between gap-4 pl-3 text-foreground/70">
+                  <span>{child.label}</span>
+                  <NavBadge badge={child.badge} badgeIsDate={child.badgeIsDate} />
+                </span>
+              )
+            )}
           </div>
         ) : (
           <NavSmartLink key={item.label} href={item.href ?? "/"} className="block text-foreground hover:text-primary" onClick={onClose}>

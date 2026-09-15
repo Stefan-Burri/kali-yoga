@@ -138,7 +138,7 @@ export type PageDoc = {
 
 /* ─── Navigation / Footer singletons ─── */
 
-export type NavLinkType = "internal" | "external" | "none";
+export type NavLinkType = "internal" | "external" | "none" | "heading";
 
 export type NavChild = {
   _key?: string;
@@ -146,6 +146,12 @@ export type NavChild = {
   linkType?: NavLinkType | null;
   path?: string | null;
   url?: string | null;
+  /** Course-date badge next to the label: "ab 15. Nov" / "in Planung" (from the linked page's 📅 fields). */
+  badge?: string | null;
+  /** true = badge is a concrete future date (rendered green), false = "in Planung" (grey). */
+  badgeIsDate?: boolean;
+  /** Linked page is offline (🚧 Entwurf) – rendered as plain text so visitors don't hit a 404. */
+  targetOffline?: boolean;
 };
 
 export type NavItem = NavChild & {
@@ -227,12 +233,90 @@ export async function getPageBySlug(slug: string, lang: Lang = "de"): Promise<Pa
 /* ─── Navigation / Footer fetch ─── */
 
 // `draft != true` hides menu entries marked as «Entwurf» in the Studio until the toggle is turned off.
-const NAVIGATION_QUERY = `*[_type == "navigation" && language == $lang][0]{language, ctaLabel, items[draft != true]{_key, label, linkType, path, url, children[draft != true]{_key, label, linkType, path, url}}}`;
+// `pages` carries each page's 🚧/📅 fields so submenu entries can show a course-date badge
+// and stop linking to offline pages.
+const NAVIGATION_QUERY = `{
+  "nav": *[_type == "navigation" && language == $lang][0]{language, ctaLabel, items[draft != true]{_key, label, linkType, path, url, children[draft != true]{_key, label, linkType, path, url}}},
+  "pages": *[_type == $pageType]{"slug": slug.current, draft, showCourseDate, courseDate}
+}`;
+
+type NavPageInfo = { slug?: string | null; draft?: boolean | null; showCourseDate?: boolean | null; courseDate?: string | null };
+
+const BADGE_MONTHS = {
+  de: ["Jan", "Feb", "März", "Apr", "Mai", "Juni", "Juli", "Aug", "Sept", "Okt", "Nov", "Dez"],
+  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+} as const;
+
+/** "ab 15. Nov" (green) for future dates; "in Planung" when the date is missing or already past. */
+function courseBadge(page: NavPageInfo, lang: Lang): { badge: string; badgeIsDate: boolean } | null {
+  if (page.showCourseDate !== true) return null;
+  const planning = { badge: lang === "en" ? "in planning" : "in Planung", badgeIsDate: false };
+  if (!page.courseDate) return planning;
+  const date = new Date(`${page.courseDate}T12:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (Number.isNaN(date.getTime()) || date < today) return planning;
+  const day = date.getDate();
+  const month = BADGE_MONTHS[lang][date.getMonth()];
+  const year = date.getFullYear() !== today.getFullYear() ? ` ${date.getFullYear()}` : "";
+  return {
+    badge: lang === "en" ? `from ${day} ${month}${year}` : `ab ${day}. ${month}${year}`,
+    badgeIsDate: true,
+  };
+}
+
+/** "/kleingruppen" (DE) or "/en/schedule" (EN) → the page slug used in the CMS. */
+function pathToSlug(path: string, lang: Lang): string {
+  return lang === "en" ? path.replace(/^\/en\/?/, "") : path.replace(/^\//, "");
+}
 
 /** Fetches the navigation singleton for a language. Null when missing or unreachable. */
 export async function getNavigation(lang: Lang): Promise<NavigationDoc> {
   try {
-    return (await client.fetch<NavigationDoc>(NAVIGATION_QUERY, { lang })) ?? null;
+    const res = await client.fetch<{ nav: NavigationDoc; pages: NavPageInfo[] | null }>(NAVIGATION_QUERY, {
+      lang,
+      pageType: lang === "en" ? "pageEn" : "page",
+    });
+    const nav = res?.nav ?? null;
+    if (!nav?.items) return nav;
+    const bySlug = new Map((res.pages ?? []).map((p) => [p.slug ?? "", p]));
+    for (const item of nav.items) {
+      for (const child of item.children ?? []) {
+        if (child.linkType !== "internal" || !child.path) continue;
+        const page = bySlug.get(pathToSlug(child.path, lang));
+        if (!page) continue;
+        if (page.draft === true) child.targetOffline = true;
+        const badgeInfo = courseBadge(page, lang);
+        if (badgeInfo) {
+          child.badge = badgeInfo.badge;
+          child.badgeIsDate = badgeInfo.badgeIsDate;
+        }
+      }
+    }
+    return nav;
+  } catch {
+    return null;
+  }
+}
+
+/* ─── Redirects (managed in the Studio under «Allgemein») ─── */
+
+const REDIRECTS_QUERY = `*[_type == "siteSettings"][0].redirects[]{from, to}`;
+
+/** Normalises "/Alte-Seite/" and "alte-seite" to the same key. */
+function normalizePath(path: string): string {
+  return "/" + path.trim().replace(/^\/+/, "").replace(/\/+$/, "").toLowerCase();
+}
+
+/** Looks up a CMS-managed redirect for a path. Null when none matches. */
+export async function getRedirectTarget(path: string): Promise<string | null> {
+  try {
+    const redirects = await client.fetch<{ from?: string | null; to?: string | null }[] | null>(REDIRECTS_QUERY);
+    const target = (redirects ?? []).find((r) => r.from && normalizePath(r.from) === normalizePath(path))?.to?.trim();
+    if (!target) return null;
+    // Guard against a redirect pointing to itself (would loop forever).
+    if (!/^https?:\/\//.test(target) && normalizePath(target) === normalizePath(path)) return null;
+    return target;
   } catch {
     return null;
   }
