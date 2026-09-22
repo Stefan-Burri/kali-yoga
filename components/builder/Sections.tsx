@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
@@ -1646,11 +1647,15 @@ export default function PageSections({
       {sections.map((rawSection, index) => {
         const section: BuilderSection = noReveal ? { ...rawSection, noReveal: true } : rawSection;
         const id = anchorIdOf(section.anchorId) ?? (index === firstContentIndex ? "angebot" : undefined);
+        /* Hero buttons on many pages link to #angebot: keep that target alive
+           (as a zero-height marker) when the first section carries its own anchor. */
+        const legacyAnchor = index === firstContentIndex && id !== "angebot";
 
         /* Sections folded into the preceding plain card grid (original
            "closing line" pattern) are rendered there – skip them here. */
         if (isMergedIntoCardGrid(section, sections[index - 1])) return null;
 
+        const element = (() => {
         switch (section._type) {
           /* heroSection brings its own full-height layout – no SectionShell
              wrapper (no py-section / container / glass). It renders the navbar
@@ -1729,6 +1734,17 @@ export default function PageSections({
           default:
             return null;
         }
+        })();
+
+        if (!element) return null;
+        return legacyAnchor ? (
+          <Fragment key={section._key}>
+            <div id="angebot" aria-hidden="true" />
+            {element}
+          </Fragment>
+        ) : (
+          element
+        );
       })}
     </>
   );
