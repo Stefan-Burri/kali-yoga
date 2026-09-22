@@ -852,7 +852,7 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
             <div className="rounded-[16px] border-2 border-primary p-6 sm:p-8 h-full flex flex-col justify-center">
               {section.topicsTitle && <h3 className="font-display text-h5 font-bold text-primary">{section.topicsTitle}</h3>}
               {topics.length > 0 && (
-                <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-body text-foreground leading-relaxed">
+                <ul className="mt-5 space-y-3 text-body text-foreground leading-relaxed">
                   {topics.map((topic, i) => (
                     <li key={`${topic}-${i}`} className="flex items-start gap-3">
                       <CheckMark />
