@@ -478,7 +478,7 @@ export async function getSharedData(lang: Lang = "de"): Promise<SharedData> {
 
   const mapEntry = lang === "en" ? mapScheduleEntryEn : mapScheduleEntry;
 
-  const schedule: ScheduleItem[] = filterUpcomingSchedule(
+  const schedule: ScheduleItem[] = filterUpcomingSchedule<ScheduleItem>(
     scheduleDocs && scheduleDocs.length > 0
       ? scheduleDocs.map(mapEntry)
       : lang === "en"
