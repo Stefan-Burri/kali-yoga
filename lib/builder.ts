@@ -96,6 +96,8 @@ export type FaqEntry = {
 export type PageSection = {
   _type: string;
   _key: string;
+  /** Studio field «🔗 Anker-ID»: the section becomes reachable via #anchorId (jump links). */
+  anchorId?: string | null;
   appearance?: "glass" | "plain" | null;
   /* heroSection (also uses title, text, imagePath below; has no appearance) */
   variant?: "curved" | "simple" | "home" | null;
@@ -225,12 +227,28 @@ export type ScheduleItem = {
   time?: string;
   location?: string;
   label?: string;
+  /** Studio fields «Plätze total» / «Davon gebucht» – drive «noch X von 10 Plätzen». */
+  spotsTotal?: number | null;
+  spotsBooked?: number | null;
+};
+
+/** Course page facts used by the homepage small-groups teaser (status, start date, session count). */
+export type CourseInfo = {
+  slug: string;
+  title?: string | null;
+  draft?: boolean | null;
+  /** ISO date from the page's «📅 Kursbeginn» field. */
+  courseDate?: string | null;
+  /** Dates of the page's «Kursdetails mit Terminen» section, e.g. "Sonntag, 15.11.2026, 10:00-11:30". */
+  dates?: string[] | null;
 };
 
 export type SharedData = {
   schedule: ScheduleItem[];
   /** Dropdown options for the yoga class registration form. */
   classOptions: string[];
+  /** Course pages (📅 fields + Kursdetails dates) for the small-groups teaser. */
+  courses: CourseInfo[];
 };
 
 /* ─── Page fetch ─── */
@@ -370,6 +388,8 @@ type ScheduleEntryDoc = {
   pauseLabel?: string | null;
   locationEn?: string | null;
   pauseLabelEn?: string | null;
+  spotsTotal?: number | null;
+  spotsBooked?: number | null;
 };
 
 function mapScheduleEntry(e: ScheduleEntryDoc): ScheduleItem {
@@ -381,6 +401,8 @@ function mapScheduleEntry(e: ScheduleEntryDoc): ScheduleItem {
         date: e.date ?? "",
         type: e.classType ?? "",
         location: e.location ?? "",
+        spotsTotal: e.spotsTotal ?? null,
+        spotsBooked: e.spotsBooked ?? null,
       };
 }
 
@@ -394,6 +416,8 @@ function mapScheduleEntryEn(e: ScheduleEntryDoc): ScheduleItem {
         date: e.date ?? "",
         type: e.classType ?? "",
         location: e.locationEn || translateLocation(e.location ?? undefined) || "",
+        spotsTotal: e.spotsTotal ?? null,
+        spotsBooked: e.spotsBooked ?? null,
       };
 }
 
@@ -436,11 +460,18 @@ function buildEnglishClassDateOptions(entries: ScheduleItem[]): string[] {
  */
 export async function getSharedData(lang: Lang = "de"): Promise<SharedData> {
   let scheduleDocs: ScheduleEntryDoc[] | null = null;
+  let courses: CourseInfo[] = [];
 
   try {
-    scheduleDocs = await client.fetch<ScheduleEntryDoc[] | null>(
-      `*[_type == "scheduleEntry"] | order(order asc){entryType, day, time, date, classType, location, pauseLabel, locationEn, pauseLabelEn}`
+    const res = await client.fetch<{ schedule: ScheduleEntryDoc[] | null; courses: CourseInfo[] | null }>(
+      `{
+        "schedule": *[_type == "scheduleEntry"] | order(order asc){entryType, day, time, date, classType, location, pauseLabel, locationEn, pauseLabelEn, spotsTotal, spotsBooked},
+        "courses": *[_type == $pageType && (showCourseDate == true || count(sections[_type == "courseDetailsSection"]) > 0)]{"slug": slug.current, title, draft, courseDate, "dates": sections[_type == "courseDetailsSection"][0].dates}
+      }`,
+      { pageType: lang === "en" ? "pageEn" : "page" }
     );
+    scheduleDocs = res.schedule;
+    courses = (res.courses ?? []).filter((c) => Boolean(c.slug));
   } catch {
     // Sanity unreachable – fall back to the hardcoded content below
   }
@@ -469,5 +500,5 @@ export async function getSharedData(lang: Lang = "de"): Promise<SharedData> {
     }
   }
 
-  return { schedule, classOptions };
+  return { schedule, classOptions, courses };
 }

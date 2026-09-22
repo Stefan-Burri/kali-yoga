@@ -115,9 +115,12 @@ export default function BuilderHero({
   lang = "de",
   nav,
   translationHref,
+  id,
 }: {
   hero: HeroData;
   slug: string;
+  /** HTML id for jump links (Studio «🔗 Anker-ID»). */
+  id?: string;
   /** The page decides whether the hero renders the top navbar inside itself. */
   withNavbar?: boolean;
   lang?: Lang;
@@ -160,7 +163,7 @@ export default function BuilderHero({
   /* ── 'simple': centered h1 hero (stundenplan style) ── */
   if (variant === "simple") {
     return (
-      <section className="pt-3 pb-[64px]">
+      <section id={id} className="pt-3 pb-[64px]">
         {withNavbar ? navbar : null}
         <div className="flex flex-col items-center text-center px-6 pt-16 sm:pt-24 lg:pt-32 pb-8">
           <h1 className="font-display text-h1 font-bold text-primary w-full text-balance">{title}</h1>
@@ -176,7 +179,7 @@ export default function BuilderHero({
   /* ── 'home': curved title + Lottie animation (homepage style) ── */
   if (variant === "home") {
     return (
-      <section className="relative min-h-[100dvh] flex flex-col overflow-hidden">
+      <section id={id} className="relative min-h-[100dvh] flex flex-col overflow-hidden">
         {withNavbar ? navbar : null}
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
           <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
@@ -201,7 +204,7 @@ export default function BuilderHero({
         compact and 'home' always full-height – both returned above.) ── */
   if (!fullHeight) {
     return (
-      <section className="pt-3 pb-[64px]">
+      <section id={id} className="pt-3 pb-[64px]">
         {withNavbar ? navbar : null}
         <div className="flex flex-col items-center text-center px-6 pt-16 sm:pt-24 lg:pt-32 pb-8">
           <div className={`${variant === "straight" ? "w-full" : "max-w-[768px]"} mx-auto flex flex-col items-center`}>
@@ -232,7 +235,7 @@ export default function BuilderHero({
   /* ── 'straight': full-height hero with a straight h1 (kleingruppen style) ── */
   if (variant === "straight") {
     return (
-      <section className="min-h-[100dvh] flex flex-col">
+      <section id={id} className="min-h-[100dvh] flex flex-col">
         {withNavbar ? (
           <div className="pt-3 shrink-0">
             {navbar}
@@ -264,7 +267,7 @@ export default function BuilderHero({
 
   /* ── 'curved' (default): curved title + image (yoga-klassen style) ── */
   return (
-    <section className="min-h-[100dvh] flex flex-col">
+    <section id={id} className="min-h-[100dvh] flex flex-col">
       {withNavbar ? (
         <div className="pt-3 shrink-0">
           {navbar}

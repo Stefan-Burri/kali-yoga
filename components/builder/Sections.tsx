@@ -20,7 +20,9 @@ import {
   secondaryBtnClass,
   imageShadow,
 } from "@/components/ui";
-import type { Lang, LogoItem, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, SectionCard, SharedData } from "@/lib/builder";
+import type { CourseInfo, Lang, LogoItem, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, ScheduleItem, SectionCard, SharedData } from "@/lib/builder";
+import { parseSwissDate } from "@/lib/schedule";
+import { translateDay } from "@/lib/i18n";
 
 /* ─── Widened section shapes ───
    The deployed schema grew new fields (hero 'straight' variant + fullHeight,
@@ -56,8 +58,34 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   /* courseDetailsSection */
   datesIntro?: unknown[] | null;
   noteBody?: unknown[] | null;
+  /* Startseite teaser blocks (classesTeaserSection / therapyTeaserSection / groupsTeaserSection) */
+  iconPath?: string | null;
+  datesTitle?: string | null;
+  datesCount?: number | null;
+  bookLabel?: string | null;
+  bookLink?: string | null;
+  moreLabel?: string | null;
+  moreLink?: string | null;
+  topicsTitle?: string | null;
+  topics?: string[] | null;
+  topicsLinkLabel?: string | null;
+  topicsLink?: string | null;
+  howTitle?: string | null;
+  howBody?: unknown[] | null;
+  courses?: TeaserCourse[] | null;
   /** Set by PageSections on legal pages: render without scroll-reveal. */
   noReveal?: boolean;
+};
+
+/** One course card of the small-groups teaser (status comes from the linked course page). */
+type TeaserCourse = {
+  _key?: string;
+  title?: string | null;
+  pageSlug?: string | null;
+  bookLabel?: string | null;
+  bookLink?: string | null;
+  waitlistLabel?: string | null;
+  waitlistLink?: string | null;
 };
 
 /* ─── Portable Text styling (matches the site's body text) ─── */
@@ -116,6 +144,22 @@ const checkPtComponents: PortableTextComponents = {
 function Body({ value, components }: { value?: unknown[] | null; components?: PortableTextComponents }) {
   if (!Array.isArray(value) || value.length === 0) return null;
   return <PortableText value={value as never[]} components={components ?? ptComponents} />;
+}
+
+/** «Yoga Klassen» / «#Yogaklassen» → "yogaklassen": a safe HTML id from the Studio field. */
+function anchorIdOf(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  const id = value
+    .trim()
+    .toLowerCase()
+    .replace(/^#/, "")
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss")
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return id || undefined;
 }
 
 /* ─── Section wrapper: py-section + container + glass/plain + reveal ─── */
@@ -630,6 +674,322 @@ function isMergedIntoCardGrid(section: BuilderSection | undefined, prev: Builder
     !(section.logoPaths && section.logoPaths.length > 0) &&
     !(section.logoImages && section.logoImages.length > 0) &&
     !(section.logos && section.logos.length > 0)
+  );
+}
+
+/* ─── Startseite: Teaser-Blöcke (Yogaklassen · Yoga Therapie · Kleingruppen) ───
+   Three editorial sections that replaced the four-card «Balance für Körper und
+   Geist» grid. They keep the original gold line-art icons, read live data
+   (next class dates with free spots, course status) and follow the site's
+   glass/plain, border-2 card and gold-line vocabulary. Block 1 (classes) is
+   calm and plain; blocks 2 + 3 sit in glass cards and carry more weight. */
+
+const arrowLinkClass =
+  "inline-flex items-center gap-1.5 text-body font-medium text-primary underline underline-offset-4 decoration-gold/70 hover:text-secondary transition-colors";
+
+function ArrowLink({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
+  return (
+    <SmartLink href={href} className={`${arrowLinkClass}${className ? ` ${className}` : ""}`}>
+      {children}
+      <ChevronRight />
+    </SmartLink>
+  );
+}
+
+/** Original service icon (gold line art) in a soft circle so it sits in the layout. */
+function TeaserIcon({ src, size = "lg", centered = false }: { src?: string | null; size?: "sm" | "lg"; centered?: boolean }) {
+  if (!src) return null;
+  const box = size === "lg" ? "w-[112px] h-[112px] sm:w-[128px] sm:h-[128px]" : "w-[88px] h-[88px] sm:w-[96px] sm:h-[96px]";
+  const img = size === "lg" ? "w-[66px] h-[66px] sm:w-[76px] sm:h-[76px]" : "w-[52px] h-[52px] sm:w-[56px] sm:h-[56px]";
+  return (
+    <div
+      className={`${box} rounded-full bg-white/45 border border-white/70 shadow-[0_6px_20px_rgba(0,0,0,0.05)] flex items-center justify-center${centered ? " mx-auto" : ""}`}
+    >
+      <Image src={src} alt="" width={128} height={128} className={img} />
+    </div>
+  );
+}
+
+function CheckMark() {
+  return (
+    <svg className="w-4 h-4 mt-[6px] text-gold flex-shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+    </svg>
+  );
+}
+
+/** The next `count` class dates (pauses skipped), soonest first. */
+function nextClasses(schedule: ScheduleItem[], count: number): ScheduleItem[] {
+  return schedule
+    .filter((s) => s.type !== "pause" && s.date)
+    .map((s) => ({ s, t: parseSwissDate(s.date)?.getTime() ?? Number.MAX_SAFE_INTEGER }))
+    .sort((a, b) => a.t - b.t)
+    .slice(0, Math.max(1, count))
+    .map((x) => x.s);
+}
+
+/** «noch 7 von 10 Plätzen» from the Studio fields; null when no capacity is set. */
+function spotsInfo(item: ScheduleItem, lang: Lang): { label: string; tone: "ok" | "few" | "full" } | null {
+  if (typeof item.spotsTotal !== "number" || item.spotsTotal <= 0) return null;
+  const left = Math.max(0, item.spotsTotal - (item.spotsBooked ?? 0));
+  if (left === 0) return { label: lang === "en" ? "fully booked" : "ausgebucht", tone: "full" };
+  return {
+    label: lang === "en" ? `${left} of ${item.spotsTotal} spots left` : `noch ${left} von ${item.spotsTotal} Plätzen`,
+    tone: left <= 3 ? "few" : "ok",
+  };
+}
+
+const SPOTS_TONE: Record<"ok" | "few" | "full", string> = {
+  ok: "text-emerald-700",
+  few: "text-gold",
+  full: "text-foreground/50",
+};
+
+function ClassesTeaserBlock({ section, data, lang, id }: { section: BuilderSection; data: SharedData; lang: Lang; id?: string }) {
+  /* Calm block: transparent unless the Studio says otherwise. */
+  const s: BuilderSection = { ...section, appearance: section.appearance ?? "plain" };
+  const plain = s.appearance === "plain";
+  const items = nextClasses(data.schedule, section.datesCount ?? 3);
+  const bookHref = section.bookLink || (lang === "en" ? "/en/registration-yoga-class" : "/anmeldung-yoga-klasse");
+  const bookLabel = section.bookLabel || (lang === "en" ? "Book class" : "Klasse buchen");
+  const waitlistLabel = lang === "en" ? "Join waiting list" : "Auf die Warteliste";
+
+  return (
+    <SectionShell section={s} id={id}>
+      <div className={plain ? "p-8 sm:p-12 lg:p-16" : undefined}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+          <div className="lg:col-span-7">
+            <TeaserIcon src={section.iconPath} size="sm" />
+            {section.title && <h2 className="font-display text-h2 font-bold text-primary mt-6">{section.title}</h2>}
+            <GoldLine centered={false} />
+            <Body value={section.body} />
+            {section.moreLabel && section.moreLink && (
+              <div className="mt-6">
+                <ArrowLink href={section.moreLink}>{section.moreLabel}</ArrowLink>
+              </div>
+            )}
+          </div>
+
+          <aside className="lg:col-span-5 rounded-[16px] border-2 border-primary p-6 sm:p-8 lg:mt-4">
+            <p className="text-small font-semibold uppercase tracking-[0.14em] text-foreground/55">
+              {section.datesTitle || (lang === "en" ? "Next dates" : "Nächste Termine")}
+            </p>
+            {items.length === 0 ? (
+              <p className="mt-4 text-body text-foreground leading-relaxed">
+                {lang === "en" ? "New dates will follow shortly." : "Neue Termine folgen in Kürze."}
+              </p>
+            ) : (
+              <ul className="mt-2 divide-y divide-primary/15">
+                {items.map((item, i) => {
+                  const spots = spotsInfo(item, lang);
+                  const full = spots?.tone === "full";
+                  return (
+                    <li key={`${item.date}-${item.time}-${i}`} className="py-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-small text-foreground/70">
+                          {item.day}
+                          {item.time ? ` · ${item.time}` : ""}
+                        </p>
+                        <p className="font-display text-h5 font-bold text-primary leading-tight mt-0.5">{item.date}</p>
+                        {spots && <p className={`mt-1 text-small font-medium ${SPOTS_TONE[spots.tone]}`}>{spots.label}</p>}
+                      </div>
+                      <SmartLink href={bookHref} className={`${full ? secondaryBtnClass : primaryBtnClass} shrink-0`}>
+                        {full ? waitlistLabel : bookLabel}
+                      </SmartLink>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </aside>
+        </div>
+      </div>
+    </SectionShell>
+  );
+}
+
+function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; lang: Lang; id?: string }) {
+  const plain = section.appearance === "plain";
+  const topics = (section.topics ?? []).filter(Boolean);
+  const ctaHref = section.ctaHref || (lang === "en" ? "/en/registration-yoga-therapy" : "/anmeldung-yogatherapie");
+
+  return (
+    <SectionShell section={section} id={id}>
+      <div className={plain ? "p-8 sm:p-12 lg:p-16" : undefined}>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+          <div className="lg:col-span-5">
+            <TeaserIcon src={section.iconPath} size="lg" />
+            {section.title && <h2 className="font-display text-h2 font-bold text-primary mt-7">{section.title}</h2>}
+            {section.subtitle && (
+              <p className="font-display text-h5 text-primary/80 mt-2 leading-snug">{section.subtitle}</p>
+            )}
+            <GoldLine centered={false} />
+            <Body value={section.body} />
+            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
+              {section.ctaLabel && (
+                <SmartLink href={ctaHref} className={primaryBtnClass}>
+                  {section.ctaLabel}
+                </SmartLink>
+              )}
+              {section.moreLabel && section.moreLink && <ArrowLink href={section.moreLink}>{section.moreLabel}</ArrowLink>}
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 flex flex-col gap-8 lg:mt-4">
+            {(section.topicsTitle || topics.length > 0) && (
+              <div className="rounded-[16px] border-2 border-primary p-6 sm:p-8">
+                {section.topicsTitle && <h3 className="font-display text-h5 font-bold text-primary">{section.topicsTitle}</h3>}
+                {topics.length > 0 && (
+                  <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-body text-foreground leading-relaxed">
+                    {topics.map((topic, i) => (
+                      <li key={`${topic}-${i}`} className="flex items-start gap-3">
+                        <CheckMark />
+                        <span>{topic}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {section.topicsLinkLabel && section.topicsLink && (
+                  <div className="mt-6">
+                    <ArrowLink href={section.topicsLink}>{section.topicsLinkLabel}</ArrowLink>
+                  </div>
+                )}
+              </div>
+            )}
+            {(section.howTitle || (Array.isArray(section.howBody) && section.howBody.length > 0)) && (
+              <div className="px-1 sm:px-2">
+                {section.howTitle && <h3 className="font-display text-h5 font-bold text-primary mb-3">{section.howTitle}</h3>}
+                <Body value={section.howBody} />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </SectionShell>
+  );
+}
+
+const WEEKDAY_PLURAL_DE: Record<string, string> = {
+  Montag: "Montage",
+  Dienstag: "Dienstage",
+  Mittwoch: "Mittwoche",
+  Donnerstag: "Donnerstage",
+  Freitag: "Freitage",
+  Samstag: "Samstage",
+  Sonntag: "Sonntage",
+};
+
+const LONG_MONTHS = {
+  de: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+  en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+} as const;
+
+/** Course status from the linked page: a future «📅 Kursbeginn» on an online page = bookable. */
+function courseStatus(info: CourseInfo | undefined, lang: Lang): { active: boolean; dateLabel: string | null; sessions: string | null } {
+  const planning = { active: false, dateLabel: null, sessions: null };
+  if (!info || info.draft === true || !info.courseDate) return planning;
+  const date = new Date(`${info.courseDate}T12:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (Number.isNaN(date.getTime()) || date < today) return planning;
+
+  const month = LONG_MONTHS[lang][date.getMonth()];
+  const dateLabel =
+    lang === "en" ? `from ${date.getDate()} ${month} ${date.getFullYear()}` : `ab ${date.getDate()}. ${month} ${date.getFullYear()}`;
+
+  const dates = (info.dates ?? []).filter(Boolean);
+  let sessions: string | null = null;
+  if (dates.length > 0) {
+    const weekdays = dates.map((d) => d.split(",")[0]?.trim() ?? "");
+    const sameWeekday = weekdays[0] !== "" && weekdays.every((w) => w === weekdays[0]);
+    if (sameWeekday) {
+      sessions =
+        lang === "en" ? `${dates.length} ${translateDay(weekdays[0])}s` : `${dates.length} ${WEEKDAY_PLURAL_DE[weekdays[0]] ?? "Termine"}`;
+    } else {
+      sessions = `${dates.length} ${lang === "en" ? "sessions" : "Termine"}`;
+    }
+  }
+  return { active: true, dateLabel, sessions };
+}
+
+function GroupsTeaserBlock({ section, data, lang, id }: { section: BuilderSection; data: SharedData; lang: Lang; id?: string }) {
+  const plain = section.appearance === "plain";
+  const courses = section.courses ?? [];
+  const planningLabel = lang === "en" ? "Next run in planning" : "Nächste Durchführung in Planung";
+  const contactHref = lang === "en" ? "/en/contact" : "/kontakt";
+
+  return (
+    <SectionShell section={section} id={id}>
+      <div className={plain ? "p-8 sm:p-12 lg:p-16" : undefined}>
+        <div className="text-center max-w-[768px] mx-auto">
+          <TeaserIcon src={section.iconPath} size="lg" centered />
+          {section.title && <h2 className="font-display text-h2 font-bold text-primary mt-7">{section.title}</h2>}
+          <GoldLine />
+          <Body value={section.body} />
+        </div>
+
+        {courses.length > 0 && (
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+            {courses.map((course, i) => {
+              const info = course.pageSlug ? data.courses.find((c) => c.slug === course.pageSlug) : undefined;
+              const status = courseStatus(info, lang);
+              const pageOnline = Boolean(info && info.draft !== true);
+              const pageHref = course.pageSlug ? (lang === "en" ? `/en/${course.pageSlug}` : `/${course.pageSlug}`) : null;
+              const href = status.active
+                ? course.bookLink || pageHref || contactHref
+                : course.waitlistLink || contactHref;
+              const label = status.active
+                ? course.bookLabel || (lang === "en" ? "Book course" : "Kurs buchen")
+                : course.waitlistLabel || (lang === "en" ? "Join waiting list" : "Auf die Warteliste");
+
+              return (
+                <article
+                  key={course._key ?? i}
+                  className="rounded-[16px] border-2 border-primary p-7 flex flex-col min-h-[240px] card-hover"
+                >
+                  <p
+                    className={`text-small font-semibold uppercase tracking-[0.14em] ${status.active ? "text-emerald-700" : "text-foreground/45"}`}
+                  >
+                    {status.active ? (lang === "en" ? "Next course" : "Nächster Kurs") : lang === "en" ? "In planning" : "In Planung"}
+                  </p>
+                  <h3 className="font-display text-h4 font-bold text-primary leading-[1.2] mt-3">
+                    {pageOnline && pageHref ? (
+                      <Link href={pageHref} className="hover:text-secondary transition-colors">
+                        {course.title}
+                      </Link>
+                    ) : (
+                      course.title
+                    )}
+                  </h3>
+                  <p className="text-body text-foreground mt-3 leading-relaxed">
+                    {status.active ? (
+                      <>
+                        <span className="block font-medium">{status.dateLabel}</span>
+                        {status.sessions ? <span className="block text-foreground/70">{status.sessions}</span> : null}
+                      </>
+                    ) : (
+                      planningLabel
+                    )}
+                  </p>
+                  <div className="mt-auto pt-7">
+                    <SmartLink href={href} className={status.active ? primaryBtnClass : secondaryBtnClass}>
+                      {label}
+                      {!status.active && <ChevronRight />}
+                    </SmartLink>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {section.moreLabel && section.moreLink && (
+          <div className="mt-10 text-center">
+            <ArrowLink href={section.moreLink}>{section.moreLabel}</ArrowLink>
+          </div>
+        )}
+      </div>
+    </SectionShell>
   );
 }
 
@@ -1278,13 +1638,14 @@ export default function PageSections({
 }) {
   // The hero's "Mehr Erfahren" button points to #angebot – anchor the first
   // non-hero section so that link keeps working (matches existing pages).
+  // A Studio «🔗 Anker-ID» on the section wins over that default.
   const firstContentIndex = sections.findIndex((s) => s._type !== "heroSection");
 
   return (
     <>
       {sections.map((rawSection, index) => {
         const section: BuilderSection = noReveal ? { ...rawSection, noReveal: true } : rawSection;
-        const id = index === firstContentIndex ? "angebot" : undefined;
+        const id = anchorIdOf(section.anchorId) ?? (index === firstContentIndex ? "angebot" : undefined);
 
         /* Sections folded into the preceding plain card grid (original
            "closing line" pattern) are rendered there – skip them here. */
@@ -1298,6 +1659,7 @@ export default function PageSections({
             return (
               <BuilderHero
                 key={section._key}
+                id={id}
                 hero={{
                   variant: section.variant,
                   curvedTitle: section.curvedTitle,
@@ -1358,6 +1720,12 @@ export default function PageSections({
             return <CtaSectionBlock key={section._key} section={section} lang={lang} id={id} />;
           case "formSection":
             return <FormSectionBlock key={section._key} section={section} data={data} lang={lang} id={id} asPageTitle={!sections.some((s) => s._type === "heroSection")} />;
+          case "classesTeaserSection":
+            return <ClassesTeaserBlock key={section._key} section={section} data={data} lang={lang} id={id} />;
+          case "therapyTeaserSection":
+            return <TherapyTeaserBlock key={section._key} section={section} lang={lang} id={id} />;
+          case "groupsTeaserSection":
+            return <GroupsTeaserBlock key={section._key} section={section} data={data} lang={lang} id={id} />;
           default:
             return null;
         }
