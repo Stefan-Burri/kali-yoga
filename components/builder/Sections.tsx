@@ -74,6 +74,9 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   howTitle?: string | null;
   howBody?: unknown[] | null;
   courses?: TeaserCourse[] | null;
+  /* noteSection */
+  linkLabel?: string | null;
+  linkHref?: string | null;
   /** Set by PageSections on legal pages: render without scroll-reveal. */
   noReveal?: boolean;
 };
@@ -880,6 +883,36 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
             </div>
           )}
         </div>
+      </div>
+    </SectionShell>
+  );
+}
+
+/* ─── noteSection: calm full-width note (e.g. Methodenhinweis under the therapy blocks) ─── */
+
+function NoteSectionBlock({ section, id }: { section: BuilderSection; id?: string }) {
+  /* Quiet by default: transparent, centred, regular body size (no fine print). */
+  const s: BuilderSection = { ...section, appearance: section.appearance ?? "plain" };
+  const plain = s.appearance === "plain";
+  return (
+    <SectionShell section={s} id={id}>
+      <div className={`max-w-[860px] mx-auto text-center${plain ? " px-4 sm:px-8" : ""}`}>
+        {section.title ? (
+          <>
+            <h2 className="font-display text-h4 font-bold text-primary">{section.title}</h2>
+            <GoldLine />
+          </>
+        ) : (
+          <GoldLine />
+        )}
+        <div className="text-foreground/85">
+          <Body value={section.body} />
+        </div>
+        {section.linkLabel && section.linkHref && (
+          <div className="mt-6">
+            <ArrowLink href={section.linkHref}>{section.linkLabel}</ArrowLink>
+          </div>
+        )}
       </div>
     </SectionShell>
   );
@@ -1746,6 +1779,8 @@ export default function PageSections({
             return <TherapyTeaserBlock key={section._key} section={section} lang={lang} id={id} />;
           case "groupsTeaserSection":
             return <GroupsTeaserBlock key={section._key} section={section} data={data} lang={lang} id={id} />;
+          case "noteSection":
+            return <NoteSectionBlock key={section._key} section={section} id={id} />;
           default:
             return null;
         }
