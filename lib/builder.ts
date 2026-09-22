@@ -20,6 +20,20 @@ export type SanityImageRef = { asset?: { url?: string | null } | null } | null;
 /** Uploaded logo with the original file name (for readable alt text). */
 export type SanityLogoImage = { _key?: string; url?: string | null; filename?: string | null } | null;
 
+/** Logo row entry (Studio field «Logo-Reihe»): uploaded image or file path, optional link (opens in a new window). */
+export type LogoItem = {
+  _key?: string;
+  /** Short name shown as alt text (Studio field «Bezeichnung»), e.g. EMR. */
+  label?: string | null;
+  /** Resolved upload URL (image.asset->url). */
+  url?: string | null;
+  /** Original upload file name (readable alt text). */
+  filename?: string | null;
+  /** Static file path, e.g. /images/emr-logo.svg. */
+  imagePath?: string | null;
+  link?: string | null;
+} | null;
+
 export type HeroButton = {
   _key?: string;
   label?: string | null;
@@ -95,6 +109,8 @@ export type PageSection = {
   imagePosition?: "left" | "right" | null;
   /** Uploaded logos shown in the logo row (together with logoPaths). */
   logoImages?: SanityLogoImage[] | null;
+  /** Logo row with optional links (replaces logoPaths + logoImages when present). */
+  logos?: LogoItem[] | null;
   buttonLabel?: string | null;
   buttonLink?: string | null;
   entries?: AboutEntry[] | null;
@@ -135,6 +151,15 @@ export type PageDoc = {
   seoTitle?: string | null;
   seoDescription?: string | null;
 } | null;
+
+/** GROQ filter: pages that carry a form (contact + registration pages). They are
+    served with «noindex, follow» and left out of the sitemap. */
+export const FORM_PAGE_FILTER = `count(sections[_type == "formSection"]) > 0`;
+
+/** True for form pages (contact + registrations): «noindex, follow», not in the sitemap. */
+export function isFormPage(page: PageDoc): boolean {
+  return (page?.sections ?? []).some((s) => s?._type === "formSection");
+}
 
 /* ─── Navigation / Footer singletons ─── */
 
@@ -215,7 +240,7 @@ export type SharedData = {
 // returns all their fields (variant, curvedTitle, title, text, imagePath) including
 // the inline `buttons[]{label, href, style}` array.
 // The document type implies the language: `page` is German, `pageEn` is English.
-const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, galleryImages[]{_key, asset->{url}}, logoImages[]{_key, "url": asset->url, "filename": asset->originalFilename}, cards[]{..., image{asset->{url}}}, entries[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
+const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, galleryImages[]{_key, asset->{url}}, logoImages[]{_key, "url": asset->url, "filename": asset->originalFilename}, logos[]{_key, label, imagePath, link, "url": image.asset->url, "filename": image.asset->originalFilename}, cards[]{..., image{asset->{url}}}, entries[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
 
 // `draft != true` takes pages marked «🚧 Entwurf – Seite offline» in the Studio off the site.
 const PAGE_QUERY_DE = `*[_type == "page" && slug.current == $slug && draft != true][0]${PAGE_PROJECTION}`;

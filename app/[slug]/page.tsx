@@ -4,7 +4,7 @@ import StickyNavbar, { HeroNavbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BuilderHero from "@/components/builder/Hero";
 import PageSections from "@/components/builder/Sections";
-import { getFooter, getNavigation, getPageBySlug, getRedirectTarget, getSharedData } from "@/lib/builder";
+import { getFooter, getNavigation, getPageBySlug, getRedirectTarget, getSharedData, isFormPage } from "@/lib/builder";
 import { buildCourseJsonLd } from "@/lib/courseJsonLd";
 import { SITE_URL } from "@/lib/site";
 
@@ -28,6 +28,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: page?.seoTitle || (page?.title ? `${page.title} · Kali Yoga` : "Kali Yoga"),
     description: page?.seoDescription || undefined,
+    // Form pages (contact + registrations): «noindex, follow» – not in search results, links still followed.
+    ...(isFormPage(page) ? { robots: { index: false, follow: true } } : {}),
     alternates: {
       canonical,
       languages: {

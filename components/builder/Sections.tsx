@@ -20,7 +20,7 @@ import {
   secondaryBtnClass,
   imageShadow,
 } from "@/components/ui";
-import type { Lang, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, SectionCard, SharedData } from "@/lib/builder";
+import type { Lang, LogoItem, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, SectionCard, SharedData } from "@/lib/builder";
 
 /* ─── Widened section shapes ───
    The deployed schema grew new fields (hero 'straight' variant + fullHeight,
@@ -48,6 +48,7 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   galleryImages?: SanityImageRef[] | null;
   logoPaths?: string[] | null;
   logoImages?: SanityLogoImage[] | null;
+  logos?: LogoItem[] | null;
   align?: "center" | "left" | null;
   listStyle?: "bullet" | "check" | null;
   /** One step smaller section heading (old-site Kostenbeteiligung style). */
@@ -193,22 +194,42 @@ function logoAlt(src: string): string {
     .toUpperCase();
 }
 
-/** Centered logo row – exact markup of the original Zusatzversicherung logos. */
-function LogoRow({ logos, className }: { logos: { src: string; alt: string }[]; className?: string }) {
+type LogoRowItem = { src: string; alt: string; href?: string | null };
+
+/** Centered logo row – exact markup of the original Zusatzversicherung logos.
+    A logo with a link opens it in a new window. */
+function LogoRow({ logos, className }: { logos: LogoRowItem[]; className?: string }) {
   if (logos.length === 0) return null;
   return (
     <div className={`flex flex-wrap justify-center items-center gap-8${className ? ` ${className}` : ""}`}>
-      {logos.map((logo, i) => (
-        <Image
-          key={`${logo.src}-${i}`}
-          src={logo.src}
-          alt={logo.alt}
-          width={100}
-          height={40}
-          unoptimized={/^https?:\/\//.test(logo.src)}
-          className="h-[36px] w-auto"
-        />
-      ))}
+      {logos.map((logo, i) => {
+        const img = (
+          <Image
+            src={logo.src}
+            alt={logo.alt}
+            width={100}
+            height={40}
+            unoptimized={/^https?:\/\//.test(logo.src)}
+            className="h-[36px] w-auto"
+          />
+        );
+        return logo.href ? (
+          <a
+            key={`${logo.src}-${i}`}
+            href={logo.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={logo.alt}
+            className="inline-flex transition-opacity hover:opacity-70"
+          >
+            {img}
+          </a>
+        ) : (
+          <span key={`${logo.src}-${i}`} className="inline-flex">
+            {img}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -242,13 +263,21 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
   const sanityUrl = section.image?.asset?.url ?? null;
   const imageSrc = sanityUrl ?? section.imagePath ?? null;
   const glass = section.appearance !== "plain";
-  /* Logo row: file paths first, then uploaded logos (alt text from the file name). */
-  const logos = [
-    ...(section.logoPaths ?? []).filter(Boolean).map((src) => ({ src, alt: logoAlt(src) })),
-    ...(section.logoImages ?? [])
-      .filter((logo): logo is NonNullable<SanityLogoImage> => Boolean(logo?.url))
-      .map((logo) => ({ src: logo.url as string, alt: logoAlt(logo.filename ?? "") })),
-  ];
+  /* Logo row: the Studio field «Logo-Reihe» (upload or file path, optional link)
+     wins; older docs fall back to logoPaths + logoImages. Alt text from the file name. */
+  const logoItems = (section.logos ?? []).filter((logo): logo is NonNullable<LogoItem> => Boolean(logo?.url || logo?.imagePath));
+  const logos: LogoRowItem[] =
+    logoItems.length > 0
+      ? logoItems.map((logo) => {
+          const src = (logo.url ?? logo.imagePath) as string;
+          return { src, alt: logo.label?.trim() || logoAlt(logo.url ? logo.filename ?? "" : src), href: logo.link };
+        })
+      : [
+          ...(section.logoPaths ?? []).filter(Boolean).map((src) => ({ src, alt: logoAlt(src) })),
+          ...(section.logoImages ?? [])
+            .filter((logo): logo is NonNullable<SanityLogoImage> => Boolean(logo?.url))
+            .map((logo) => ({ src: logo.url as string, alt: logoAlt(logo.filename ?? "") })),
+        ];
 
   /* Additional images: sanity gallery first, then static paths. */
   const extraImages = [
@@ -527,11 +556,11 @@ function CardGridSection({
         {layout === "logos" ? (
           <LogoRow
             logos={cards
-              .map((card) => {
+              .map((card): LogoRowItem | null => {
                 const src = card.image?.asset?.url ?? card.logoPath ?? card.iconPath ?? null;
-                return src ? { src, alt: card.title ?? logoAlt(src) } : null;
+                return src ? { src, alt: card.title ?? logoAlt(src), href: card.linkHref } : null;
               })
-              .filter((logo): logo is { src: string; alt: string } => logo !== null)}
+              .filter((logo): logo is LogoRowItem => logo !== null)}
           />
         ) : layout === "list" ? (
           <div className="space-y-6 max-w-[768px] mx-auto">
@@ -599,7 +628,8 @@ function isMergedIntoCardGrid(section: BuilderSection | undefined, prev: Builder
     !section.image &&
     !section.imagePath &&
     !(section.logoPaths && section.logoPaths.length > 0) &&
-    !(section.logoImages && section.logoImages.length > 0)
+    !(section.logoImages && section.logoImages.length > 0) &&
+    !(section.logos && section.logos.length > 0)
   );
 }
 
