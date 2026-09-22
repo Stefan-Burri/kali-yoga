@@ -761,7 +761,7 @@ function ClassesTeaserBlock({ section, data, lang, id }: { section: BuilderSecti
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
           <div className="lg:col-span-7">
             <TeaserIcon src={section.iconPath} size="sm" />
-            {section.title && <h2 className="font-display text-h2 font-bold text-primary mt-6">{section.title}</h2>}
+            {section.title && <h2 className={`font-display text-h2 font-bold text-primary${section.iconPath ? " mt-6" : ""}`}>{section.title}</h2>}
             <GoldLine centered={false} />
             <Body value={section.body} />
             {section.moreLabel && section.moreLink && (
@@ -820,7 +820,7 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           <div className="lg:col-span-5">
             <TeaserIcon src={section.iconPath} size="lg" />
-            {section.title && <h2 className="font-display text-h2 font-bold text-primary mt-7">{section.title}</h2>}
+            {section.title && <h2 className={`font-display text-h2 font-bold text-primary${section.iconPath ? " mt-7" : ""}`}>{section.title}</h2>}
             {section.subtitle && (
               <p className="font-display text-h5 text-primary/80 mt-2 leading-snug">{section.subtitle}</p>
             )}
@@ -924,7 +924,7 @@ function GroupsTeaserBlock({ section, data, lang, id }: { section: BuilderSectio
       <div className={plain ? "p-8 sm:p-12 lg:p-16" : undefined}>
         <div className="text-center max-w-[768px] mx-auto">
           <TeaserIcon src={section.iconPath} size="lg" centered />
-          {section.title && <h2 className="font-display text-h2 font-bold text-primary mt-7">{section.title}</h2>}
+          {section.title && <h2 className={`font-display text-h2 font-bold text-primary${section.iconPath ? " mt-7" : ""}`}>{section.title}</h2>}
           <GoldLine />
           <Body value={section.body} />
         </div>
