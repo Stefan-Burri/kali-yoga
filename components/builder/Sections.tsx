@@ -823,16 +823,17 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
   const plain = section.appearance === "plain";
   const topics = (section.topics ?? []).filter(Boolean);
   const ctaHref = section.ctaHref || (lang === "en" ? "/en/registration-yoga-therapy" : "/anmeldung-yogatherapie");
-  const hasTopicsBox = Boolean(section.topicsTitle) || topics.length > 0;
+  const hasTopicsBox = Boolean(section.topicsTitle) || topics.length > 0 || Boolean(section.topicsLinkLabel && section.topicsLink);
   const hasHow = Boolean(section.howTitle) || (Array.isArray(section.howBody) && section.howBody.length > 0);
-  const hasActions = Boolean(section.ctaLabel) || Boolean(section.moreLabel && section.moreLink) || Boolean(section.topicsLinkLabel && section.topicsLink);
+  const hasButtons = Boolean(section.ctaLabel) || Boolean(section.moreLabel && section.moreLink);
 
   return (
     <SectionShell section={section} id={id}>
       <div className={plain ? "p-8 sm:p-12 lg:p-16" : undefined}>
-        {/* Two equal columns: text left, topics box right – the box stretches to the text's height. */}
+        {/* Two equal columns. Left: text + buttons. Right: topics box that stretches to the
+            left column's full height, with the text link pinned to its bottom. */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-stretch">
-          <div>
+          <div className="flex flex-col">
             <TeaserIcon src={section.iconPath} size="lg" />
             {section.title && <h2 className={`font-display text-h2 font-bold text-primary${section.iconPath ? " mt-7" : ""}`}>{section.title}</h2>}
             {section.subtitle && (
@@ -846,10 +847,20 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
                 <Body value={section.howBody} />
               </div>
             )}
+            {hasButtons && (
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                {section.ctaLabel && (
+                  <SmartLink href={ctaHref} className={primaryBtnClass}>
+                    {section.ctaLabel}
+                  </SmartLink>
+                )}
+                {section.moreLabel && section.moreLink && <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>}
+              </div>
+            )}
           </div>
 
           {hasTopicsBox && (
-            <div className="rounded-[16px] border-2 border-primary p-6 sm:p-8 h-full flex flex-col justify-center">
+            <div className="rounded-[16px] border-2 border-primary p-6 sm:p-8 h-full flex flex-col">
               {section.topicsTitle && <h3 className="font-display text-h5 font-bold text-primary">{section.topicsTitle}</h3>}
               {topics.length > 0 && (
                 <ul className="mt-5 space-y-3 text-body text-foreground leading-relaxed">
@@ -861,22 +872,14 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
                   ))}
                 </ul>
               )}
+              {section.topicsLinkLabel && section.topicsLink && (
+                <div className="mt-auto pt-6">
+                  <ArrowLink href={section.topicsLink}>{section.topicsLinkLabel}</ArrowLink>
+                </div>
+              )}
             </div>
           )}
         </div>
-
-        {/* All actions in one row under both columns: primary, outlined, text link. */}
-        {hasActions && (
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
-            {section.ctaLabel && (
-              <SmartLink href={ctaHref} className={primaryBtnClass}>
-                {section.ctaLabel}
-              </SmartLink>
-            )}
-            {section.moreLabel && section.moreLink && <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>}
-            {section.topicsLinkLabel && section.topicsLink && <ArrowLink href={section.topicsLink}>{section.topicsLinkLabel}</ArrowLink>}
-          </div>
-        )}
       </div>
     </SectionShell>
   );
