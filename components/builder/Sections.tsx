@@ -697,6 +697,16 @@ function ArrowLink({ href, children, className = "" }: { href: string; children:
   );
 }
 
+/** «Weiterführend»-Link as the site's outlined secondary button. */
+function MoreButton({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
+  return (
+    <SmartLink href={href} className={`${secondaryBtnClass}${className ? ` ${className}` : ""}`}>
+      {children}
+      <ChevronRight />
+    </SmartLink>
+  );
+}
+
 /** Original service icon (gold line art) in a soft circle so it sits in the layout. */
 function TeaserIcon({ src, size = "lg", centered = false }: { src?: string | null; size?: "sm" | "lg"; centered?: boolean }) {
   if (!src) return null;
@@ -765,8 +775,8 @@ function ClassesTeaserBlock({ section, data, lang, id }: { section: BuilderSecti
             <GoldLine centered={false} />
             <Body value={section.body} />
             {section.moreLabel && section.moreLink && (
-              <div className="mt-6">
-                <ArrowLink href={section.moreLink}>{section.moreLabel}</ArrowLink>
+              <div className="mt-8">
+                <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>
               </div>
             )}
           </div>
@@ -826,13 +836,13 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
             )}
             <GoldLine centered={false} />
             <Body value={section.body} />
-            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
+            <div className="mt-8 flex flex-wrap items-center gap-4">
               {section.ctaLabel && (
                 <SmartLink href={ctaHref} className={primaryBtnClass}>
                   {section.ctaLabel}
                 </SmartLink>
               )}
-              {section.moreLabel && section.moreLink && <ArrowLink href={section.moreLink}>{section.moreLabel}</ArrowLink>}
+              {section.moreLabel && section.moreLink && <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>}
             </div>
           </div>
 
@@ -985,8 +995,8 @@ function GroupsTeaserBlock({ section, data, lang, id }: { section: BuilderSectio
         )}
 
         {section.moreLabel && section.moreLink && (
-          <div className="mt-10 text-center">
-            <ArrowLink href={section.moreLink}>{section.moreLabel}</ArrowLink>
+          <div className="mt-10 flex justify-center">
+            <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>
           </div>
         )}
       </div>
