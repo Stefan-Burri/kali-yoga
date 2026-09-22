@@ -823,12 +823,16 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
   const plain = section.appearance === "plain";
   const topics = (section.topics ?? []).filter(Boolean);
   const ctaHref = section.ctaHref || (lang === "en" ? "/en/registration-yoga-therapy" : "/anmeldung-yogatherapie");
+  const hasTopicsBox = Boolean(section.topicsTitle) || topics.length > 0;
+  const hasHow = Boolean(section.howTitle) || (Array.isArray(section.howBody) && section.howBody.length > 0);
+  const hasActions = Boolean(section.ctaLabel) || Boolean(section.moreLabel && section.moreLink) || Boolean(section.topicsLinkLabel && section.topicsLink);
 
   return (
     <SectionShell section={section} id={id}>
       <div className={plain ? "p-8 sm:p-12 lg:p-16" : undefined}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
-          <div className="lg:col-span-5">
+        {/* Two equal columns: text left, topics box right – the box stretches to the text's height. */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-stretch">
+          <div>
             <TeaserIcon src={section.iconPath} size="lg" />
             {section.title && <h2 className={`font-display text-h2 font-bold text-primary${section.iconPath ? " mt-7" : ""}`}>{section.title}</h2>}
             {section.subtitle && (
@@ -836,45 +840,43 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
             )}
             <GoldLine centered={false} />
             <Body value={section.body} />
-            <div className="mt-8 flex flex-wrap items-center gap-4">
-              {section.ctaLabel && (
-                <SmartLink href={ctaHref} className={primaryBtnClass}>
-                  {section.ctaLabel}
-                </SmartLink>
-              )}
-              {section.moreLabel && section.moreLink && <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>}
-            </div>
-          </div>
-
-          <div className="lg:col-span-7 flex flex-col gap-8 lg:mt-4">
-            {(section.topicsTitle || topics.length > 0) && (
-              <div className="rounded-[16px] border-2 border-primary p-6 sm:p-8">
-                {section.topicsTitle && <h3 className="font-display text-h5 font-bold text-primary">{section.topicsTitle}</h3>}
-                {topics.length > 0 && (
-                  <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-body text-foreground leading-relaxed">
-                    {topics.map((topic, i) => (
-                      <li key={`${topic}-${i}`} className="flex items-start gap-3">
-                        <CheckMark />
-                        <span>{topic}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {section.topicsLinkLabel && section.topicsLink && (
-                  <div className="mt-6">
-                    <ArrowLink href={section.topicsLink}>{section.topicsLinkLabel}</ArrowLink>
-                  </div>
-                )}
-              </div>
-            )}
-            {(section.howTitle || (Array.isArray(section.howBody) && section.howBody.length > 0)) && (
-              <div className="px-1 sm:px-2">
+            {hasHow && (
+              <div className="mt-8">
                 {section.howTitle && <h3 className="font-display text-h5 font-bold text-primary mb-3">{section.howTitle}</h3>}
                 <Body value={section.howBody} />
               </div>
             )}
           </div>
+
+          {hasTopicsBox && (
+            <div className="rounded-[16px] border-2 border-primary p-6 sm:p-8 h-full flex flex-col justify-center">
+              {section.topicsTitle && <h3 className="font-display text-h5 font-bold text-primary">{section.topicsTitle}</h3>}
+              {topics.length > 0 && (
+                <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-body text-foreground leading-relaxed">
+                  {topics.map((topic, i) => (
+                    <li key={`${topic}-${i}`} className="flex items-start gap-3">
+                      <CheckMark />
+                      <span>{topic}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* All actions in one row under both columns: primary, outlined, text link. */}
+        {hasActions && (
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+            {section.ctaLabel && (
+              <SmartLink href={ctaHref} className={primaryBtnClass}>
+                {section.ctaLabel}
+              </SmartLink>
+            )}
+            {section.moreLabel && section.moreLink && <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>}
+            {section.topicsLinkLabel && section.topicsLink && <ArrowLink href={section.topicsLink}>{section.topicsLinkLabel}</ArrowLink>}
+          </div>
+        )}
       </div>
     </SectionShell>
   );
