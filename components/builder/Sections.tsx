@@ -23,7 +23,6 @@ import {
 } from "@/components/ui";
 import type { CourseInfo, Lang, LogoItem, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, ScheduleItem, SectionCard, SharedData } from "@/lib/builder";
 import { parseSwissDate } from "@/lib/schedule";
-import { translateDay } from "@/lib/i18n";
 
 /* ─── Widened section shapes ───
    The deployed schema grew new fields (hero 'straight' variant + fullHeight,
@@ -918,24 +917,14 @@ function NoteSectionBlock({ section, id }: { section: BuilderSection; id?: strin
   );
 }
 
-const WEEKDAY_PLURAL_DE: Record<string, string> = {
-  Montag: "Montage",
-  Dienstag: "Dienstage",
-  Mittwoch: "Mittwoche",
-  Donnerstag: "Donnerstage",
-  Freitag: "Freitage",
-  Samstag: "Samstage",
-  Sonntag: "Sonntage",
-};
-
 const LONG_MONTHS = {
   de: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
   en: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
 } as const;
 
 /** Course status from the linked page: a future «📅 Kursbeginn» on an online page = bookable. */
-function courseStatus(info: CourseInfo | undefined, lang: Lang): { active: boolean; dateLabel: string | null; sessions: string | null } {
-  const planning = { active: false, dateLabel: null, sessions: null };
+function courseStatus(info: CourseInfo | undefined, lang: Lang): { active: boolean; dateLabel: string | null } {
+  const planning = { active: false, dateLabel: null };
   if (!info || info.draft === true || !info.courseDate) return planning;
   const date = new Date(`${info.courseDate}T12:00:00`);
   const today = new Date();
@@ -945,20 +934,7 @@ function courseStatus(info: CourseInfo | undefined, lang: Lang): { active: boole
   const month = LONG_MONTHS[lang][date.getMonth()];
   const dateLabel =
     lang === "en" ? `from ${date.getDate()} ${month} ${date.getFullYear()}` : `ab ${date.getDate()}. ${month} ${date.getFullYear()}`;
-
-  const dates = (info.dates ?? []).filter(Boolean);
-  let sessions: string | null = null;
-  if (dates.length > 0) {
-    const weekdays = dates.map((d) => d.split(",")[0]?.trim() ?? "");
-    const sameWeekday = weekdays[0] !== "" && weekdays.every((w) => w === weekdays[0]);
-    if (sameWeekday) {
-      sessions =
-        lang === "en" ? `${dates.length} ${translateDay(weekdays[0])}s` : `${dates.length} ${WEEKDAY_PLURAL_DE[weekdays[0]] ?? "Termine"}`;
-    } else {
-      sessions = `${dates.length} ${lang === "en" ? "sessions" : "Termine"}`;
-    }
-  }
-  return { active: true, dateLabel, sessions };
+  return { active: true, dateLabel };
 }
 
 function GroupsTeaserBlock({ section, data, lang, id }: { section: BuilderSection; data: SharedData; lang: Lang; id?: string }) {
@@ -1011,14 +987,7 @@ function GroupsTeaserBlock({ section, data, lang, id }: { section: BuilderSectio
                     )}
                   </h3>
                   <p className="text-body text-foreground mt-3 leading-relaxed">
-                    {status.active ? (
-                      <>
-                        <span className="block font-medium">{status.dateLabel}</span>
-                        {status.sessions ? <span className="block text-foreground/70">{status.sessions}</span> : null}
-                      </>
-                    ) : (
-                      planningLabel
-                    )}
+                    {status.active ? <span className="font-medium">{status.dateLabel}</span> : planningLabel}
                   </p>
                   <div className="mt-auto pt-7">
                     <SmartLink href={href} className={status.active ? primaryBtnClass : secondaryBtnClass}>
