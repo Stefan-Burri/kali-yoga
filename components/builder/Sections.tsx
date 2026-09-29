@@ -6,6 +6,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import BuilderHero from "@/components/builder/Hero";
 import FaqItem from "@/components/FaqItem";
 import GallerySlider from "@/components/GallerySlider";
+import TestimonialSlider from "@/components/TestimonialSlider";
 import NewsletterForm from "@/components/NewsletterForm";
 import AnmeldungForm from "@/components/AnmeldungForm";
 import type { FormField } from "@/components/AnmeldungForm";
@@ -42,8 +43,8 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   variant?: "curved" | "simple" | "home" | "straight" | null;
   fullHeight?: boolean | null;
   subtitle?: string | null;
-  /* cardGridSection */
-  layout?: "grid-2" | "grid-3" | "grid-4" | "list" | "logos" | null;
+  /* cardGridSection · testimonialsSection ("grid" | "slider") */
+  layout?: "grid-2" | "grid-3" | "grid-4" | "list" | "logos" | "grid" | "slider" | null;
   cards?: BuilderCard[] | null;
   /* textSection */
   imagePaths?: string[] | null;
@@ -1066,6 +1067,7 @@ function ScheduleSectionBlock({ section, data, lang, id, asPageTitle = false }: 
 
 function TestimonialsSectionBlock({ section, id }: { section: BuilderSection; id?: string }) {
   const testimonials = section.testimonials ?? [];
+  const slider = section.layout === "slider";
   return (
     <SectionShell section={section} id={id}>
       {section.title && (
@@ -1074,11 +1076,25 @@ function TestimonialsSectionBlock({ section, id }: { section: BuilderSection; id
           <GoldLine />
         </>
       )}
-      {testimonials.length > 0 && (
+      {testimonials.length > 0 && slider && (
+        <div className="mt-10">
+          <TestimonialSlider
+            items={testimonials.map((t, i) => ({
+              key: t._key ?? String(i),
+              label: t.label ?? undefined,
+              headline: t.headline ?? undefined,
+              quote: t.quote ?? undefined,
+              name: t.name ?? undefined,
+            }))}
+          />
+        </div>
+      )}
+      {testimonials.length > 0 && !slider && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-14 mt-12">
           {testimonials.map((t, i) => (
             <TestimonialCard
               key={t._key ?? i}
+              label={t.label ?? undefined}
               headline={t.headline ?? undefined}
               quote={t.quote ?? undefined}
               name={t.name ?? undefined}

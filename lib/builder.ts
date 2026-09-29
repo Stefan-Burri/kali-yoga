@@ -81,6 +81,8 @@ export type AboutEntry = {
 
 export type InlineTestimonial = {
   _key?: string;
+  /** Small gold category tag above the quote, e.g. «Yogaklassen» or «Yoga Therapie». */
+  label?: string | null;
   headline?: string | null;
   quote?: string | null;
   name?: string | null;

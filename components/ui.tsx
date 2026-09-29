@@ -127,9 +127,24 @@ export function ScheduleGrid({
 
 /* ─── Testimonial Card ─── */
 
-export function TestimonialCard({ headline, quote, name }: { headline?: string; quote?: string; name?: string }) {
+export function TestimonialCard({
+  label,
+  headline,
+  quote,
+  name,
+}: {
+  label?: string;
+  headline?: string;
+  quote?: string;
+  name?: string;
+}) {
   return (
-    <div className="text-center flex flex-col items-center">
+    <div className="text-center flex flex-col items-center h-full">
+      {label && (
+        <span className="inline-block rounded-full border border-gold bg-gold/10 px-3.5 py-1 text-[0.7rem] font-semibold tracking-[0.16em] uppercase text-gold mb-5">
+          {label}
+        </span>
+      )}
       <div className="text-gold mb-4">
         <QuoteIcon />
       </div>
