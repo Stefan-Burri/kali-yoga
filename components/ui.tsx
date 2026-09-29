@@ -162,7 +162,7 @@ export function TestimonialCard({
           &laquo;{quote}&raquo;
         </p>
       )}
-      <p className="mt-4 text-body text-foreground">– {name} –</p>
+      <p className="mt-auto pt-4 text-body text-foreground">– {name} –</p>
     </div>
   );
 }
