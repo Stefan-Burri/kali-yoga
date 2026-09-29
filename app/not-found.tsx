@@ -13,9 +13,11 @@ export default function NotFound() {
         Diese Seite gibt es nicht oder nicht mehr. Vielleicht hilft dir die Startseite weiter.
       </p>
       <p className="mt-2 text-small text-foreground/60">This page could not be found.</p>
-      <Link href="/" className={`mt-8 ${primaryBtnClass} self-center`}>
-        Zur Startseite
-      </Link>
+      <div className="mt-8 flex justify-center">
+        <Link href="/" className={primaryBtnClass}>
+          Zur Startseite
+        </Link>
+      </div>
     </div>
   );
 }
