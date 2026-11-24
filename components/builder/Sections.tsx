@@ -78,11 +78,15 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   noReveal?: boolean;
 };
 
-/** One course card of the small-groups teaser (status comes from the linked course page). */
+/** One course card of the small-groups teaser (status comes from the linked course page).
+    Studio lists «Buttons wenn buchbar» / «Buttons wenn in Planung» (0–2 each); the
+    single-button fields are the pre-migration fallback. */
 type TeaserCourse = {
   _key?: string;
   title?: string | null;
   pageSlug?: string | null;
+  bookButtons?: SectionButton[] | null;
+  waitlistButtons?: SectionButton[] | null;
   bookLabel?: string | null;
   bookLink?: string | null;
   waitlistLabel?: string | null;
@@ -952,12 +956,15 @@ function GroupsTeaserBlock({ section, data, lang, id }: { section: BuilderSectio
               const status = courseStatus(info, lang);
               const pageOnline = Boolean(info && info.draft !== true);
               const pageHref = course.pageSlug ? (lang === "en" ? `/en/${course.pageSlug}` : `/${course.pageSlug}`) : null;
-              const href = status.active
-                ? course.bookLink || pageHref || contactHref
-                : course.waitlistLink || contactHref;
-              const label = status.active
-                ? course.bookLabel || (lang === "en" ? "Book course" : "Kurs buchen")
-                : course.waitlistLabel || (lang === "en" ? "Join waiting list" : "Auf die Warteliste");
+              /* Bookable: filled button(s); in planning: outlined button(s). Editors fill the
+                 Studio lists; otherwise the old single fields, otherwise the defaults. */
+              const buttons = status.active
+                ? sectionButtons({ buttons: course.bookButtons }, [
+                    { label: course.bookLabel || (lang === "en" ? "Book course" : "Kurs buchen"), href: course.bookLink || pageHref || contactHref, style: "primary" },
+                  ])
+                : sectionButtons({ buttons: course.waitlistButtons }, [
+                    { label: course.waitlistLabel || (lang === "en" ? "Join waiting list" : "Auf die Warteliste"), href: course.waitlistLink || contactHref, style: "secondary" },
+                  ]);
 
               return (
                 <article
@@ -981,12 +988,7 @@ function GroupsTeaserBlock({ section, data, lang, id }: { section: BuilderSectio
                   <p className="text-body text-foreground mt-3 leading-relaxed">
                     {status.active ? <span className="font-medium">{status.dateLabel}</span> : planningLabel}
                   </p>
-                  <div className="mt-auto pt-7">
-                    <SmartLink href={href} className={status.active ? primaryBtnClass : secondaryBtnClass}>
-                      {label}
-                      {!status.active && <ChevronRight />}
-                    </SmartLink>
-                  </div>
+                  <SectionButtons buttons={buttons} className="mt-auto pt-7" />
                 </article>
               );
             })}
