@@ -22,7 +22,7 @@ import {
   secondaryBtnClass,
   imageShadow,
 } from "@/components/ui";
-import type { CourseInfo, Lang, LogoItem, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, ScheduleItem, SectionButton, SectionCard, SharedData } from "@/lib/builder";
+import type { CourseInfo, Lang, LogoItem, NavigationDoc, PageSection, SanityFileRef, SanityImageRef, SanityLogoImage, ScheduleItem, SectionButton, SectionCard, SharedData } from "@/lib/builder";
 import { parseSwissDate } from "@/lib/schedule";
 
 /* ─── Widened section shapes ───
@@ -43,6 +43,8 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   variant?: "curved" | "simple" | "home" | "straight" | null;
   fullHeight?: boolean | null;
   subtitle?: string | null;
+  /** Studio «Animation hochladen» (Lottie JSON), resolved to its CDN URL. */
+  animationFile?: SanityFileRef;
   /* cardGridSection · testimonialsSection ("grid" | "slider") */
   layout?: "grid-2" | "grid-3" | "grid-4" | "list" | "logos" | "grid" | "slider" | null;
   cards?: BuilderCard[] | null;
@@ -1689,6 +1691,8 @@ export default function PageSections({
                   subtitle: section.subtitle,
                   text: section.text,
                   imagePath: section.imagePath,
+                  image: section.image,
+                  animationFile: section.animationFile,
                   buttons: section.buttons,
                   fullHeight: section.fullHeight,
                 }}
