@@ -20,16 +20,19 @@ export type HeroData =
     })
   | null;
 
-/** Bold subtitle line + optional text – shared by all hero variants. The text
-    hugs the subtitle (mt-4) when both are present. */
+/** One look for the hero subtitle on every variant: the serif display line in
+    primary purple used under the homepage animation («Deine Gesundheit aktiv
+    mitgestalten»). Rendered as h2 (the curved/straight title is the h1). */
+const heroSubtitleClass = "font-display text-h5 font-bold text-primary max-w-[768px] mx-auto leading-snug text-balance";
+
+/** Subtitle line + optional text – shared by all hero variants. The text
+    hugs the subtitle (mt-3) when both are present. */
 function HeroSubtitleText({ subtitle, text, textMargin }: { subtitle?: string | null; text?: string | null; textMargin: string }) {
   return (
     <>
-      {subtitle ? (
-        <p className={`${textMargin} text-h6 font-bold text-foreground max-w-[768px] mx-auto leading-relaxed`}>{subtitle}</p>
-      ) : null}
+      {subtitle ? <h2 className={`${textMargin} ${heroSubtitleClass}`}>{subtitle}</h2> : null}
       {text ? (
-        <p className={`${subtitle ? "mt-4" : textMargin} text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line`}>{text}</p>
+        <p className={`${subtitle ? "mt-3" : textMargin} text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line`}>{text}</p>
       ) : null}
     </>
   );
@@ -203,7 +206,7 @@ export default function BuilderHero({
             </div>
             {/* «Titel» (e.g. «Yoga und Yoga Therapie in Bern»): bold keyword line
                 under the animation – an h2, the curved title above is the h1. */}
-            <h2 className="mt-8 font-display text-h5 font-bold text-primary">{title}</h2>
+            <h2 className={`mt-8 ${heroSubtitleClass}`}>{title}</h2>
             {hero.text ? (
               <p className="mt-3 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
             ) : null}
