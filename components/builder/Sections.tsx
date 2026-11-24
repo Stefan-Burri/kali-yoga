@@ -45,6 +45,15 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   subtitle?: string | null;
   /** Studio «Animation hochladen» (Lottie JSON), resolved to its CDN URL. */
   animationFile?: SanityFileRef;
+  /* formSection: Studio overrides for the built-in texts (empty = default) */
+  eyebrow?: string | null;
+  fieldLabels?: FormFieldOverride[] | null;
+  submitLabel?: string | null;
+  successTitle?: string | null;
+  successMessage?: string | null;
+  errorMessage?: string | null;
+  privacyText?: string | null;
+  privacyLinkLabel?: string | null;
   /* cardGridSection · testimonialsSection ("grid" | "slider") */
   layout?: "grid-2" | "grid-3" | "grid-4" | "list" | "logos" | "grid" | "slider" | null;
   cards?: BuilderCard[] | null;
@@ -78,6 +87,15 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   courses?: TeaserCourse[] | null;
   /** Set by PageSections on legal pages: render without scroll-reveal. */
   noReveal?: boolean;
+};
+
+/** Studio list «Feld-Beschriftungen» on a formSection: renames one form field. */
+type FormFieldOverride = {
+  _key?: string;
+  /** Technical field key (name, email, phone, address, plz, klasse, teilnahme, message). */
+  field?: string | null;
+  label?: string | null;
+  placeholder?: string | null;
 };
 
 /** One course card of the small-groups teaser (status comes from the linked course page).
@@ -1603,6 +1621,12 @@ const FORM_CONFIGS: Record<Lang, Record<string, FormConfig>> = {
   en: FORM_CONFIGS_EN,
 };
 
+/** Studio text wins over the built-in default; an empty Studio field keeps the default. */
+function pick(studio: string | null | undefined, fallback: string | undefined): string | undefined {
+  const v = studio?.trim();
+  return v ? v : fallback;
+}
+
 function FormSectionBlock({ section, data, lang, id, asPageTitle = false }: { section: BuilderSection; data: SharedData; lang: Lang; id?: string; asPageTitle?: boolean }) {
   const config = FORM_CONFIGS[lang][section.form ?? ""];
   if (!config) return null;
@@ -1610,12 +1634,31 @@ function FormSectionBlock({ section, data, lang, id, asPageTitle = false }: { se
   const title = section.title ?? config.defaultTitle;
   const subtitle = section.subtitle ?? config.defaultSubtitle;
   const intro = section.intro ?? config.defaultIntro;
+  const eyebrow = pick(section.eyebrow, config.eyebrow);
+
+  /* Field names and placeholders: the Studio list «Feld-Beschriftungen» renames
+     fields by their technical key; the keys themselves (what the mail API gets)
+     never change. Button, privacy and confirmation texts: Studio value or default. */
+  const overrides = new Map((section.fieldLabels ?? []).filter((o) => o?.field).map((o) => [o.field as string, o]));
+  const fields = config.fields(data).map((f) => {
+    const o = overrides.get(f.name);
+    return o ? { ...f, label: pick(o.label, f.label) ?? f.label, placeholder: pick(o.placeholder, f.placeholder) } : f;
+  });
+  const strings: FormStrings = {
+    ...config.strings,
+    submitLabel: pick(section.submitLabel, config.strings?.submitLabel),
+    successTitle: pick(section.successTitle, config.strings?.successTitle),
+    successMessage: pick(section.successMessage, config.strings?.successMessage),
+    errorMessage: pick(section.errorMessage, config.strings?.errorMessage),
+    privacyText: pick(section.privacyText, config.strings?.privacyText),
+    privacyLinkLabel: pick(section.privacyLinkLabel, config.strings?.privacyLinkLabel),
+  };
 
   return (
     <SectionShell section={section} id={id}>
       {(title || subtitle || intro) && (
         <div className="text-center max-w-[768px] mx-auto mb-12">
-          {config.eyebrow && <p className="text-body text-foreground/60 uppercase tracking-wider mb-3">{config.eyebrow}</p>}
+          {eyebrow && <p className="text-body text-foreground/60 uppercase tracking-wider mb-3">{eyebrow}</p>}
           {title && (
             <>
               {asPageTitle ? (
@@ -1631,7 +1674,7 @@ function FormSectionBlock({ section, data, lang, id, asPageTitle = false }: { se
         </div>
       )}
 
-      <AnmeldungForm type={config.type} fields={config.fields(data)} {...config.strings} />
+      <AnmeldungForm type={config.type} fields={fields} {...strings} />
     </SectionShell>
   );
 }
