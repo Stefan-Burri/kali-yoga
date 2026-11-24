@@ -46,12 +46,20 @@ export type HeroButton = {
 /** Alias for the shared button list on non-hero sections (see `SectionButtons` in Sections.tsx). */
 export type SectionButton = HeroButton;
 
+/** Uploaded file (Studio «Animation hochladen»): resolved to its CDN URL by the page projection. */
+export type SanityFileRef = { asset?: { url?: string | null } | null } | null;
+
 export type Hero = {
   variant?: "curved" | "simple" | "home" | null;
   curvedTitle?: string | null;
   title?: string | null;
   text?: string | null;
+  /** Static file path (developer field «Bild-Datei»). */
   imagePath?: string | null;
+  /** Studio «Bild hochladen» – wins over imagePath; on the «home» variant it replaces the animation. */
+  image?: SanityImageRef;
+  /** Studio «Animation hochladen» (Lottie JSON) – wins over both images. */
+  animationFile?: SanityFileRef;
   buttons?: HeroButton[] | null;
 } | null;
 
@@ -270,7 +278,7 @@ export type SharedData = {
 // returns all their fields (variant, curvedTitle, title, text, imagePath) including
 // the inline `buttons[]{label, href, style}` array.
 // The document type implies the language: `page` is German, `pageEn` is English.
-const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, galleryImages[]{_key, asset->{url}}, logoImages[]{_key, "url": asset->url, "filename": asset->originalFilename}, logos[]{_key, label, imagePath, link, "url": image.asset->url, "filename": image.asset->originalFilename}, cards[]{..., image{asset->{url}}}, entries[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
+const PAGE_PROJECTION = `{title, language, hero, sections[]{..., image{asset->{url}}, animationFile{asset->{url}}, galleryImages[]{_key, asset->{url}}, logoImages[]{_key, "url": asset->url, "filename": asset->originalFilename}, logos[]{_key, label, imagePath, link, "url": image.asset->url, "filename": image.asset->originalFilename}, cards[]{..., image{asset->{url}}}, entries[]{..., image{asset->{url}}}}, translationSlug, seoTitle, seoDescription}`;
 
 // `draft != true` takes pages marked «🚧 Entwurf – Seite offline» in the Studio off the site.
 const PAGE_QUERY_DE = `*[_type == "page" && slug.current == $slug && draft != true][0]${PAGE_PROJECTION}`;

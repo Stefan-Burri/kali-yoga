@@ -135,6 +135,12 @@ export default function BuilderHero({
      Im gebogenen Hero braucht es zudem einen kleineren Hochzug unter den
      Titelbogen, sonst klebt es an der Überschrift (andere Icons bringen
      eigenen Leerraum oben mit). */
+  /* Visual priority: uploaded Lottie file → uploaded image → static image path.
+     The «home» variant falls back to the built-in balance animation. */
+  const animationSrc = hero.animationFile?.asset?.url ?? null;
+  const uploadedImage = hero.image?.asset?.url ?? null;
+  const imageSrc = animationSrc ? null : (uploadedImage ?? hero.imagePath ?? null);
+  const remoteImage = Boolean(uploadedImage);
   const isStonesIcon = Boolean(hero.imagePath?.includes("stones"));
   /* Randlose Bilder (Steine-Icon, rundes Porträt) brauchen unten zusätzlichen
      Abstand zum Text, damit die Lücke gleich gross wirkt wie bei Icons mit
@@ -182,7 +188,18 @@ export default function BuilderHero({
           <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
             <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} small />
             <div className="mt-8 sm:mt-0 lg:-mt-28">
-              <HeroLottie />
+              {imageSrc ? (
+                <Image
+                  src={imageSrc}
+                  alt={title}
+                  width={380}
+                  height={380}
+                  unoptimized={remoteImage}
+                  className="w-[250px] h-[250px] sm:w-[320px] sm:h-[320px] lg:w-[380px] lg:h-[380px] object-contain"
+                />
+              ) : (
+                <HeroLottie src={animationSrc} />
+              )}
             </div>
             {/* «Titel» (e.g. «Yoga und Yoga Therapie in Bern»): bold keyword line
                 under the animation – an h2, the curved title above is the h1. */}
@@ -212,13 +229,18 @@ export default function BuilderHero({
             ) : (
               <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} viewBox="-50 0 700 280" />
             )}
-            {hero.imagePath ? (
+            {animationSrc ? (
+              <div className="mt-6">
+                <HeroLottie src={animationSrc} />
+              </div>
+            ) : imageSrc ? (
               <div className="mt-6">
                 <Image
-                  src={hero.imagePath}
+                  src={imageSrc}
                   alt={title}
                   width={320}
                   height={320}
+                  unoptimized={remoteImage}
                   className={heroIconClass}
                 />
               </div>
@@ -245,13 +267,18 @@ export default function BuilderHero({
             <h1 className="font-display text-h1 font-bold text-primary w-full max-w-[960px] text-balance">
               {title}
             </h1>
-            {hero.imagePath ? (
+            {animationSrc ? (
+              <div className="mt-6 sm:mt-8 lg:mt-10">
+                <HeroLottie src={animationSrc} />
+              </div>
+            ) : imageSrc ? (
               <div className="mt-6 sm:mt-8 lg:mt-10">
                 <Image
-                  src={hero.imagePath}
+                  src={imageSrc}
                   alt={title}
                   width={200}
                   height={200}
+                  unoptimized={remoteImage}
                   className={heroIconClass}
                 />
               </div>
@@ -275,13 +302,18 @@ export default function BuilderHero({
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-[768px] mx-auto flex flex-col items-center text-center">
           <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} />
-          {hero.imagePath ? (
+          {animationSrc ? (
+            <div className={curvedIconPull}>
+              <HeroLottie src={animationSrc} />
+            </div>
+          ) : imageSrc ? (
             <div className={curvedIconPull}>
               <Image
-                src={hero.imagePath}
+                src={imageSrc}
                 alt={title}
                 width={320}
                 height={320}
+                unoptimized={remoteImage}
                 className={heroIconClass}
               />
             </div>

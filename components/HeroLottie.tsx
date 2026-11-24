@@ -22,16 +22,22 @@ type LottieModule = {
    ersten Seitenaufbau geladen (requestIdleCallback). So blockieren sie weder
    das grösste Element (LCP) noch den Haupt-Thread beim Start – Kernpunkt der
    PageSpeed-Optimierung der Startseite. */
-export default function HeroLottie() {
+export default function HeroLottie({ src }: { src?: string | null } = {}) {
   const [mod, setMod] = useState<LottieModule | null>(null);
   const lottieRef = useRef<LottieRefCurrentProps>(null);
 
   useEffect(() => {
     let cancelled = false;
 
+    /* `src` = eine im Studio hochgeladene Lottie-JSON-Datei (Sanity-CDN);
+       ohne src die eingebaute Balance-Animation. */
+    const animationData = src
+      ? fetch(src).then((r) => r.json())
+      : import("@/public/images/balance.json").then((m) => m.default);
+
     const load = () => {
-      Promise.all([import("lottie-react"), import("@/public/images/balance.json")]).then(([lottie, animation]) => {
-        if (!cancelled) setMod({ Lottie: lottie.default as LottieModule["Lottie"], data: animation.default });
+      Promise.all([import("lottie-react"), animationData]).then(([lottie, animation]) => {
+        if (!cancelled) setMod({ Lottie: lottie.default as LottieModule["Lottie"], data: animation });
       });
     };
 
@@ -47,7 +53,7 @@ export default function HeroLottie() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, []);
+  }, [src]);
 
   useEffect(() => {
     lottieRef.current?.setSpeed(0.2);
