@@ -62,36 +62,33 @@ function HeroButtons({ buttons }: { buttons?: HeroButton[] | null }) {
   );
 }
 
-/* ─── Curved-title SVG (shared by curved + home variants) ───
-   Full-height heroes crop the viewBox to "-50 75 700 205" so the image can
-   overlap the arc; the compact (legal-page) hero keeps the original
-   "-50 0 700 280" box. When `title` is set an sr-only h1 is rendered. */
+/* ─── Curved title = the page's H1 (shared by curved + home variants) ───
+   The <h1> wraps the curved text itself: a plain centred line on phones and
+   the SVG arc from `sm` up. Only one of the two is displayed at a time, so
+   screen readers and Google see the title exactly once. Full-height heroes
+   crop the viewBox to "-50 75 700 205" so the image can overlap the arc;
+   the compact (legal-page) hero keeps the original "-50 0 700 280" box. */
 
 function CurvedTitle({
   curvedTitle,
-  title,
   pathId,
   viewBox = "-50 75 700 205",
   small = false,
 }: {
   curvedTitle: string;
-  title?: string;
   pathId: string;
   viewBox?: string;
   /** Slightly smaller lettering (homepage «Yoga for Every Body»). */
   small?: boolean;
 }) {
   return (
-    <>
-      <p aria-hidden="true" className={`sm:hidden font-display ${small ? "text-h3" : "text-h1"} font-bold text-primary text-center mb-6`}>
+    <h1 className="w-full flex flex-col items-center">
+      <span className={`sm:hidden font-display ${small ? "text-h3" : "text-h1"} font-bold text-primary text-center mb-6`}>
         {curvedTitle}
-      </p>
-      {title !== undefined ? <h1 className="sr-only">{title}</h1> : null}
+      </span>
       <svg
         viewBox={viewBox}
         className="w-[600px] sm:w-full sm:max-w-[800px] lg:w-[1060px] lg:max-w-none h-auto hidden sm:block"
-        role="img"
-        aria-label={curvedTitle}
       >
         <defs>
           <path id={pathId} d="M 0,280 Q 300,-10 600,280" fill="none" />
@@ -102,7 +99,7 @@ function CurvedTitle({
           </textPath>
         </text>
       </svg>
-    </>
+    </h1>
   );
 }
 
@@ -187,7 +184,9 @@ export default function BuilderHero({
             <div className="mt-8 sm:mt-0 lg:-mt-28">
               <HeroLottie />
             </div>
-            <h1 className="mt-8 font-display text-h5 font-bold text-primary">{title}</h1>
+            {/* «Titel» (e.g. «Yoga und Yoga Therapie in Bern»): bold keyword line
+                under the animation – an h2, the curved title above is the h1. */}
+            <h2 className="mt-8 font-display text-h5 font-bold text-primary">{title}</h2>
             {hero.text ? (
               <p className="mt-3 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed whitespace-pre-line">{hero.text}</p>
             ) : null}
@@ -211,7 +210,7 @@ export default function BuilderHero({
             {variant === "straight" ? (
               <h1 className="font-display text-h1 font-bold text-primary w-full max-w-[960px] text-balance">{title}</h1>
             ) : (
-              <CurvedTitle curvedTitle={curvedTitle} title={title} pathId={pathId} viewBox="-50 0 700 280" />
+              <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} viewBox="-50 0 700 280" />
             )}
             {hero.imagePath ? (
               <div className="mt-6">
@@ -275,7 +274,7 @@ export default function BuilderHero({
       ) : null}
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="max-w-[768px] mx-auto flex flex-col items-center text-center">
-          <CurvedTitle curvedTitle={curvedTitle} title={title} pathId={pathId} />
+          <CurvedTitle curvedTitle={curvedTitle} pathId={pathId} />
           {hero.imagePath ? (
             <div className={curvedIconPull}>
               <Image

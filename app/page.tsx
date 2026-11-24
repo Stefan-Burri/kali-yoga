@@ -253,27 +253,29 @@ async function LegacyHome({
         <HeroNavbar nav={nav} />
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
         <div className="relative max-w-[768px] mx-auto flex flex-col items-center">
-          {/* Curved text */}
-          <p aria-hidden="true" className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">{curvedTitle}</p>
-          <svg viewBox="-50 75 700 205" className="w-[600px] sm:w-[800px] lg:w-[1060px] h-auto hidden sm:block" role="img" aria-label={curvedTitle}>
-            <defs>
-              <path id="curve" d="M 0,280 Q 300,-10 600,280" fill="none" />
-            </defs>
-            <text className="fill-primary font-display" style={{ fontSize: "54px", fontWeight: 700 }}>
-              <textPath href="#curve" startOffset="50%" textAnchor="middle">
-                {curvedTitle}
-              </textPath>
-            </text>
-          </svg>
+          {/* Curved text = the page's h1 (plain line on phones, SVG arc from sm up) */}
+          <h1 className="w-full flex flex-col items-center">
+            <span className="sm:hidden font-display text-h2 font-bold text-primary text-center mb-6">{curvedTitle}</span>
+            <svg viewBox="-50 75 700 205" className="w-[600px] sm:w-[800px] lg:w-[1060px] h-auto hidden sm:block">
+              <defs>
+                <path id="curve" d="M 0,280 Q 300,-10 600,280" fill="none" />
+              </defs>
+              <text className="fill-primary font-display" style={{ fontSize: "54px", fontWeight: 700 }}>
+                <textPath href="#curve" startOffset="50%" textAnchor="middle">
+                  {curvedTitle}
+                </textPath>
+              </text>
+            </svg>
+          </h1>
 
           {/* Lottie animation */}
           <div className="mt-8 sm:mt-0 lg:-mt-28">
             <HeroLottie />
           </div>
 
-          <h1 className="mt-8 font-display text-h5 font-bold text-primary">
+          <h2 className="mt-8 font-display text-h5 font-bold text-primary">
             {heroTitle}
-          </h1>
+          </h2>
           <p className="mt-3 text-h6 text-foreground max-w-[768px] mx-auto leading-relaxed">
             {heroSubtitle}
           </p>
