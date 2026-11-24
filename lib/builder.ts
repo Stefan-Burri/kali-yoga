@@ -34,12 +34,17 @@ export type LogoItem = {
   link?: string | null;
 } | null;
 
+/** One entry of the Studio list «Buttons (optional, max. 2)» – used by the hero
+    and by every section with a call to action (same shape everywhere). */
 export type HeroButton = {
   _key?: string;
   label?: string | null;
   href?: string | null;
   style?: "primary" | "secondary" | null;
 };
+
+/** Alias for the shared button list on non-hero sections (see `SectionButtons` in Sections.tsx). */
+export type SectionButton = HeroButton;
 
 export type Hero = {
   variant?: "curved" | "simple" | "home" | null;
@@ -75,6 +80,9 @@ export type AboutEntry = {
   body?: unknown[] | null;
   image?: SanityImageRef;
   imagePath?: string | null;
+  /** Studio list «Buttons (optional, max. 2)». */
+  buttons?: SectionButton[] | null;
+  /** @deprecated single-button fields, replaced by `buttons` (kept as fallback). */
   buttonLabel?: string | null;
   buttonLink?: string | null;
 };
@@ -104,7 +112,8 @@ export type PageSection = {
   /* heroSection (also uses title, text, imagePath below; has no appearance) */
   variant?: "curved" | "simple" | "home" | null;
   curvedTitle?: string | null;
-  buttons?: HeroButton[] | null;
+  /** Studio list «Buttons (optional, max. 2)» – on the hero and on every section with a call to action. */
+  buttons?: SectionButton[] | null;
   /* textSection */
   title?: string | null;
   body?: unknown[] | null;
@@ -115,6 +124,7 @@ export type PageSection = {
   logoImages?: SanityLogoImage[] | null;
   /** Logo row with optional links (replaces logoPaths + logoImages when present). */
   logos?: LogoItem[] | null;
+  /** @deprecated single-button fields of older documents (replaced by `buttons`). */
   buttonLabel?: string | null;
   buttonLink?: string | null;
   entries?: AboutEntry[] | null;
@@ -125,7 +135,7 @@ export type PageSection = {
   /* quoteSection */
   quoteText?: string | null;
   quoteAuthor?: string | null;
-  /* scheduleSection / pricingSection / courseDetailsSection */
+  /* scheduleSection: button on every schedule card · pricingSection / courseDetailsSection: @deprecated (replaced by `buttons`) */
   ctaLabel?: string | null;
   ctaHref?: string | null;
   /* testimonialsSection (inline; the old `category` field is ignored) */

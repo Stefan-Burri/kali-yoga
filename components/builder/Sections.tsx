@@ -22,7 +22,7 @@ import {
   secondaryBtnClass,
   imageShadow,
 } from "@/components/ui";
-import type { CourseInfo, Lang, LogoItem, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, ScheduleItem, SectionCard, SharedData } from "@/lib/builder";
+import type { CourseInfo, Lang, LogoItem, NavigationDoc, PageSection, SanityImageRef, SanityLogoImage, ScheduleItem, SectionButton, SectionCard, SharedData } from "@/lib/builder";
 import { parseSwissDate } from "@/lib/schedule";
 
 /* ─── Widened section shapes ───
@@ -74,9 +74,6 @@ type BuilderSection = Omit<PageSection, "variant" | "layout" | "cards"> & {
   howTitle?: string | null;
   howBody?: unknown[] | null;
   courses?: TeaserCourse[] | null;
-  /* noteSection */
-  linkLabel?: string | null;
-  linkHref?: string | null;
   /** Set by PageSections on legal pages: render without scroll-reveal. */
   noReveal?: boolean;
 };
@@ -305,6 +302,39 @@ function SmartLink({ href, className, children }: { href: string; className: str
   );
 }
 
+/* ─── Studio list «Buttons (optional, max. 2)» ───
+   Every section with a call to action carries the same `buttons[]` list as the
+   hero: label, link and style (primary = filled, secondary = outlined with the
+   chevron the site uses for «Mehr erfahren ›»). Editors add 0–2 entries.
+   Older documents still carry single-button fields (buttonLabel, ctaLabel,
+   moreLabel …); they are passed in as `legacy` and only used while the new
+   list is empty, so nothing disappears before the content is migrated. */
+
+type LegacyButton = { label?: string | null; href?: string | null; style: "primary" | "secondary" };
+
+function sectionButtons(source: { buttons?: SectionButton[] | null }, legacy: LegacyButton[] = []): SectionButton[] {
+  const list = (source.buttons ?? []).filter((b): b is SectionButton => Boolean(b && b.label));
+  if (list.length > 0) return list.slice(0, 2);
+  return legacy.filter((b) => b.label && b.href).map((b, i) => ({ _key: `legacy-${i}`, label: b.label, href: b.href, style: b.style }));
+}
+
+function SectionButtons({ buttons, align = "left", className = "" }: { buttons: SectionButton[]; align?: "left" | "center"; className?: string }) {
+  if (buttons.length === 0) return null;
+  return (
+    <div className={`flex flex-wrap items-center gap-4${align === "center" ? " justify-center" : ""}${className ? ` ${className}` : ""}`}>
+      {buttons.map((btn, i) => {
+        const secondary = btn.style === "secondary";
+        return (
+          <SmartLink key={btn._key ?? `${btn.label}-${i}`} href={btn.href || "#"} className={secondary ? secondaryBtnClass : primaryBtnClass}>
+            {btn.label}
+            {secondary && <ChevronRight />}
+          </SmartLink>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ─── textSection ─── */
 
 function TextSection({ section, id }: { section: BuilderSection; id?: string }) {
@@ -344,12 +374,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch">
             <div className="space-y-5 text-body text-foreground leading-[1.8]">
               <Body value={section.body} />
-              {section.buttonLabel && section.buttonLink && (
-                <SmartLink href={section.buttonLink} className={secondaryBtnClass}>
-                  {section.buttonLabel}
-                  <ChevronRight />
-                </SmartLink>
-              )}
+              <SectionButtons buttons={sectionButtons(section, [{ label: section.buttonLabel, href: section.buttonLink, style: "secondary" }])} />
             </div>
             {/* Gallery matches the text column height: the large image absorbs
                 the difference (lg:flex-1), the small pair keeps its aspect. */}
@@ -394,8 +419,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
         remote: Boolean(sanityUrl),
         title: section.title,
         body: section.body,
-        buttonLabel: section.buttonLabel,
-        buttonLink: section.buttonLink,
+        buttons: sectionButtons(section, [{ label: section.buttonLabel, href: section.buttonLink, style: "secondary" }]),
       },
       ...entries.map((e, i) => {
         const entryUrl = e.image?.asset?.url ?? null;
@@ -405,8 +429,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
           remote: Boolean(entryUrl),
           title: e.title,
           body: e.body,
-          buttonLabel: e.buttonLabel,
-          buttonLink: e.buttonLink,
+          buttons: sectionButtons(e, [{ label: e.buttonLabel, href: e.buttonLink, style: "secondary" }]),
         };
       }),
     ];
@@ -433,12 +456,7 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
                 <div className="mt-4">
                   <Body value={row.body} />
                 </div>
-                {row.buttonLabel && row.buttonLink && (
-                  <SmartLink href={row.buttonLink} className={`mt-6 ${secondaryBtnClass}`}>
-                    {row.buttonLabel}
-                    <ChevronRight />
-                  </SmartLink>
-                )}
+                <SectionButtons buttons={row.buttons} className="mt-6" />
               </div>
             </div>
           ))}
@@ -462,13 +480,11 @@ function TextSection({ section, id }: { section: BuilderSection; id?: string }) 
           <Body value={section.body} components={section.listStyle === "check" ? checkPtComponents : undefined} />
         </div>
         <LogoRow logos={logos} className="mt-10" />
-        {section.buttonLabel && section.buttonLink && (
-          <div className={alignLeft ? "mt-8" : "flex justify-center mt-8"}>
-            <SmartLink href={section.buttonLink} className={primaryBtnClass}>
-              {section.buttonLabel}
-            </SmartLink>
-          </div>
-        )}
+        <SectionButtons
+          buttons={sectionButtons(section, [{ label: section.buttonLabel, href: section.buttonLink, style: "primary" }])}
+          align={alignLeft ? "left" : "center"}
+          className="mt-8"
+        />
       </div>
     </SectionShell>
   );
@@ -636,6 +652,8 @@ function CardGridSection({
           </div>
         )}
 
+        <SectionButtons buttons={sectionButtons(section)} align="center" className="mt-10" />
+
         {cta && (
           <div className="mt-10 text-center">
             {cta.text && (
@@ -646,14 +664,11 @@ function CardGridSection({
                 <Body value={cta.body} />
               </div>
             )}
-            {cta.buttonLabel && (
-              <SmartLink
-                href={cta.buttonLink ?? (lang === "en" ? "/en/contact" : "/kontakt")}
-                className={`mt-6 ${primaryBtnClass} mx-auto`}
-              >
-                {cta.buttonLabel}
-              </SmartLink>
-            )}
+            <SectionButtons
+              buttons={sectionButtons(cta, [{ label: cta.buttonLabel, href: cta.buttonLink ?? (lang === "en" ? "/en/contact" : "/kontakt"), style: "primary" }])}
+              align="center"
+              className="mt-6"
+            />
           </div>
         )}
       </div>
@@ -694,16 +709,6 @@ const arrowLinkClass =
 function ArrowLink({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
   return (
     <SmartLink href={href} className={`${arrowLinkClass}${className ? ` ${className}` : ""}`}>
-      {children}
-      <ChevronRight />
-    </SmartLink>
-  );
-}
-
-/** «Weiterführend»-Link as the site's outlined secondary button. */
-function MoreButton({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
-  return (
-    <SmartLink href={href} className={`${secondaryBtnClass}${className ? ` ${className}` : ""}`}>
       {children}
       <ChevronRight />
     </SmartLink>
@@ -777,11 +782,7 @@ function ClassesTeaserBlock({ section, data, lang, id }: { section: BuilderSecti
             {section.title && <h2 className={`font-display text-h2 font-bold text-primary${section.iconPath ? " mt-6" : ""}`}>{section.title}</h2>}
             <GoldLine centered={false} />
             <Body value={section.body} />
-            {section.moreLabel && section.moreLink && (
-              <div className="mt-8">
-                <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>
-              </div>
-            )}
+            <SectionButtons buttons={sectionButtons(section, [{ label: section.moreLabel, href: section.moreLink, style: "secondary" }])} className="mt-8" />
           </div>
 
           <aside className="lg:col-span-5 rounded-[16px] border-2 border-primary p-6 sm:p-8 lg:mt-4">
@@ -828,7 +829,10 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
   const ctaHref = section.ctaHref || (lang === "en" ? "/en/registration-yoga-therapy" : "/anmeldung-yogatherapie");
   const hasTopicsBox = Boolean(section.topicsTitle) || topics.length > 0 || Boolean(section.topicsLinkLabel && section.topicsLink);
   const hasHow = Boolean(section.howTitle) || (Array.isArray(section.howBody) && section.howBody.length > 0);
-  const hasButtons = Boolean(section.ctaLabel) || Boolean(section.moreLabel && section.moreLink);
+  const buttons = sectionButtons(section, [
+    { label: section.ctaLabel, href: ctaHref, style: "primary" },
+    { label: section.moreLabel, href: section.moreLink, style: "secondary" },
+  ]);
 
   return (
     <SectionShell section={section} id={id}>
@@ -850,16 +854,7 @@ function TherapyTeaserBlock({ section, lang, id }: { section: BuilderSection; la
                 <Body value={section.howBody} />
               </div>
             )}
-            {hasButtons && (
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                {section.ctaLabel && (
-                  <SmartLink href={ctaHref} className={primaryBtnClass}>
-                    {section.ctaLabel}
-                  </SmartLink>
-                )}
-                {section.moreLabel && section.moreLink && <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>}
-              </div>
-            )}
+            <SectionButtons buttons={buttons} className="mt-8" />
           </div>
 
           {hasTopicsBox && (
@@ -908,11 +903,7 @@ function NoteSectionBlock({ section, id }: { section: BuilderSection; id?: strin
         <div className="text-foreground/85">
           <Body value={section.body} />
         </div>
-        {section.linkLabel && section.linkHref && (
-          <div className="mt-6">
-            <ArrowLink href={section.linkHref}>{section.linkLabel}</ArrowLink>
-          </div>
-        )}
+        <SectionButtons buttons={sectionButtons(section)} align="center" className="mt-6" />
       </div>
     </SectionShell>
   );
@@ -1002,11 +993,7 @@ function GroupsTeaserBlock({ section, data, lang, id }: { section: BuilderSectio
           </div>
         )}
 
-        {section.moreLabel && section.moreLink && (
-          <div className="mt-10 flex justify-center">
-            <MoreButton href={section.moreLink}>{section.moreLabel}</MoreButton>
-          </div>
-        )}
+        <SectionButtons buttons={sectionButtons(section, [{ label: section.moreLabel, href: section.moreLink, style: "secondary" }])} align="center" className="mt-10" />
       </div>
     </SectionShell>
   );
@@ -1059,6 +1046,7 @@ function ScheduleSectionBlock({ section, data, lang, id, asPageTitle = false }: 
         ctaLabel={section.ctaLabel ?? (lang === "en" ? "Sign Up" : "Anmelden")}
         ctaHref={section.ctaHref ?? (lang === "en" ? "/en/registration-yoga-class" : "/anmeldung-yoga-klasse")}
       />
+      <SectionButtons buttons={sectionButtons(section)} align="center" className="mt-10" />
     </SectionShell>
   );
 }
@@ -1130,13 +1118,13 @@ function PricingSectionBlock({ section, lang, id }: { section: BuilderSection; l
         <p className="mt-8 text-small text-foreground/70 leading-relaxed text-center">{section.note}</p>
       )}
 
-      {section.ctaLabel && (
-        <div className="flex justify-center mt-8">
-          <SmartLink href={section.ctaHref ?? (lang === "en" ? "/en/registration-yoga-class" : "/anmeldung-yoga-klasse")} className={primaryBtnClass}>
-            {section.ctaLabel}
-          </SmartLink>
-        </div>
-      )}
+      <SectionButtons
+        buttons={sectionButtons(section, [
+          { label: section.ctaLabel, href: section.ctaHref ?? (lang === "en" ? "/en/registration-yoga-class" : "/anmeldung-yoga-klasse"), style: "primary" },
+        ])}
+        align="center"
+        className="mt-8"
+      />
 
       {(section.paymentTitle || section.paymentText) && (
         <div className="mt-8 pt-6 border-t border-foreground/10 text-center">
@@ -1219,11 +1207,7 @@ function CourseDetailsSectionBlock({ section, lang, id }: { section: BuilderSect
         </div>
       ) : null}
 
-      {section.ctaLabel && section.ctaHref && (
-        <div className="flex justify-center mt-8">
-          <SmartLink href={section.ctaHref} className={primaryBtnClass}>{section.ctaLabel}</SmartLink>
-        </div>
-      )}
+      <SectionButtons buttons={sectionButtons(section, [{ label: section.ctaLabel, href: section.ctaHref, style: "primary" }])} align="center" className="mt-8" />
     </SectionShell>
   );
 }
@@ -1357,13 +1341,11 @@ function CtaSectionBlock({ section, lang, id }: { section: BuilderSection; lang:
           </>
         )}
         {section.text && <p className="mt-4 text-body text-foreground leading-relaxed">{section.text}</p>}
-        {section.buttonLabel && (
-          <div className="flex justify-center mt-8">
-            <SmartLink href={section.buttonLink ?? (lang === "en" ? "/en/contact" : "/kontakt")} className={primaryBtnClass}>
-              {section.buttonLabel}
-            </SmartLink>
-          </div>
-        )}
+        <SectionButtons
+          buttons={sectionButtons(section, [{ label: section.buttonLabel, href: section.buttonLink ?? (lang === "en" ? "/en/contact" : "/kontakt"), style: "primary" }])}
+          align="center"
+          className="mt-8"
+        />
       </div>
     </SectionShell>
   );
